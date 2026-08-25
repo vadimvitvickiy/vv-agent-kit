@@ -1,0 +1,3 @@
+
+# Agent session data — disposable by construction; anything durable is promoted into .claude/context/
+.agents/
