@@ -43,6 +43,30 @@ information is derivable, so it is duplicated; being duplicated, it drifts.
 Know what you are looking for before opening a file. On anything large, locate the section first
 rather than reading it whole.
 
+## History answers "why is this here"
+
+Grep tells you what the code is. History tells you why, and it is the only source that does — the
+alternative is guessing at intent and calling it context.
+
+| Question | Command |
+|-|-|
+| When did this string, flag or symbol appear or disappear? | `git log -S'<text>' --oneline` |
+| How did this specific function change over time? | `git log -L :<function>:<file>` |
+| Who last touched this line, and in what change? | `git blame -w -C <file>` |
+| Which change first broke this? | `git bisect run <predicate>` |
+
+Two traps worth knowing before you trust the answer:
+
+- **Blame points at the last toucher, not the author of the logic.** A reformat, a rename, or a
+  license header sweep resets it for the whole file. `-w` ignores whitespace and `-C` follows code
+  moved between files; without them you will attribute a decision to whoever ran the formatter.
+- **Bisect names the commit that exposed a defect, not always the one that introduced it** — see
+  `vvkit:debugging-systematically`. Automate the predicate rather than judging each step by eye; a
+  hand-classified bisect lands on a wrong answer without ever announcing that it did.
+
+A commit message that explains a constraint is worth more than the architecture note that paraphrased
+it, because it is dated and attached to the change that made it true.
+
 ## When a map or doc contradicts the code
 
 **The code wins, every time.** Then fix the artifact in the same change:

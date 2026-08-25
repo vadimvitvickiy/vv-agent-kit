@@ -8,6 +8,11 @@ description: Use when creating or editing a Swift type — member ordering, file
 **REQUIRED BACKGROUND:** `vvkit:writing-comments` — comment limits and doc-comment rules live there and
 are not repeated here.
 
+**Where the project has an established convention, follow the project.** A file consistent with the
+one beside it is worth more than a file consistent with this document, and a diff that reorders
+existing members to match a house style it never used is noise wrapped around whatever it was
+supposed to change. What follows is the default for new code and for projects that have not decided.
+
 ## Canonical member order
 
 One layout, top to bottom, for every type:

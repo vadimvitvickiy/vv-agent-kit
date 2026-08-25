@@ -7,7 +7,11 @@ silently inherited by every project that installs it.
 
 ```bash
 ./scripts/validate.sh
+claude plugin validate . --strict
 ```
+
+Both must exit 0. `validate.sh` covers the semantic rules; `claude plugin validate` is the same
+structural check the community marketplace runs on submission.
 
 Exit 0 is required. If a change touches `validate.sh` itself, also run
 `./scripts/validate.sh tests/fixtures` and confirm it still exits 1 with eight violations — a
@@ -61,7 +65,7 @@ discovered** — the directory looks correct and does nothing.
 a bare `/hooks/...` path.
 
 A hook that can block a turn must be **opt-in**. `test-gate.sh` is registered for every project but
-exits immediately unless that project sets `KIT_TEST_COMMAND`. A blocking gate inherited by a project
+exits immediately unless that project has an executable `scripts/test.sh` or sets `KIT_TEST_COMMAND`. A blocking gate inherited by a project
 that never asked for it gets the whole plugin disabled.
 
 Fail open, always. `set -uo pipefail`, and any unexpected condition exits 0 — a bug in a hook must
@@ -73,6 +77,12 @@ Verify each hook survives garbage:
 ```bash
 echo 'not json' | ./hooks/<name>.sh; echo "exit=$?"   # must be 0
 ```
+
+## Versioning
+
+`version` lives in `.claude-plugin/plugin.json` only. Set in both the manifest and the marketplace
+entry, Claude Code silently prefers the manifest — the marketplace value is never read, so a bump
+there looks applied and is not.
 
 ## Commits
 
