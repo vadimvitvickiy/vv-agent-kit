@@ -4,6 +4,23 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] — 2026-08-25
+
+### Fixed
+
+- `scripts/test.sh` reported the wrong test count whenever a scheme had more than one test bundle.
+  It took the maximum of the per-bundle summary lines rather than the sum, so a run of 62 tests
+  across two bundles reported 33 — which reads as a smaller suite, not as a bug. It now reads
+  `totalTestCount` from the result bundle, as `verifying-changes` says to; the log grep survives only
+  as a fallback, and sums.
+
+### Added
+
+- `swift-testing`: the `-only-testing` identifier trap. `@Suite("...")` and `@Test("...")` set a
+  display name, and that is what the log prints, but `-only-testing` matches the Swift identifier.
+  A filter copied from the log matches nothing, and `xcodebuild` then runs zero tests and exits 0 —
+  a wrong identifier is indistinguishable from a suite that passed.
+
 ## [0.4.0] — 2026-08-25
 
 ### Added

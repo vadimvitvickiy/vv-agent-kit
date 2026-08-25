@@ -79,6 +79,37 @@ Strictly in this order. Move down only when the tool above genuinely cannot expr
    and unwrap with `try #require` afterwards. Scale deadlines with an environment knob rather than
    editing timeouts into tests.
 
+## Running a subset: the name in the output is not the identifier
+
+`@Suite("...")` and `@Test("...")` take a **display name**. It is what the test log prints and the
+only name most readers ever see — and it is not what `-only-testing` matches. That takes the Swift
+identifier: the type for a suite, the function including its parentheses for a test.
+
+```swift
+@Suite("Currency")            // display name — appears in the log
+struct CurrencyTests {        // ← this is what -only-testing needs
+    @Test("currency codes compare case-insensitively")
+    func codeComparisonIgnoresCase() { ... }   // ← and this
+}
+```
+
+| Scope | Identifier |
+|-|-|
+| Whole bundle | `MoonoCoreTests` |
+| One suite | `MoonoCoreTests/CurrencyTests` |
+| One test | `MoonoCoreTests/CurrencyTests/codeComparisonIgnoresCase()` |
+
+Copying the display name out of the log produces a filter that matches nothing. **`xcodebuild` then
+runs zero tests and exits 0** — the filter is not validated, so a wrong identifier is indistinguishable
+from a suite that passed. Nothing in the output says the name was never found.
+
+So a subset run is only meaningful if you **read the count**. A test script that does not fail on a
+zero count will report success for a filter that selected nothing, on every run, forever. See
+`vvkit:verifying-changes`.
+
+Where a suite is nested in a type, the path follows the types, not the display names. When in doubt,
+take the identifier from the source rather than the log.
+
 ## Watchdogs
 
 Swift Testing's `.timeLimit` **cannot catch a cooperative-pool deadlock.** It is minutes-only, and

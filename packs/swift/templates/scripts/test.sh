@@ -130,12 +130,30 @@ else
 fi
 STATUS=$?
 
-# Counts come from the RAW log, never the formatter: xcpretty silently drops all
-# Swift Testing output. XCTest and Swift Testing report differently, so read both.
-count_of() { grep -oE "$1" "$LOG" 2>/dev/null | grep -oE '[0-9]+' | sort -rn | head -1; }
-XCTEST_N="$(count_of 'Executed [0-9]+ test')"
-SWITEST_N="$(count_of 'Test run with [0-9]+ test')"
-TOTAL=$(( ${XCTEST_N:-0} + ${SWITEST_N:-0} ))
+# The result bundle is the only authoritative count. Every log-derived number is
+# a heuristic over text that changes shape with the runner, the formatter, and
+# the number of bundles in the run — a scheme with two test targets prints one
+# summary line per target, and there is no reliable way to tell those apart from
+# a per-suite line by grepping.
+TOTAL=""
+if command -v xcrun >/dev/null 2>&1 && [ -d "$RESULT" ]; then
+  TOTAL="$(xcrun xcresulttool get test-results summary --path "$RESULT" --format json 2>/dev/null \
+    | awk -F'[:,]' '/"totalTestCount"/{gsub(/[^0-9]/,"",$2); print $2; exit}')"
+fi
+
+# Fallback for a run that produced no bundle. Counts come from the RAW log, never
+# the formatter: xcpretty silently drops all Swift Testing output. Summed, not
+# maxed — with two test bundles the max silently reports the larger one and
+# throws the other away, which reads as a smaller suite rather than a bug.
+if [ -z "$TOTAL" ]; then
+  sum_of() {
+    grep -oE "$1" "$LOG" 2>/dev/null | grep -oE '[0-9]+' \
+      | awk '{n+=$1} END{print n+0}'
+  }
+  XCTEST_N="$(sum_of 'Test Suite .All tests. passed|Executed [0-9]+ test')"
+  SWITEST_N="$(sum_of 'Test run with [0-9]+ test')"
+  TOTAL=$(( ${XCTEST_N:-0} + ${SWITEST_N:-0} ))
+fi
 
 ELAPSED="$(kit_elapsed "$(( $(kit_now) - START ))")"
 
