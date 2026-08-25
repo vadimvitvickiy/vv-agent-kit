@@ -1,12 +1,26 @@
 {
   "name": "agent-kit",
+  "description": "Agent practices that survive leaving the repo they were learned in — neutral disciplines plus per-stack instantiations.",
   "owner": {
-    "name": "vadimvitvickiy"
+    "name": "vadimvitvickiy",
+    "url": "https://github.com/vadimvitvickiy"
   },
   "plugins": [
     {
       "name": "kit",
-      "source": "./"
+      "source": "./",
+      "description": "Portable agent practices: delegation, verification, debugging, review and testing discipline, with a Swift/Xcode pack",
+      "category": "workflow",
+      "keywords": [
+        "skills",
+        "workflow",
+        "testing",
+        "code-review",
+        "debugging",
+        "swift",
+        "ios",
+        "xcode"
+      ]
     }
   ]
 }
