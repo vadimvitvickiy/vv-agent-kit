@@ -69,6 +69,11 @@ delete it.
 Scan the file for an existing label or category and reuse it. Only when the file has no logs at all,
 fall back to the enclosing type name. Inventing a second label for one file fragments the filter.
 
+## Stack-specific conventions
+
+Logger APIs, privacy annotations and import rules live in the matching stack skill — for Swift,
+`kit:swift-logging`.
+
 ## Checklist
 
 - [ ] New or modified methods log entry
