@@ -84,6 +84,11 @@ echo 'not json' | ./hooks/<name>.sh; echo "exit=$?"   # must be 0
 entry, Claude Code silently prefers the manifest — the marketplace value is never read, so a bump
 there looks applied and is not.
 
+**Bump it in the same commit as any content change.** The install is cached at
+`~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`, so an unbumped push never reaches an
+installed plugin: `claude plugin marketplace update` reports success and the inventory is unchanged.
+Verified — a new skill was absent from `claude plugin details` until the version moved.
+
 ## Commits
 
 `vvkit:committing-changes` — subject shape, body contents, PR title and description. Not restated

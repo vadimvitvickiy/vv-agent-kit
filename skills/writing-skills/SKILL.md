@@ -110,6 +110,9 @@ See `references/frontmatter.md` for the frontmatter fields and the validator's f
 - [ ] `./scripts/validate.sh tests/fixtures` still exits 1 — a validator that passes everything is
       worse than none
 - [ ] `claude plugin validate . --strict` exits 0
+- [ ] **The version in `plugin.json` is bumped.** An installed plugin is cached per version, so
+      content pushed without a bump never reaches an install — `marketplace update` reports success
+      and changes nothing. This is silent, and it looks exactly like a skill that failed to load
 - [ ] `claude plugin marketplace update vv-agent-kit && claude plugin details vvkit` shows the new
       component. This is the only check that reports what Claude Code actually discovered rather than
       what the layout suggests
