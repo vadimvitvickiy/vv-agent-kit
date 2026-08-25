@@ -5,7 +5,7 @@ description: Use when creating or editing a Swift type — member ordering, file
 
 # Swift style
 
-**REQUIRED BACKGROUND:** `kit:writing-comments` — comment limits and doc-comment rules live there and
+**REQUIRED BACKGROUND:** `vvkit:writing-comments` — comment limits and doc-comment rules live there and
 are not repeated here.
 
 ## Canonical member order

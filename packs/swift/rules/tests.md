@@ -14,5 +14,5 @@ confirm it fails.
 Never widen access to reach something. If the behaviour is unreachable through the real seam, that
 is a design finding to report.
 
-Full rule, exemptions and the acceptance filter: `kit:writing-tests`.
-Swift Testing conventions and the `#expect` silent-pass trap: `kit:swift-testing`.
+Full rule, exemptions and the acceptance filter: `vvkit:writing-tests`.
+Swift Testing conventions and the `#expect` silent-pass trap: `vvkit:swift-testing`.

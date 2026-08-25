@@ -1,15 +1,15 @@
-# agent-kit
+# vv-agent-kit
 
 A Claude Code plugin holding agent practices that survive leaving the repo they were learned in.
 
 Install:
 
 ```bash
-claude plugin marketplace add vadimvitvickiy/agent-kit
-claude plugin install kit@agent-kit
+claude plugin marketplace add vadimvitvickiy/vv-agent-kit
+claude plugin install vvkit@vv-agent-kit
 ```
 
-Everything is namespaced `kit` — `/kit:onboard`, `kit:writing-tests`, `kit:swift-reviewer`.
+Everything is namespaced `vvkit` — `/vvkit:onboard`, `vvkit:writing-tests`, `vvkit:swift-reviewer`.
 
 ## The one rule
 
@@ -20,7 +20,7 @@ Content goes in exactly one of two places, decided by a single question:
 | Answer | Home | Consequence |
 |-|-|-|
 | Yes | `skills/`, `agents/`, `commands/`, `hooks/` | Lives in the plugin. Never copied into a project. Updating the kit updates every project at once. |
-| No | `templates/`, `packs/` | Inert data. `/kit:onboard` scaffolds it into a project, which then owns it. |
+| No | `templates/`, `packs/` | Inert data. `/vvkit:onboard` scaffolds it into a project, which then owns it. |
 
 The failure this prevents: content copied into a project once, edited locally, never reconciled, and
 unportable within a year. That is how most agent setups rot.
@@ -30,7 +30,7 @@ unportable within a year. That is how most agent setups rot.
 ```
 skills/       one flat namespace; the tier is in the name
 agents/       reviewer subagents
-commands/     /kit:onboard, /kit:review, /kit:explore
+commands/     /vvkit:onboard, /vvkit:review, /vvkit:explore
 hooks/        session context, lint-on-edit, test gate
 packs/        per-stack rules and config the onboard command copies
 templates/    the neutral project scaffold
@@ -46,7 +46,7 @@ Hooks are the exception: `hooks/*.sh` alone is inert. They must be declared in `
 Verify what was actually discovered rather than trusting the layout:
 
 ```bash
-claude plugin details kit
+claude plugin details vvkit
 ```
 
 ## Two tiers, one namespace
@@ -71,7 +71,7 @@ it. Restating is how the same ruleset ends up in three files that then drift apa
 ```
 
 It checks the frontmatter contract, that each skill's `name` matches its directory, that every
-`description` states triggering conditions rather than summarizing a workflow, that no `kit:` cross-
+`description` states triggering conditions rather than summarizing a workflow, that no `vvkit:` cross-
 reference is dead, that no placeholder token escaped the template trees, and that every hook is
 executable and fails open.
 
@@ -83,7 +83,7 @@ To confirm the validator still has teeth:
 
 ## Generated project scripts
 
-`/kit:scripts` writes a stable interface into a target project:
+`/vvkit:scripts` writes a stable interface into a target project:
 
 ```
 scripts/build.sh   compile-check

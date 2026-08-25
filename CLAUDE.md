@@ -1,4 +1,4 @@
-# Working on agent-kit
+# Working on vv-agent-kit
 
 This repo is a Claude Code plugin. Its content is instructions for agents, so a defect here is
 silently inherited by every project that installs it.
@@ -31,23 +31,23 @@ template instead.
   agents take *instead of* reading the body. This is enforced by the validator, imperfectly; the
   judgment is still yours.
 - Neutral skills are verb-first gerunds (`writing-tests`). Stack skills are prefixed (`swift-testing`).
-- A stack skill opens with `**REQUIRED BACKGROUND:** kit:<neutral-skill>` and does not restate that
+- A stack skill opens with `**REQUIRED BACKGROUND:** vvkit:<neutral-skill>` and does not restate that
   skill's content.
 - Heavy reference material (100+ lines) goes in `references/` beside the `SKILL.md`, linked by a
   plain path — never with `@`, which force-loads it and burns context before it's needed.
 
 ## Development loop
 
-Installing copies the repo into `~/.claude/plugins/cache/agent-kit/kit/<version>/`. **Edits to this
+Installing copies the repo into `~/.claude/plugins/cache/vv-agent-kit/vvkit/<version>/`. **Edits to this
 working tree are not live.** After changing anything:
 
 ```bash
 ./scripts/validate.sh
-claude plugin marketplace update agent-kit
-claude plugin details kit          # confirm the component inventory changed
+claude plugin marketplace update vv-agent-kit
+claude plugin details vvkit          # confirm the component inventory changed
 ```
 
-`claude plugin details kit` is the real smoke test — it reports what Claude Code actually discovered,
+`claude plugin details vvkit` is the real smoke test — it reports what Claude Code actually discovered,
 not what you think you wrote. It caught a silently inert `hooks/` directory during initial
 development.
 

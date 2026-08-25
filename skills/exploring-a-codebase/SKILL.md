@@ -36,7 +36,7 @@ information is derivable, so it is duplicated; being duplicated, it drifts.
 | Situation | Approach |
 |-|-|
 | One to three lookups, target known | Search directly. A subagent's startup exceeds the task |
-| Open-ended sweep across many files or naming conventions | A read-only subagent — see `kit:delegating-work` |
+| Open-ended sweep across many files or naming conventions | A read-only subagent — see `vvkit:delegating-work` |
 | "Where is X?" and you are unsure what X is called | A subagent. A missed file costs far more than the tokens saved |
 | You already know the file | Read it. Do not search first |
 

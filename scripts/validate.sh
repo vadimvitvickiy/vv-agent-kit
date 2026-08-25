@@ -17,7 +17,7 @@ report() {
   fail=1
 }
 
-# Every kit:<name> reference must resolve to something that exists. Commands and
+# Every vvkit:<name> reference must resolve to something that exists. Commands and
 # agents are valid targets too, not just skills.
 known="$(
   {
@@ -93,13 +93,13 @@ done < <(grep -rlE '\{\{[A-Z_]+\}\}' "$root" --include='*.md' --include='*.json'
 while IFS= read -r line; do
   [ -n "$line" ] || continue
   f="${line%%:*}"
-  ref="$(printf '%s' "$line" | grep -oE 'kit:[a-z0-9-]+' | head -1)"
-  ref="${ref#kit:}"
+  ref="$(printf '%s' "$line" | grep -oE 'vvkit:[a-z0-9-]+' | head -1)"
+  ref="${ref#vvkit:}"
   [ -n "$ref" ] || continue
-  known_ref "$ref" || report "$f" "cross-reference 'kit:$ref' names no skill, command or agent"
+  known_ref "$ref" || report "$f" "cross-reference 'vvkit:$ref' names no skill, command or agent"
 done < <(
   for tree in skills agents commands hooks templates packs; do
-    grep -rnoE 'kit:[a-z0-9-]+' "$root/$tree" --include='*.md' 2>/dev/null
+    grep -rnoE 'vvkit:[a-z0-9-]+' "$root/$tree" --include='*.md' 2>/dev/null
   done | sort -u
 )
 

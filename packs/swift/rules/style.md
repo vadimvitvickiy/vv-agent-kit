@@ -13,4 +13,4 @@ Keep `guard let x else { … }` for optional unwraps.
 
 Keep `if` / `guard` / `else` bodies on their own lines. Do not collapse `{ return x }` onto one line.
 
-Full order, annotated example, section labels and carve-outs: `kit:swift-style`.
+Full order, annotated example, section labels and carve-outs: `vvkit:swift-style`.

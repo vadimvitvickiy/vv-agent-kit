@@ -37,8 +37,8 @@ If the diff was supplied in your prompt, use it. Do not re-fetch it.
 - Hardcoded user-facing strings that should be localized.
 - Missing accessibility labels on interactive elements.
 - Credentials or tokens in `UserDefaults` rather than the Keychain.
-- Member ordering and comment limits — see `kit:swift-style` and `kit:writing-comments`.
-- A behaviour change shipping without a test — see `kit:writing-tests`.
+- Member ordering and comment limits — see `vvkit:swift-style` and `vvkit:writing-comments`.
+- A behaviour change shipping without a test — see `vvkit:writing-tests`.
 
 ## Reporting
 

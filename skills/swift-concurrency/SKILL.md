@@ -8,8 +8,8 @@ description: Use when writing or reviewing Swift code that shares state across t
 Mistakes that have actually shipped. Each one is invisible from the file in front of you, and each
 one has a measured cost rather than a theoretical one.
 
-**REQUIRED BACKGROUND:** `kit:writing-tests` for when a test is required. Test shapes for these
-hazards are in `kit:swift-testing` → `references/concurrency.md`.
+**REQUIRED BACKGROUND:** `vvkit:writing-tests` for when a test is required. Test shapes for these
+hazards are in `vvkit:swift-testing` → `references/concurrency.md`.
 
 ## `lazy var` is not atomic
 
@@ -24,7 +24,7 @@ Plain `lazy` is safe only where every first-access path is provably single-threa
 use an atomic one-shot initialiser.
 
 **The window closes after the first access**, which is what makes the obvious test useless — see the
-first-access trap in `kit:swift-testing`.
+first-access trap in `vvkit:swift-testing`.
 
 ## An unsynchronised mutable `static var` is shared by every thread
 

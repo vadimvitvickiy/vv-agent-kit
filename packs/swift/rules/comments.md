@@ -19,4 +19,4 @@ Over the limit means cut, not reflow.
 Never write migration history, ticket ids, or commentary on the change. Never delete an existing
 comment or TODO unless asked — this rule constrains what you write, not what you remove.
 
-Full rule, the doc-comment table and the diff self-check: `kit:writing-comments`.
+Full rule, the doc-comment table and the diff self-check: `vvkit:writing-comments`.

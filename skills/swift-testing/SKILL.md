@@ -5,7 +5,7 @@ description: Use when writing or reviewing tests in Swift with the Swift Testing
 
 # Swift Testing
 
-**REQUIRED BACKGROUND:** `kit:writing-tests` — when a test is required, the unit/component
+**REQUIRED BACKGROUND:** `vvkit:writing-tests` — when a test is required, the unit/component
 distinction, and the acceptance filter are decided there. This file covers only the framework.
 
 The stack is native Swift Testing: `@Test`, `@Suite`, `#expect`, `#require`, `confirmation`.

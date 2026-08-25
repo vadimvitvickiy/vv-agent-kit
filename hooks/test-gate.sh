@@ -11,7 +11,7 @@
 # project opted in. A blocking gate applied to a project that never asked for it
 # is worse than no gate at all — it gets the whole plugin disabled.
 #
-# A project opts in by having `scripts/test.sh` (written by /kit:scripts), or by
+# A project opts in by having `scripts/test.sh` (written by /vvkit:scripts), or by
 # setting KIT_TEST_COMMAND explicitly. The script is preferred because it also
 # writes the run log this gate reads: without something writing that log, the
 # gate fires on every session regardless of whether tests ran.
@@ -103,7 +103,7 @@ recent="$(
   printf 'Test gate: %s source file(s) changed with no local test run since.\n\n' "$count"
   printf '%s\n' "$recent" | sed 's/^/  /'
   printf '\nRun `%s`, or state explicitly which exemption applies\n' "$test_cmd"
-  printf '(see kit:writing-tests — generated code, pure layout, renames).\n'
+  printf '(see vvkit:writing-tests — generated code, pure layout, renames).\n'
   printf 'This gate fires once per session — it will not block you again.\n'
 } >&2
 exit 2

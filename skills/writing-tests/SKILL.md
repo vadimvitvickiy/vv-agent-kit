@@ -77,7 +77,7 @@ Every test clears all ten before it counts.
 ## Stack-specific conventions
 
 Framework APIs, assertion shapes and concurrency-test mechanics live in the matching stack skill —
-for Swift, `kit:swift-testing`.
+for Swift, `vvkit:swift-testing`.
 
 ## Never do these to make a test pass
 

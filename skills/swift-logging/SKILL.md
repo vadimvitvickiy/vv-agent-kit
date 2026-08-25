@@ -5,7 +5,7 @@ description: Use when adding or reviewing logging in Swift code with os.Logger o
 
 # Swift logging
 
-**REQUIRED BACKGROUND:** `kit:writing-logs` — where a log belongs, which level to choose, and what
+**REQUIRED BACKGROUND:** `vvkit:writing-logs` — where a log belongs, which level to choose, and what
 not to log are decided there. This file covers only what is Swift-specific.
 
 ## Declaring a logger
@@ -46,7 +46,7 @@ without thought is already in the clear.
 ## Levels
 
 `Logger` exposes `trace`, `debug`, `info`, `notice`, `warning`, `error`, `fault`. Map the decision
-table in `kit:writing-logs` onto these directly; `notice` is the persisted default and `fault` is for
+table in `vvkit:writing-logs` onto these directly; `notice` is the persisted default and `fault` is for
 programmer error, not for a failed network call.
 
 Note that `debug` and `trace` are **not persisted** — they are dropped unless a live stream is

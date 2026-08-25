@@ -11,7 +11,7 @@ excluded:
   - "**/*.grpc.swift"
 
 disabled_rules:
-  - todo                    # TODOs are kept deliberately; see kit:writing-comments
+  - todo                    # TODOs are kept deliberately; see vvkit:writing-comments
   - trailing_whitespace     # the editor handles this
   - type_name
   - identifier_name

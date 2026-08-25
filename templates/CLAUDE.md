@@ -26,7 +26,7 @@ One line: **`.claude/` is committed and reusable; `.agents/` is gitignored and d
 | Scratch, subagent reports, transcripts | `.agents/scratch/` |
 
 Because `.agents/` is disposable by construction, anything that must outlive the session is
-**promoted** into `.claude/context/`. See `kit:capturing-decisions`.
+**promoted** into `.claude/context/`. See `vvkit:capturing-decisions`.
 
 ## Commands
 

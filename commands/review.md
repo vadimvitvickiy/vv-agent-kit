@@ -23,10 +23,10 @@ not pick one and ignore the rest.
 
 | Extensions | Agent |
 |-|-|
-| `.swift` | `kit:swift-reviewer` |
+| `.swift` | `vvkit:swift-reviewer` |
 
 When no reviewer matches the changed files, say so plainly and review inline against
-`kit:writing-tests`, `kit:writing-comments` and `kit:verifying-changes` rather than silently doing
+`vvkit:writing-tests`, `vvkit:writing-comments` and `vvkit:verifying-changes` rather than silently doing
 nothing.
 
 ## 3. Dispatch
@@ -35,7 +35,7 @@ nothing.
 different working tree than the one you resolved, and wastes the isolation.
 
 Include in the spawn prompt: the diff, what the change is meant to do, and the required output
-format. See `kit:delegating-work` for the full spawn contract.
+format. See `vvkit:delegating-work` for the full spawn contract.
 
 The rulesets are **not** restated here. They live in the agent definition. Duplicating them into
 this file is how one rule ends up in three places that then drift apart — the specific failure this

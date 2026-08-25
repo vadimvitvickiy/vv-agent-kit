@@ -5,13 +5,13 @@ description: Use when building, compile-checking, running tests, driving a simul
 
 # Xcode builds
 
-**REQUIRED BACKGROUND:** `kit:verifying-changes` — what to run and when to sweep is decided there.
+**REQUIRED BACKGROUND:** `vvkit:verifying-changes` — what to run and when to sweep is decided there.
 This file covers how to run it.
 
 ## Always prefer the project's script
 
 If the repo has `scripts/build.sh` or `scripts/test.sh`, use it. If it has none, generate them with
-`kit:scripts` rather than hand-writing an invocation.
+`vvkit:scripts` rather than hand-writing an invocation.
 
 This is not a style preference. A hand-written `xcodebuild` command is usually slower by a large
 multiple, and the reasons are invisible from the command line — see the table below. A hand-rolled

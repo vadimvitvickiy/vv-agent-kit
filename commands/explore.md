@@ -21,7 +21,7 @@ scripts/map.sh            # mtime-cached; a no-op when nothing changed
 scripts/map.sh --force    # rebuild regardless
 ```
 
-If `scripts/map.sh` does not exist, run `kit:scripts` first.
+If `scripts/map.sh` does not exist, run `vvkit:scripts` first.
 
 Offer `scripts/map.sh --install-hook` once — a `post-commit` hook that refreshes the map in the
 background. Without it the map drifts between manual runs, which is the failure mode that makes maps

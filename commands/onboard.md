@@ -103,7 +103,7 @@ Set `KIT_SOURCE_GLOB` in `.claude/settings.json` when the project's sources are 
 
 ## Step 7b — Generate the scripts
 
-Run `kit:scripts` to write `scripts/{build,test,lint}.sh` and verify each by running it.
+Run `vvkit:scripts` to write `scripts/{build,test,lint}.sh` and verify each by running it.
 
 This is what gives the project a stable interface and what activates the test gate. Skip it only if
 the project already has working build and test scripts — in which case record those in `CLAUDE.md`
@@ -118,4 +118,4 @@ Append `templates/gitignore.fragment` unless `.agents/` is already ignored.
 - Files written, skipped, and backed up.
 - Every claim that failed verification in step 5, and what was written instead.
 - Any hook dropped for a missing prerequisite.
-- What to do next: run `/kit:explore` to generate the structure map.
+- What to do next: run `/vvkit:explore` to generate the structure map.
