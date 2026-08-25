@@ -4,6 +4,27 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-08-25
+
+### Added
+
+- `committing-changes` — commit subject and body, pull request title and description. The imperative
+  test, the reason the body wraps at 72 (`git log` indents four spaces, leaving 76 of an 80-column
+  terminal), and the review-size finding: past roughly 400 changed lines reviewers find fewer defects
+  per line, so a description cannot rescue a diff too large to read.
+- `injecting-dependencies` — why a nil-defaulted collaborator is a sentinel meaning "construct it
+  yourself", and why a seam added for a test makes the test verify the path nobody ships.
+- `writing-project-instructions` — what belongs in a CLAUDE.md versus a skill, given that CLAUDE.md
+  is read on every turn and a skill body costs nothing until it fires.
+- `/vvkit:wire` — reconciles an existing CLAUDE.md against the installed skills. Shows the mapping
+  table before editing, and migrates a portable rule into a skill rather than deleting it.
+- `delegating-work`: the threshold that moves with conversation size, since a subagent's value is
+  isolation rather than parallelism; plus the re-reading and background-result anti-patterns.
+
+### Changed
+
+- The kit's own `CLAUDE.md` no longer restates the commit rules; it references the skill.
+
 ## [0.2.0] — 2026-08-25
 
 First public release.
