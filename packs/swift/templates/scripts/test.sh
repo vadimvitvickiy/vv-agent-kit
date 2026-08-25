@@ -77,9 +77,14 @@ fi
 
 BUILD_DIR="$(xcodebuild "${PROJECT_ARGS[@]}" -scheme "$SCHEME" -destination "$DESTINATION" \
   -showBuildSettings 2>/dev/null | awk -F' = ' '/ BUILD_DIR = /{print $2; exit}')"
+# The products directory is SHARED across schemes, so it accumulates one .xctestrun per scheme
+# ever built. Matching anything other than this scheme's own file silently runs a different
+# target's tests and reports them as this scheme's — a green run that tested the wrong code.
+# If this scheme's file is not there, fall back to the slower single-phase run rather than
+# guessing.
 XCTESTRUN=""
 if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
-  XCTESTRUN="$(find "$BUILD_DIR" -maxdepth 1 -name '*.xctestrun' -print 2>/dev/null \
+  XCTESTRUN="$(find "$BUILD_DIR" -maxdepth 1 -name "${SCHEME}_*.xctestrun" -print 2>/dev/null \
     | head -1)"
 fi
 
