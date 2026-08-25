@@ -37,9 +37,16 @@ scripts/      validate.sh — the structural gate
 tests/        fixtures the validator must reject
 ```
 
-Only `skills/`, `agents/`, `commands/` and `hooks/` at the repo root are discovered by Claude Code.
-Component discovery is by convention, not declared in the manifest, so a skill nested any deeper
-silently never loads.
+Discovery is by convention, not declared in the manifest. Only `skills/`, `agents/` and `commands/`
+at the repo root are picked up, so a skill nested any deeper **silently never loads**.
+
+Hooks are the exception: `hooks/*.sh` alone is inert. They must be declared in `hooks/hooks.json`.
+
+Verify what was actually discovered rather than trusting the layout:
+
+```bash
+claude plugin details kit
+```
 
 ## Two tiers, one namespace
 
