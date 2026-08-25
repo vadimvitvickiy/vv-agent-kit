@@ -73,6 +73,10 @@ while IFS= read -r f; do
   if [ "${#front}" -gt 1024 ]; then
     report "$f" "frontmatter is ${#front} chars, over the 1024 limit"
   fi
+
+  # Without an H1 the skill has no title once the frontmatter is stripped, and
+  # every heading in the body reads as a top-level section.
+  grep -q '^# ' "$f" || report "$f" "body has no H1 heading"
 done < <(find "$root/skills" -name SKILL.md 2>/dev/null | sort)
 
 # Placeholders are legal only in the trees that exist to be filled in.
@@ -94,10 +98,34 @@ while IFS= read -r line; do
   [ -n "$ref" ] || continue
   known_ref "$ref" || report "$f" "cross-reference 'kit:$ref' names no skill, command or agent"
 done < <(
-  for tree in skills agents commands hooks; do
+  for tree in skills agents commands hooks templates packs; do
     grep -rnoE 'kit:[a-z0-9-]+' "$root/$tree" --include='*.md' 2>/dev/null
   done | sort -u
 )
+
+# An @-link force-loads the file at session start, which spends the context the
+# references/ split exists to save. Plain relative paths only.
+while IFS= read -r line; do
+  [ -n "$line" ] || continue
+  report "${line%%:*}" "uses an @-link; reference files must be linked by plain path"
+done < <(
+  for tree in skills agents commands; do
+    grep -rnE '(^|[[:space:](])@[A-Za-z0-9_./-]+\.md' "$root/$tree" --include='*.md' 2>/dev/null
+  done | sort -u
+)
+
+# The install commands are the first thing a reader copies. A placeholder that
+# survived into them is a broken first impression, and no other check sees it:
+# the {{PLACEHOLDER}} rule above only knows about brace syntax.
+if [ -f "$root/README.md" ]; then
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    report "$root/README.md:${line%%:*}" "install command still contains a placeholder"
+  done < <(
+    grep -nE 'claude plugin (marketplace add|install)' "$root/README.md" 2>/dev/null \
+      | grep -E '<[a-z][a-z0-9_-]*>'
+  )
+fi
 
 # Every shipped shell script must fail open and be executable — the generated
 # ones in packs/ land in users' repos, so they are held to the same bar as hooks.

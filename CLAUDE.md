@@ -10,7 +10,7 @@ silently inherited by every project that installs it.
 ```
 
 Exit 0 is required. If a change touches `validate.sh` itself, also run
-`./scripts/validate.sh tests/fixtures` and confirm it still exits 1 with five violations — a
+`./scripts/validate.sh tests/fixtures` and confirm it still exits 1 with eight violations — a
 validator that passes everything is worse than none.
 
 ## The content rule

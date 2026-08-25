@@ -5,7 +5,8 @@ A Claude Code plugin holding agent practices that survive leaving the repo they 
 Install:
 
 ```bash
-claude plugin marketplace add <owner>/agent-kit
+claude plugin marketplace add vadimvitvickiy/agent-kit
+claude plugin install kit@agent-kit
 ```
 
 Everything is namespaced `kit` — `/kit:onboard`, `kit:writing-tests`, `kit:swift-reviewer`.
@@ -77,7 +78,7 @@ executable and fails open.
 To confirm the validator still has teeth:
 
 ```bash
-./scripts/validate.sh tests/fixtures   # must exit 1 with five violations
+./scripts/validate.sh tests/fixtures   # must exit 1 with eight violations
 ```
 
 ## Generated project scripts
