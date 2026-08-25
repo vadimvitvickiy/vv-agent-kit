@@ -95,15 +95,19 @@ and ask.
 
 **Hooks are registered by the plugin, not wired here.** `session-context` and the lint hook are
 always active and no-op where they do not apply. The test gate is the only hook that can block a
-turn, so it stays inert until this project opts in by setting `KIT_TEST_COMMAND` in
-`.claude/settings.json`.
+turn, so it stays inert until the project opts in — which happens by having `scripts/test.sh`, not by
+configuration.
 
-Set it **only if the project actually has a working test command.** If it has no tests, leave
-`KIT_TEST_COMMAND` out entirely and say so in the report — a gate that fires in a project with
-nothing to run is noise the user will disable, taking the useful hooks with it.
+Set `KIT_SOURCE_GLOB` in `.claude/settings.json` when the project's sources are not `*.swift`.
+`KIT_TEST_COMMAND` is only needed to override `scripts/test.sh` with something else.
 
-Also set `KIT_SOURCE_GLOB` (the pathspec for source files, e.g. `*.swift`) and `KIT_TEST_LOG_DIR`
-(the directory whose newest file marks a test run).
+## Step 7b — Generate the scripts
+
+Run `kit:scripts` to write `scripts/{build,test,lint}.sh` and verify each by running it.
+
+This is what gives the project a stable interface and what activates the test gate. Skip it only if
+the project already has working build and test scripts — in which case record those in `CLAUDE.md`
+instead, and say so.
 
 ## Step 8 — Update `.gitignore`
 

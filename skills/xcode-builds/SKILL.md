@@ -8,35 +8,42 @@ description: Use when building, compile-checking, running tests, driving a simul
 **REQUIRED BACKGROUND:** `kit:verifying-changes` — what to run and when to sweep is decided there.
 This file covers how to run it.
 
-## Prefer the project's own script
+## Always prefer the project's script
 
-If the repo ships a build or test script, use it. Hand-written `xcodebuild` invocations miss what the
-script carries: the shared derived-data path, toolchain workarounds, and the flags that keep the
-build cached. A hand-rolled command that "works" often works by doing a clean build, which is why it
-takes eight minutes.
+If the repo has `scripts/build.sh` or `scripts/test.sh`, use it. If it has none, generate them with
+`kit:scripts` rather than hand-writing an invocation.
 
-Where the project records its commands: `.claude/context/`, surfaced by a table in `CLAUDE.md`.
+This is not a style preference. A hand-written `xcodebuild` command is usually slower by a large
+multiple, and the reasons are invisible from the command line — see the table below. A hand-rolled
+command that "works" frequently works by rebuilding everything.
 
 Never hand-write `xcrun` or `simctl` when the project wraps them.
 
-## When there is no script
+## The four traps in a hand-written invocation
 
-Compile-check without signing:
+Each measured on a large project:
 
-```bash
-xcodebuild -project <Project>.xcodeproj -scheme <Scheme> -configuration Debug \
-  -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO build
-```
+| Trap | Cost |
+|-|-|
+| `-destination 'generic/platform=iOS Simulator'` | Resolves several architectures and evicts the shared cache slice every time you alternate with Xcode — 9,227 file compiles / 247s, versus 1,278 / 104s with a concrete simulator UDID |
+| `CODE_SIGNING_ALLOWED=NO` | A build-setting override changes the build description. If Xcode builds the same DerivedData without it, the two evict each other — a 5,879-file rebuild on every switch. Simulator products need no signing anyway |
+| `-derivedDataPath` on a routine build | Opts out of the cache the IDE is warming. Use it only for a deliberately isolated or reproducible build |
+| `xcodebuild clean` | Discards the cache that makes everything else fast. The build system reads sources from disk every run; a clean buys no correctness |
 
-Discover what exists rather than guessing:
+Also worth knowing: two build configurations sharing one DerivedData ping-pong the generated module
+maps, which are keyed by platform rather than configuration. Measured at 6m34s versus 1m14s. Point
+every local entry point at the same configuration.
+
+## Discovering what exists
 
 ```bash
 xcodebuild -list -project <Project>.xcodeproj      # schemes, targets, configurations
 xcrun simctl list devices available                # booted and bootable simulators
 ```
 
-`-destination 'generic/platform=iOS'` compiles without needing a simulator to boot. Use a concrete
-destination only when you actually need to run.
+**`-list` sorts schemes alphabetically.** Taking the first one frequently selects a framework target
+rather than the app, which compile-checks a dependency and reports success for the project. Pick the
+scheme named after the project, or name it explicitly.
 
 ## Read the result bundle, not the log
 

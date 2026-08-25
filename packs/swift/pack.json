@@ -1,10 +1,35 @@
 {
   "name": "swift",
   "description": "Swift and Xcode conventions: style, logging, testing, build verification",
-  "detect": ["*.xcodeproj", "*.xcworkspace", "Package.swift", "**/*.swift"],
-  "skills": ["swift-style", "swift-logging", "swift-testing", "xcode-builds"],
-  "agents": ["swift-reviewer"],
-  "rules": ["comments.md", "style.md", "tests.md"],
-  "hooks": ["swiftlint.sh", "test-gate.sh"],
-  "templates": { "swiftlint.yml": ".swiftlint.yml" }
+  "detect": [
+    "*.xcodeproj",
+    "*.xcworkspace",
+    "Package.swift",
+    "**/*.swift"
+  ],
+  "skills": [
+    "swift-style",
+    "swift-logging",
+    "swift-testing",
+    "xcode-builds"
+  ],
+  "agents": [
+    "swift-reviewer"
+  ],
+  "rules": [
+    "comments.md",
+    "style.md",
+    "tests.md"
+  ],
+  "hooks": [
+    "swiftlint.sh",
+    "test-gate.sh"
+  ],
+  "templates": {
+    "swiftlint.yml": ".swiftlint.yml",
+    "scripts/": "scripts/"
+  },
+  "commands": [
+    "scripts"
+  ]
 }

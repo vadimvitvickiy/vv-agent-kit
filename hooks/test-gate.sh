@@ -7,20 +7,23 @@
 # enough: the model either runs the tests or states why the change is exempt.
 #
 # OPT-IN. This hook is registered for every project the plugin is installed in,
-# but it is the only one that can block a turn — so it stays inert until a
-# project explicitly sets KIT_TEST_COMMAND in its .claude/settings.json `env`.
-# A blocking gate applied to a project that never asked for it is worse than no
-# gate at all.
+# but it is the only one that can block a turn, so it stays inert unless the
+# project opted in. A blocking gate applied to a project that never asked for it
+# is worse than no gate at all — it gets the whole plugin disabled.
+#
+# A project opts in by having `scripts/test.sh` (written by /kit:scripts), or by
+# setting KIT_TEST_COMMAND explicitly. The script is preferred because it also
+# writes the run log this gate reads: without something writing that log, the
+# gate fires on every session regardless of whether tests ran.
 #
 # Configuration:
-#   KIT_TEST_COMMAND   REQUIRED — the project's test command. Unset = hook disabled.
-#   KIT_SOURCE_GLOB    pathspec for source files          (default '*.swift')
-#   KIT_TEST_LOG_DIR   dir whose newest file marks a run  (default .build/test-logs)
+#   KIT_TEST_COMMAND   explicit test command; overrides scripts/test.sh
+#   KIT_SOURCE_GLOB    pathspec for source files         (default '*.swift')
+#   KIT_TEST_LOG_DIR   dir whose newest file marks a run (default .agents/state/test-runs)
 #
 # Fail-open: anything unexpected exits 0 so a bug here can never wedge a session.
 set -uo pipefail
 
-[ -n "${KIT_TEST_COMMAND:-}" ] || exit 0
 command -v jq >/dev/null 2>&1 || exit 0
 payload="$(cat)"
 
@@ -33,9 +36,18 @@ cwd="$(jq -r '.cwd // empty' <<<"$payload" 2>/dev/null)" || exit 0
 cd "$cwd" 2>/dev/null || exit 0
 git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
+# Opt-in check happens after the cd, so scripts/test.sh is resolved in the
+# project, not wherever the hook was launched from.
+if [ -n "${KIT_TEST_COMMAND:-}" ]; then
+  test_cmd="$KIT_TEST_COMMAND"
+elif [ -x scripts/test.sh ]; then
+  test_cmd="scripts/test.sh"
+else
+  exit 0
+fi
+
 glob="${KIT_SOURCE_GLOB:-*.swift}"
-log_dir="${KIT_TEST_LOG_DIR:-.build/test-logs}"
-test_cmd="$KIT_TEST_COMMAND"
+log_dir="${KIT_TEST_LOG_DIR:-.agents/state/test-runs}"
 
 sentinel="${TMPDIR:-/tmp}/kit-test-gate-${session}"
 [ -e "$sentinel" ] && exit 0

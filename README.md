@@ -79,3 +79,20 @@ To confirm the validator still has teeth:
 ```bash
 ./scripts/validate.sh tests/fixtures   # must exit 1 with five violations
 ```
+
+## Generated project scripts
+
+`/kit:scripts` writes a stable interface into a target project:
+
+```
+scripts/build.sh   compile-check
+scripts/test.sh    run tests; writes the log the Stop hook reads
+scripts/lint.sh    lint; fails on errors only
+```
+
+They auto-detect project, scheme and simulator at runtime — nothing is substituted in, so a renamed
+scheme does not break them. Every performance choice in them was measured on a large Xcode project;
+the table in `commands/scripts.md` records what and why.
+
+`scripts/test.sh` existing is also what activates the test gate, and its run log is what makes that
+gate honest. Without something writing that log, the gate fires whether or not tests ran.

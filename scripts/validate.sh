@@ -97,12 +97,13 @@ done < <(
   done | sort -u
 )
 
-# Hooks must fail open and be executable.
+# Every shipped shell script must fail open and be executable — the generated
+# ones in packs/ land in users' repos, so they are held to the same bar as hooks.
 while IFS= read -r f; do
   [ -n "$f" ] || continue
-  [ -x "$f" ] || report "$f" "hook is not executable"
-  grep -q 'set -uo pipefail' "$f" || report "$f" "hook does not 'set -uo pipefail'"
-done < <(find "$root/hooks" -name '*.sh' 2>/dev/null | sort)
+  [ -x "$f" ] || report "$f" "script is not executable"
+  grep -q 'set -uo pipefail' "$f" || report "$f" "script does not 'set -uo pipefail'"
+done < <(find "$root/hooks" "$root/packs" -name '*.sh' 2>/dev/null | sort)
 
 if [ "$fail" -eq 0 ]; then
   count="$(find "$root/skills" -name SKILL.md 2>/dev/null | grep -c . || true)"
