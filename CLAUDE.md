@@ -86,5 +86,5 @@ there looks applied and is not.
 
 ## Commits
 
-`<type>: <subject>`, imperative, no period, under 72 characters. No AI attribution in commit
-messages or in any committed file.
+`vvkit:committing-changes` — subject shape, body contents, PR title and description. Not restated
+here; a rule in two places is a rule that drifts.

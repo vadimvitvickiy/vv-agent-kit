@@ -42,6 +42,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `exploring-a-codebase` | Starting in an unfamiliar repo, or a map or architecture note looks stale |
 | `writing-comments` | A diff adds explanatory prose alongside code |
 | `writing-logs` | Adding log statements, or deciding what level a message belongs at |
+| `committing-changes` | Writing a commit message, or titling and describing a pull request |
 | `capturing-decisions` | A rationale emerges that would otherwise die with the session |
 | `injecting-dependencies` | Writing a constructor, or adding a parameter so something can be swapped in a test |
 | `writing-project-instructions` | A `CLAUDE.md` is being edited, has grown long, or repeats an installed skill |
@@ -102,7 +103,7 @@ Skills are flat. The tier is expressed by the name, and by what each skill refus
 | `writing-comments` | `swift-style` |
 | `verifying-changes` | `xcode-builds` |
 | `reviewing-code` | `swift-reviewer` (agent) |
-| `delegating-work`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `writing-project-instructions`, `writing-skills` | — |
+| `delegating-work`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `committing-changes`, `writing-project-instructions`, `writing-skills` | — |
 
 Each Swift skill declares its neutral counterpart as `REQUIRED BACKGROUND` and does **not** restate
 it. Restating is how one ruleset ends up in three files that then drift apart — the validator checks
