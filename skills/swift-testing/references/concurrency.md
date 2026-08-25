@@ -3,6 +3,9 @@
 Read before writing a test for anything that crosses a thread, queue, or isolation boundary. When a
 concurrency test is *required* is decided in `kit:writing-tests`. This file is **how** to write one.
 
+The hazards themselves — non-atomic `lazy`, unsynchronised statics, non-composing per-field locks —
+are catalogued in `kit:swift-concurrency`. This file is how to *test* for them.
+
 Most concurrency hazard is not `async`/`await`. Dispatch queues used as guards, locks, reactive
 schedulers, timers, KVO and delegate callbacks are all first-class concurrency — not the legacy case.
 The trigger is **cross-domain reachability**, not the presence of async machinery.
