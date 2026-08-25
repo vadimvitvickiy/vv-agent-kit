@@ -15,6 +15,15 @@ outlive the session has to be promoted** into `.claude/context/`.
 | A correction about how to work | durable memory (`MEMORY.md`) |
 | A plan in flight, scratch, tool state | `.agents/` — and stays there |
 
+## Promote it into the repo it is about
+
+`.claude/context/` holds facts about **this** repository. A design for a different project does not
+belong here just because it was drafted in this session — it belongs in that project's repo, and
+committing it here puts another codebase's history into this one permanently.
+
+Before promoting, ask: *would someone cloning this repo need this?* If the answer is no, it goes to
+the other repo, or stays in `.agents/`.
+
 ## Why promotion is a step and not a habit
 
 Left implicit, it never happens. In the repo this kit was extracted from, in-flight plans

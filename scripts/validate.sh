@@ -78,8 +78,10 @@ done < <(find "$root/skills" -name SKILL.md 2>/dev/null | sort)
 # Placeholders are legal only in the trees that exist to be filled in.
 while IFS= read -r f; do
   [ -n "$f" ] || continue
+  # templates/ and packs/ exist to be filled in; tests/ holds deliberate violations;
+  # .claude/ and .agents/ are this repo's own notes, not shipped components.
   case "$f" in
-    "$root"/templates/*|"$root"/packs/*|"$root"/tests/*) continue ;;
+    "$root"/templates/*|"$root"/packs/*|"$root"/tests/*|"$root"/.claude/*|"$root"/.agents/*) continue ;;
   esac
   report "$f" "contains an unfilled {{PLACEHOLDER}}"
 done < <(grep -rlE '\{\{[A-Z_]+\}\}' "$root" --include='*.md' --include='*.json' --include='*.yml' 2>/dev/null | sort)
