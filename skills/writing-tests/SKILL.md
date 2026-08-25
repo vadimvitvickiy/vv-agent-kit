@@ -74,6 +74,11 @@ Every test clears all ten before it counts.
 9. **No weakened assertion** — equality downgraded to non-nil — because it was failing.
 10. **No production-only hook** that exists solely for the test.
 
+## Stack-specific conventions
+
+Framework APIs, assertion shapes and concurrency-test mechanics live in the matching stack skill —
+for Swift, `kit:swift-testing`.
+
 ## Never do these to make a test pass
 
 - Add a sleep or raise a timeout to hide a race.
