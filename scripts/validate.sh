@@ -82,7 +82,7 @@ while IFS= read -r f; do
     "$root"/templates/*|"$root"/packs/*|"$root"/tests/*) continue ;;
   esac
   report "$f" "contains an unfilled {{PLACEHOLDER}}"
-done < <(grep -rlE '\{\{[A-Z_]+\}\}' "$root" --include='*.md' 2>/dev/null | sort)
+done < <(grep -rlE '\{\{[A-Z_]+\}\}' "$root" --include='*.md' --include='*.json' --include='*.yml' 2>/dev/null | sort)
 
 while IFS= read -r line; do
   [ -n "$line" ] || continue

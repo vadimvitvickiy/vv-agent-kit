@@ -6,14 +6,21 @@
 # touched more recently than the newest local test run. One blocked turn is
 # enough: the model either runs the tests or states why the change is exempt.
 #
-# Configuration (all optional):
+# OPT-IN. This hook is registered for every project the plugin is installed in,
+# but it is the only one that can block a turn — so it stays inert until a
+# project explicitly sets KIT_TEST_COMMAND in its .claude/settings.json `env`.
+# A blocking gate applied to a project that never asked for it is worse than no
+# gate at all.
+#
+# Configuration:
+#   KIT_TEST_COMMAND   REQUIRED — the project's test command. Unset = hook disabled.
 #   KIT_SOURCE_GLOB    pathspec for source files          (default '*.swift')
 #   KIT_TEST_LOG_DIR   dir whose newest file marks a run  (default .build/test-logs)
-#   KIT_TEST_COMMAND   what to suggest running            (default 'your test command')
 #
 # Fail-open: anything unexpected exits 0 so a bug here can never wedge a session.
 set -uo pipefail
 
+[ -n "${KIT_TEST_COMMAND:-}" ] || exit 0
 command -v jq >/dev/null 2>&1 || exit 0
 payload="$(cat)"
 
@@ -28,7 +35,7 @@ git rev-parse --git-dir >/dev/null 2>&1 || exit 0
 
 glob="${KIT_SOURCE_GLOB:-*.swift}"
 log_dir="${KIT_TEST_LOG_DIR:-.build/test-logs}"
-test_cmd="${KIT_TEST_COMMAND:-your test command}"
+test_cmd="$KIT_TEST_COMMAND"
 
 sentinel="${TMPDIR:-/tmp}/kit-test-gate-${session}"
 [ -e "$sentinel" ] && exit 0

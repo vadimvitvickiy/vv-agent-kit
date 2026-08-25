@@ -36,7 +36,33 @@ template instead.
 - Heavy reference material (100+ lines) goes in `references/` beside the `SKILL.md`, linked by a
   plain path — never with `@`, which force-loads it and burns context before it's needed.
 
+## Development loop
+
+Installing copies the repo into `~/.claude/plugins/cache/agent-kit/kit/<version>/`. **Edits to this
+working tree are not live.** After changing anything:
+
+```bash
+./scripts/validate.sh
+claude plugin marketplace update agent-kit
+claude plugin details kit          # confirm the component inventory changed
+```
+
+`claude plugin details kit` is the real smoke test — it reports what Claude Code actually discovered,
+not what you think you wrote. It caught a silently inert `hooks/` directory during initial
+development.
+
 ## Hooks
+
+Registered at plugin level in `hooks/hooks.json`. A bare `hooks/*.sh` with no manifest is **not
+discovered** — the directory looks correct and does nothing.
+
+`${CLAUDE_PLUGIN_ROOT}` resolves only inside that manifest. It does **not** resolve in a project's
+`.claude/settings.json`, where there is no plugin context — wiring a hook that way silently produces
+a bare `/hooks/...` path.
+
+A hook that can block a turn must be **opt-in**. `test-gate.sh` is registered for every project but
+exits immediately unless that project sets `KIT_TEST_COMMAND`. A blocking gate inherited by a project
+that never asked for it gets the whole plugin disabled.
 
 Fail open, always. `set -uo pipefail`, and any unexpected condition exits 0 — a bug in a hook must
 never be able to wedge a session. Exit 2 is the only code fed back to the model; use it sparingly,

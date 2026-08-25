@@ -93,9 +93,17 @@ Copy each selected pack's `templates` mapping into place — for the Swift pack,
 becomes `.swiftlint.yml`. **Never overwrite an existing config.** If one is present, show the diff
 and ask.
 
-For each hook wired in `settings.json`, confirm its prerequisites exist — the linter binary, `jq`.
-Drop any hook whose tool is missing rather than wiring one that silently no-ops, and say which you
-dropped.
+**Hooks are registered by the plugin, not wired here.** `session-context` and the lint hook are
+always active and no-op where they do not apply. The test gate is the only hook that can block a
+turn, so it stays inert until this project opts in by setting `KIT_TEST_COMMAND` in
+`.claude/settings.json`.
+
+Set it **only if the project actually has a working test command.** If it has no tests, leave
+`KIT_TEST_COMMAND` out entirely and say so in the report — a gate that fires in a project with
+nothing to run is noise the user will disable, taking the useful hooks with it.
+
+Also set `KIT_SOURCE_GLOB` (the pathspec for source files, e.g. `*.swift`) and `KIT_TEST_LOG_DIR`
+(the directory whose newest file marks a test run).
 
 ## Step 8 — Update `.gitignore`
 
