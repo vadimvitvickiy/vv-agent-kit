@@ -1,0 +1,12 @@
+{
+  "name": "agent-kit",
+  "owner": {
+    "name": "vadimvitvickiy"
+  },
+  "plugins": [
+    {
+      "name": "kit",
+      "source": "./"
+    }
+  ]
+}

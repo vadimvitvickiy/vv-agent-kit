@@ -32,8 +32,8 @@ large, rather than reading it whole.
 
 ## Regenerating the map
 
-Regenerate rather than patching by hand — the kit ships a command for it. What it cannot verify, it
-omits rather than guesses. A guessed entry is indistinguishable from a verified one once written,
+Regenerate with `kit:explore` rather than patching by hand. What it cannot verify, it omits rather
+than guesses. A guessed entry is indistinguishable from a verified one once written,
 which is what makes guessing expensive.
 
 ## Verify before you assert
