@@ -13,6 +13,12 @@ If the diff is describable in one sentence — a single-file fix, a rename, a lo
 this and do the work. Test and review rules still apply. Running a pipeline over a one-line change
 is the most common way this skill gets misused.
 
+The gate moves as the conversation grows, because **the primary value of a subagent is isolation,
+not parallelism**. Early in a session, a task under roughly five tool calls is cheaper inline. Once
+the conversation is large, the per-call tax on every subsequent turn is paid against the whole
+context, and a single subagent that contains verbose output — a test run, a log sweep, a
+grep-heavy exploration — earns its cost with no parallelism involved at all.
+
 ## Two rules that get conflated
 
 "Single writer" and "a fresh writer per task" are different claims, and confusing them produces bad
@@ -82,6 +88,8 @@ A subagent receives no conversation history. Anything it needs must be in the pr
 | Running the pipeline on a one-sentence change | That is what the gate is for |
 | Omitting the output contract | Unstructured results defeat the isolation |
 | Nesting subagents | Subagents cannot spawn subagents; chain from the main conversation |
+| Re-reading a result that timed out | Reading the same agent's output twice can double-count or truncate it. Raise the timeout instead |
+| Reporting a background agent's result before it lands | You do not know what it found until the completion notification arrives |
 
 ## Reference
 

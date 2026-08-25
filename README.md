@@ -43,6 +43,8 @@ Skills load on their own when the situation matches. You never have to name one.
 | `writing-comments` | A diff adds explanatory prose alongside code |
 | `writing-logs` | Adding log statements, or deciding what level a message belongs at |
 | `capturing-decisions` | A rationale emerges that would otherwise die with the session |
+| `injecting-dependencies` | Writing a constructor, or adding a parameter so something can be swapped in a test |
+| `writing-project-instructions` | A `CLAUDE.md` is being edited, has grown long, or repeats an installed skill |
 | `writing-skills` | Authoring or editing a component of this plugin |
 
 **Swift — the same disciplines, instantiated:**
@@ -63,6 +65,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `/vvkit:review` | Resolves the diff, routes it to the reviewer for the detected language, reports by severity |
 | `/vvkit:scripts` | Writes `build.sh`, `test.sh`, `lint.sh` and `map.sh` into a project and verifies them by running them |
 | `/vvkit:explore` | Regenerates the code map and reconciles it against the hand-written architecture notes |
+| `/vvkit:wire` | Reconciles a `CLAUDE.md` against the installed skills, replacing duplicated rules with references |
 | `vvkit:swift-reviewer` | Read-only Swift review subagent — correctness first, conventions second |
 
 **Hooks**, all fail-open and none of them opinionated about your project unless you ask:
@@ -99,7 +102,7 @@ Skills are flat. The tier is expressed by the name, and by what each skill refus
 | `writing-comments` | `swift-style` |
 | `verifying-changes` | `xcode-builds` |
 | `reviewing-code` | `swift-reviewer` (agent) |
-| `delegating-work`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `writing-skills` | — |
+| `delegating-work`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `writing-project-instructions`, `writing-skills` | — |
 
 Each Swift skill declares its neutral counterpart as `REQUIRED BACKGROUND` and does **not** restate
 it. Restating is how one ruleset ends up in three files that then drift apart — the validator checks
@@ -113,7 +116,7 @@ neutral tier. Nothing about the neutral tier changes.
 ```
 skills/       one flat namespace; the tier is in the name
 agents/       reviewer subagents
-commands/     /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore
+commands/     /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore, /vvkit:wire
 hooks/        session context, lint-on-edit, test gate
 packs/        per-stack rules and config that onboard copies into a project
 templates/    the neutral project scaffold
