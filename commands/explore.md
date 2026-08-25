@@ -1,40 +1,56 @@
 ---
-description: Regenerate the project's structure map at .claude/context/structure.md.
+description: Refresh the generated code map and reconcile the hand-written architecture constraints against the code.
 ---
 
-Regenerate `.claude/context/structure.md` from `templates/context/structure.md`.
+Two artifacts, with a hard line between them.
 
-The map exists so that exploration costs one read instead of a dozen searches every session. It is
-only worth that if it is accurate.
+| Artifact | Written by | Committed | Holds |
+|-|-|-|-|
+| `.agents/state/map.xml` | `scripts/map.sh` | no | Targets from ground truth, ranked type signatures |
+| `.claude/context/architecture.md` | a human, or you | yes | Only what cannot be derived by reading code |
 
-## Gather
+**Never hand-write the map, and never put derivable facts in the doc.** Anthropic's own memory
+guidance excludes directory layouts and file-by-file descriptions from always-loaded context on
+exactly this basis: an agent can `ls` and `grep`, and a stale description is worse than none because
+it is trusted.
 
-1. **Directory tree** — to a depth where structure is visible but noise is not, typically three
-   levels. Exclude build output, dependency caches, and anything gitignored.
-2. **Per-directory responsibility** — sample-read a few representative files in each top-level
-   directory. Do not infer purpose from the name alone; a directory called `utils` tells you nothing,
-   and a directory called `core` is frequently wrong.
-3. **Build targets** — from the project or manifest file. Record which sources each compiles, and
-   note where that differs from the directory layout. A directory whose name implies "shared" while
-   compiling into exactly one target is precisely the trap a map should catch.
-4. **Entry points** — where execution starts, where routing is decided, where configuration loads.
-   This is the most useful table in the file and the one most often missing.
-5. **Generated files** — anything produced by a generator, with the generator that makes it. Cross-
-   check the `.gitignore` and any codegen config.
+## 1. Refresh the map
 
-## Write
+```bash
+scripts/map.sh            # mtime-cached; a no-op when nothing changed
+scripts/map.sh --force    # rebuild regardless
+```
 
-Fill every table in the template. Then:
+If `scripts/map.sh` does not exist, run `kit:scripts` first.
 
-- **Omit what you could not verify.** Do not guess a responsibility to fill a row. Once written, a
-  guess is indistinguishable from a verified fact, and it will be trusted.
-- **State counts where they are load-bearing** — number of targets, number of source files — so the
-  next reader can tell at a glance whether the map has drifted.
-- **Keep the header.** It tells the reader that the code wins on any contradiction, which is what
-  keeps a stale map from being actively harmful.
+Offer `scripts/map.sh --install-hook` once — a `post-commit` hook that refreshes the map in the
+background. Without it the map drifts between manual runs, which is the failure mode that makes maps
+harmful rather than merely useless.
 
-## Report
+## 2. Reconcile the constraints doc
 
-Say what changed against the previous map. A structural change since the last run — a new target, a
-moved directory, a directory that no longer exists — is worth calling out explicitly rather than
-leaving the user to diff it, because it usually means something else is also out of date.
+Read `.claude/context/architecture.md` and check each claim against the code. This is the step that
+matters — the doc is trusted precisely because nothing verifies it automatically.
+
+| Claim | Verify by |
+|-|-|
+| A layering or dependency rule | The manifest, plus a grep for imports that would invert it |
+| A frozen name | That the name still appears where the doc says, and the reason still holds |
+| A generated-file entry | The generator config still names it as an output |
+| A name mismatch | Both names still exist |
+| Known drift | Re-count it. Drift gets fixed, and a fixed item left in the doc sends people looking for a bug that is gone |
+
+Report every claim that no longer holds, with what you found. Correct them in place.
+
+**Delete anything derivable** you find in the doc — a directory tree, a file count, a
+what-each-folder-contains table. Those belong to `ls` and to the map.
+
+## 3. Report
+
+- What the map now covers: target count, how many files carried declarations, how many were omitted
+  by the budget.
+- Every architecture claim that failed verification, and what it was corrected to.
+- Whether the post-commit hook is installed.
+
+If nothing changed, say so in one line. A refresh that finds nothing is a good outcome, not a
+failure to be padded.

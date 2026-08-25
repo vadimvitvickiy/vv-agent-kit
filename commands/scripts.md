@@ -9,6 +9,7 @@ invokes the same commands.
 scripts/build.sh   compile-check; exit 0 means it compiles
 scripts/test.sh    run tests; writes a run log the Stop hook reads
 scripts/lint.sh    lint; non-zero on error severity only
+scripts/map.sh     generate the code map into .agents/state/ (gitignored)
 scripts/lib/       shared helpers
 ```
 
@@ -46,6 +47,7 @@ a missing file.
 | `scripts/lint.sh` | Run it | Exit 0 or 1 with a real report; not a crash |
 | `scripts/build.sh` | Run it | Exit 0, and the log shows compiled files |
 | `scripts/test.sh` | Run it | Exit 0 with a non-zero test count, **or** a clear "no test target" failure |
+| `scripts/map.sh` | Run it, then read the output | Real targets listed, and the top-ranked symbols are domain types rather than generated noise |
 
 Report the wall-clock time of each. Run `build.sh` a second time and report that too — the second
 run should be markedly faster, which is how you confirm the shared cache is actually being reused.
@@ -62,6 +64,12 @@ reads. Nothing else needs configuring.
 
 If the project has no tests yet, say so: the gate stays inert until `scripts/test.sh` can actually
 run something, which is correct — a gate firing in a project with nothing to run gets disabled.
+
+## 5b. Offer the map hook
+
+`scripts/map.sh --install-hook` writes a `post-commit` hook that refreshes the map in the background.
+Offer it once. Without it the map drifts between manual runs, which is what turns a map from useless
+into harmful.
 
 ## 6. Record
 

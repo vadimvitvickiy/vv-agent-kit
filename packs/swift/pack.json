@@ -31,5 +31,8 @@
   },
   "commands": [
     "scripts"
+  ],
+  "context": [
+    "architecture.md"
   ]
 }
