@@ -1,0 +1,50 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Structural gate
+        run: ./scripts/validate.sh
+
+      - name: Validator still has teeth
+        run: |
+          if ./scripts/validate.sh tests/fixtures; then
+            echo "::error::validate.sh accepted the broken fixtures; it is no longer catching anything"
+            exit 1
+          fi
+
+      - name: Shellcheck
+        run: shellcheck --severity=warning hooks/*.sh scripts/*.sh packs/*/templates/scripts/*.sh packs/*/templates/scripts/lib/*.sh
+
+      - name: Hooks fail open on garbage input
+        run: |
+          status=0
+          for hook in hooks/*.sh; do
+            echo 'not json' | "$hook" >/dev/null 2>&1
+            code=$?
+            echo "$hook exit=$code"
+            [ "$code" -eq 0 ] || status=1
+          done
+          if [ "$status" -ne 0 ]; then
+            echo "::error::a hook returned non-zero on unparseable input; a hook must never be able to wedge a session"
+          fi
+          exit "$status"
+
+      - name: Hooks fail open on empty input
+        run: |
+          status=0
+          for hook in hooks/*.sh; do
+            : | "$hook" >/dev/null 2>&1 || status=1
+          done
+          exit "$status"
