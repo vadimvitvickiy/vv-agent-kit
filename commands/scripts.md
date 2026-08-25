@@ -35,7 +35,7 @@ generator cannot know. Prefer keeping it and recording it in `CLAUDE.md`.
 ## 3. Copy
 
 Copy `packs/swift/templates/scripts/` into `scripts/`, preserving the executable bit. Verify with
-`ls -l` that all four are executable — a non-executable hook or script fails in a way that reads like
+`ls -l` that every one of them is executable — a non-executable hook or script fails in a way that reads like
 a missing file.
 
 ## 4. Verify by running
@@ -73,7 +73,7 @@ into harmful.
 
 ## 6. Record
 
-Add the three commands to the `## Commands` section of `CLAUDE.md`, replacing any raw `xcodebuild`
+Add the build, test and lint commands to the `## Commands` section of `CLAUDE.md`, replacing any raw `xcodebuild`
 invocation that was there. The scripts are now the interface; a raw invocation in the docs invites
 someone to bypass them and lose the caching.
 
