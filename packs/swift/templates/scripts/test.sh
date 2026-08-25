@@ -9,6 +9,8 @@
 # and the gate silently starts lying.
 #
 # Usage: scripts/test.sh [--scheme NAME] [--only-testing ID]... [--isolated]
+#
+# KIT_TEST_SCHEME overrides the scheme for tests only, leaving build.sh alone.
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 . "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
@@ -36,6 +38,13 @@ while IFS= read -r line; do
 done < <(kit_project_args)
 [ "${#PROJECT_ARGS[@]}" -gt 0 ] || kit_die "no .xcworkspace or .xcodeproj found in $(pwd)"
 
+# The scheme that builds the app is frequently not the scheme that runs the tests.
+# Where the suites belong to frameworks rather than the app, the app's own scheme
+# has no testables and a run reports "no test bundles available" and 0 tests —
+# which looks like a broken script rather than a scheme that was never meant to
+# test anything. KIT_TEST_SCHEME names the aggregate without changing what
+# build.sh compiles, since building the aggregate pulls in every extension.
+[ -n "$SCHEME" ] || SCHEME="${KIT_TEST_SCHEME:-}"
 [ -n "$SCHEME" ] || SCHEME="$(kit_scheme "${PROJECT_ARGS[@]}")"
 [ -n "$SCHEME" ] || kit_die "could not determine a scheme; pass --scheme NAME"
 
@@ -82,10 +91,15 @@ BUILD_DIR="$(xcodebuild "${PROJECT_ARGS[@]}" -scheme "$SCHEME" -destination "$DE
 # target's tests and reports them as this scheme's — a green run that tested the wrong code.
 # If this scheme's file is not there, fall back to the slower single-phase run rather than
 # guessing.
+# NEWEST WINS. The products directory is never cleaned, so a scheme accumulates an .xctestrun per
+# destination it has ever been built for, and an older one survives a change that should have
+# invalidated it. `find | head -1` returns directory order, not time order — observed replaying a
+# stale bundle-less file written before a scheme gained its test targets, so the run reported
+# "no test bundles available" and 0 tests while a correct file sat beside it.
 XCTESTRUN=""
 if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
-  XCTESTRUN="$(find "$BUILD_DIR" -maxdepth 1 -name "${SCHEME}_*.xctestrun" -print 2>/dev/null \
-    | head -1)"
+  XCTESTRUN="$(find "$BUILD_DIR" -maxdepth 1 -name "${SCHEME}_*.xctestrun" \
+    -exec stat -f '%m %N' {} + 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)"
 fi
 
 printf 'Testing %s on %s\n' "$SCHEME" "$UDID"

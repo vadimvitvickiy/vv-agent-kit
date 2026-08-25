@@ -4,6 +4,25 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-08-25
+
+### Added
+
+- `KIT_TEST_SCHEME` in `scripts/test.sh` — the scheme that builds the app is frequently not the one
+  that runs the tests. Where the suites belong to frameworks rather than the app, the app's own
+  scheme has no testables and a run reports "no test bundles available" and 0 tests, which reads as
+  a broken script rather than a scheme that was never meant to test anything. Overriding it for
+  tests only leaves `build.sh` compiling the light scheme, since an aggregate pulls in every
+  extension.
+
+### Fixed
+
+- `scripts/test.sh` selected its `.xctestrun` with `find | head -1`, which returns directory order
+  rather than time order. The products directory is never cleaned, so a stale file written before a
+  scheme gained its test targets won over a correct one sitting beside it — the run replayed it and
+  reported 0 tests. Now selects by mtime. The existing comment warned about the cross-scheme form of
+  this trap; the same-scheme form was unguarded, and it fails in the more dangerous direction.
+
 ## [0.3.2] — 2026-08-25
 
 ### Fixed
