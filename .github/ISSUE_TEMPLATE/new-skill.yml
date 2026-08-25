@@ -1,0 +1,39 @@
+name: New skill proposal
+description: Propose a discipline the plugin does not cover
+labels: ["proposal"]
+body:
+  - type: textarea
+    id: gap
+    attributes:
+      label: What goes wrong today
+      description: >
+        The concrete failure an agent produces without this skill. Not the topic it would cover —
+        the mistake it would prevent.
+    validations:
+      required: true
+  - type: textarea
+    id: portable
+    attributes:
+      label: Does this stay true in another repo?
+      description: >
+        If the guidance needs a target name, a script path, a scheme or a ticket prefix to be
+        useful, it is a template rather than a skill. Say which it is and why.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: What would the load-bearing claim be
+      description: >
+        The one non-obvious thing the skill would assert, and the measured number or named failure
+        mode behind it. Guidance the model already follows does not need a skill — every
+        description competes for a shared listing budget.
+    validations:
+      required: true
+  - type: textarea
+    id: overlap
+    attributes:
+      label: Why an existing skill cannot carry it
+      description: Cross-referencing an existing skill is preferred over adding a new one.
+    validations:
+      required: true

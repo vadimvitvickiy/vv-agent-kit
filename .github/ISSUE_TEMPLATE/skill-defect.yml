@@ -1,0 +1,34 @@
+name: Skill defect
+description: A skill states something that is wrong, outdated, or does not hold outside one repo
+labels: ["defect"]
+body:
+  - type: input
+    id: skill
+    attributes:
+      label: Which component
+      description: "The skill, agent, command or hook — e.g. vvkit:swift-testing"
+      placeholder: "vvkit:"
+    validations:
+      required: true
+  - type: textarea
+    id: claim
+    attributes:
+      label: What it says
+      description: Quote the line or section, so the fix lands in the right place.
+    validations:
+      required: true
+  - type: textarea
+    id: reality
+    attributes:
+      label: What is actually true
+      description: >
+        And how you know — the command you ran, the output you got, the docs page, the version.
+        Every claim in this repo is supposed to have something behind it; a correction needs the
+        same.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Plugin version
+      description: "From: claude plugin details vvkit"
