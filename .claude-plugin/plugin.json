@@ -1,0 +1,9 @@
+{
+  "name": "kit",
+  "description": "Portable agent practices: delegation, verification, testing discipline, and a Swift/Xcode pack",
+  "version": "0.1.0",
+  "author": {
+    "name": "vadimvitvickiy"
+  },
+  "keywords": ["skills", "swift", "ios", "testing", "workflow"]
+}
