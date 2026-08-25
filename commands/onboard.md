@@ -89,9 +89,18 @@ rm AGENTS.md && ln -s CLAUDE.md AGENTS.md
 .agents/{plans,state,scratch}/ empty
 ```
 
-Copy each selected pack's `templates` mapping into place — for the Swift pack, `swiftlint.yml`
-becomes `.swiftlint.yml`. **Never overwrite an existing config.** If one is present, show the diff
-and ask.
+Then walk each selected pack's `templates` mapping in `pack.json` and copy every entry — the mapping
+is the source of truth, not this list, because a pack can add entries without this file changing. For
+the Swift pack that is `swiftlint.yml` to `.swiftlint.yml`, `scripts/` to `scripts/` (step 7b), and
+`testsupport/` to `TestSupport/`.
+
+**Never overwrite an existing config.** If one is present, show the diff and ask.
+
+**Source files copied from a pack still need target membership.** `TestSupport/` is Swift source: SPM
+picks it up from the directory, but an Xcode project does not — the files exist on disk and compile
+into nothing until they are added to the test target. Do not add them by editing the `.xcodeproj`;
+say plainly in step 9 that the files were copied and which target they must join. Verify membership
+by asking the build system, never by their folder — see `vvkit:exploring-a-codebase`.
 
 **Hooks are registered by the plugin, not wired here.** `session-context` and the lint hook are
 always active and no-op where they do not apply. The test gate is the only hook that can block a
@@ -118,4 +127,6 @@ Append `templates/gitignore.fragment` unless `.agents/` is already ignored.
 - Files written, skipped, and backed up.
 - Every claim that failed verification in step 5, and what was written instead.
 - Any hook dropped for a missing prerequisite.
+- Any pack source copied but not yet compiled — `TestSupport/` on an Xcode project — naming the
+  target it has to join. Copied and unreferenced looks identical to installed.
 - What to do next: run `/vvkit:explore` to generate the structure map.

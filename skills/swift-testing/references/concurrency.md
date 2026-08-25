@@ -26,15 +26,27 @@ evidence, never proof. Never present a green stress test as proof of thread-safe
 
 ## Seams a project needs
 
-If these do not exist, they are worth building once — every shape below depends on them.
+Every shape below depends on these. **Three of the five ship with the Swift pack** — check for them
+before writing your own.
 
-| Seam | Purpose |
-|-|-|
-| Manual scheduler | A manual-clock scheduler with `advance(by:)`, safe to schedule from any thread |
-| Interleaving driver | Named latches for a forced schedule — arrive, wait, run |
-| Bounded stress helper | Parallel fan-out, with a scale knob read from the environment |
-| Locked box | The only legal recorder for a value written off-thread |
-| Hang guard | Watchdog on a **dedicated** thread, so it survives a wedged cooperative pool |
+| Seam | Purpose | Shipped? |
+|-|-|-|
+| Interleaving driver | Named latches for a forced schedule — arrive, wait, run | `Interleaving` |
+| Bounded stress helper | Parallel fan-out, with a scale knob read from the environment | `concurrentStress`, `stressScale` |
+| Locked box | The only legal recorder for a value written off-thread | `LockedBox` |
+| Manual scheduler | A manual-clock scheduler with `advance(by:)`, safe to schedule from any thread | build it |
+| Hang guard | Watchdog on a **dedicated** thread, so it survives a wedged cooperative pool | build it |
+
+`/vvkit:onboard` copies the shipped three into the project as `TestSupport/`, from
+`packs/swift/templates/testsupport/`. They are plain source files the project then owns — not a
+dependency, and not something the plugin updates later.
+
+`offCooperativePool` comes with them, for running a body on a real thread rather than the
+cooperative pool. `threadSanitizerEnabled` and `longTestsEnabled` read the environment, so a nightly
+sweep can turn the counts up without the pull-request loop paying for them.
+
+If `TestSupport/` is not present, the project was scaffolded before the pack shipped it, or the
+files were copied without being added to the test target. Check before assuming you must write them.
 
 ## The five shapes
 

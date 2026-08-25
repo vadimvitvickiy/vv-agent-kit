@@ -4,6 +4,18 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] — 2026-08-25
+
+### Fixed
+
+- The concurrency test harness shipped in the Swift pack but nothing told an agent it existed.
+  `/vvkit:onboard` now walks the pack's `templates` mapping rather than a hardcoded list, so
+  `testsupport/` reaches a project as `TestSupport/`, and it reports source that was copied but not
+  yet added to a target — copied and unreferenced looks identical to installed.
+- `swift-testing`'s concurrency reference marks which of the five seams ship (`Interleaving`,
+  `concurrentStress`, `LockedBox`) and which still have to be built, so an agent stops rewriting
+  types the pack already provides.
+
 ## [0.3.0] — 2026-08-25
 
 ### Added
