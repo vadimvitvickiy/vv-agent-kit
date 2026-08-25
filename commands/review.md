@@ -2,8 +2,10 @@
 description: Review the local diff or a branch against the kit's standards, delegating to the reviewer agent for the detected language.
 ---
 
-Review changed code and report findings. Do not fix anything unless asked — review and repair are
-separate steps, and mixing them means the findings are never read.
+Review changed code and report findings.
+
+**REQUIRED BACKGROUND:** `vvkit:reviewing-code`. This command resolves the target and routes to a
+reviewer; the discipline itself lives in that skill.
 
 ## 1. Resolve the target
 
@@ -26,8 +28,7 @@ not pick one and ignore the rest.
 | `.swift` | `vvkit:swift-reviewer` |
 
 When no reviewer matches the changed files, say so plainly and review inline against
-`vvkit:writing-tests`, `vvkit:writing-comments` and `vvkit:verifying-changes` rather than silently doing
-nothing.
+`vvkit:reviewing-code` rather than silently doing nothing.
 
 ## 3. Dispatch
 
@@ -43,8 +44,5 @@ kit exists to prevent.
 
 ## 4. Report
 
-Print findings grouped **Critical** / **Important** / **Minor**, then **Optional**, each cited as
-`file:line`.
-
-Then state plainly what you would do next: which findings you consider blocking, and which you would
-leave. If there are no findings, say that — do not manufacture some to look thorough.
+Use the output shape from `vvkit:reviewing-code`, then state plainly which findings you consider
+blocking and which you would leave.
