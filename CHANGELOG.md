@@ -4,6 +4,18 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] — 2026-08-25
+
+### Fixed
+
+- `scripts/test.sh` left an orphan DerivedData directory behind on every run. The two-phase
+  `test-without-building -xctestrun` form names no project, so `xcodebuild` has nothing to hash a
+  DerivedData folder from and mints a fresh anonymous one per invocation to hold `Logs/` and
+  `TestResults/`. Observed on a real project as 86 orphan directories beside the single 1GB cache.
+  It now points at the store the products came from, derived from the `.xctestrun` path.
+  `lib/common.sh` records why this does not contradict its own "omit `-derivedDataPath`" rule: that
+  rule protects the build cache from being split, and this phase compiles nothing.
+
 ## [0.3.1] — 2026-08-25
 
 ### Fixed

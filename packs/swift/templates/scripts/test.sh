@@ -90,9 +90,18 @@ fi
 
 printf 'Testing %s on %s\n' "$SCHEME" "$UDID"
 if [ -n "$XCTESTRUN" ]; then
+  # -xctestrun names no project, so xcodebuild has nothing to hash a DerivedData
+  # folder from and mints a fresh anonymous one per invocation to hold its Logs/
+  # and TestResults/. Left alone that is one orphan directory per test run —
+  # observed as 86 of them, 24-28K each, beside the single real 1GB cache.
+  # Point it at the store the products came from; the .xctestrun lives inside it.
+  # This does not contradict the "omit -derivedDataPath" rule in lib/common.sh:
+  # that rule protects the *build* cache from being split, and nothing compiles
+  # in this phase.
   kit_run_logged "$LOG" \
     timeout "$TIMEOUT" xcodebuild \
       -xctestrun "$XCTESTRUN" -destination "$DESTINATION" \
+      -derivedDataPath "${XCTESTRUN%%/Build/Products/*}" \
       -resultBundlePath "$RESULT" \
       ${ONLY[@]+"${ONLY[@]}"} \
       test-without-building

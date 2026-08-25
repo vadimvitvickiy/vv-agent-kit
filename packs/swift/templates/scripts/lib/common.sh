@@ -129,6 +129,10 @@ kit_apply_xcode_defaults() {
 #     Simulator products need no signing anyway.
 #   -derivedDataPath — omitting it reuses Xcode's shared cache, so IDE and CLI
 #     builds warm each other. Pass KIT_DERIVED_DATA only for an isolated build.
+#     This applies to phases that COMPILE. `test-without-building -xctestrun`
+#     names no project, so omitting the flag there does the opposite: xcodebuild
+#     mints a fresh anonymous DerivedData per run for its logs. test.sh passes it
+#     deliberately — see the comment there before removing it.
 #   -disableAutomaticPackageResolution / -skipPackageUpdates — measured to
 #     change nothing. They govern version resolution, not the graph load.
 kit_common_flags() {
