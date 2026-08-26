@@ -4,6 +4,44 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-08-26
+
+### Added
+
+- `scripts/setup-tooling.sh` in the Swift pack. Binds the two tools that otherwise pick a build
+  location for themselves — the `xcodebuildmcp` CLI and `sourcekit-lsp` — to the DerivedData folder
+  Xcode, `build.sh` and `test.sh` already share. Neither reports being unbound, and both cost
+  something real: xcodebuildmcp builds into a private store (3.53 GB of duplicate cache measured on
+  one checkout, cold on every build), and sourcekit-lsp falls back to a macOS target and reports
+  `No such module 'UIKit'` on every file in an iOS framework.
+- `.xcodebuildmcp/config.template.yaml`, `.mcp.json` and a `Brewfile` in the Swift pack, wired into
+  the pack's `templates` mapping so `/vvkit:onboard` copies them. The generated `config.yaml`,
+  `buildServer.json` and `.compile` are gitignored — each names a path hashed from the checkout's
+  location, so a committed copy points at another developer's disk.
+- `xcode-builds`: a section on tools that silently choose their own cache, with the symptom each
+  produces. `onboard` now warns that a copied `.mcp.json` is inert until approved — unapproved and
+  absent look identical from the repo.
+
+### Changed
+
+- `references/xcodebuildmcp.md` no longer restates the vendor's tool list. `xcodebuildmcp init`
+  installs a skill versioned with the binary; a hand-copy goes stale silently, and 2.7 added four
+  workflows an earlier copy did not mention. The file now covers only what the vendor's skill does
+  not: what running unconfigured costs.
+
+### Fixed
+
+- `kit_spm_stamp` walked straight past symlinked package directories, so editing a manifest behind a
+  symlink — the normal way a local package under development is wired in — never triggered a
+  re-resolve. It now follows them.
+- `kit_spm_stamp` did not record which store it was primed against, so a stamp written by an
+  `--isolated` run was read by a later default-store run as proof the default store was resolved.
+- `kit_sim_udid` fell through to whatever `simctl list` emitted first when nothing was booted, so
+  consecutive cold runs drifted between devices and a flake could not be attributed to one. It now
+  ranks: booted preferred device, any booted device, preferred device cold, then the head — keeping
+  a warm run warm while pinning the cold case. `KIT_SIM_PREFERRED` sets the preference,
+  `KIT_SIM` pins outright.
+
 ## [0.4.1] — 2026-08-25
 
 ### Fixed
