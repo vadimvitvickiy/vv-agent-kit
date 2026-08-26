@@ -77,7 +77,30 @@ If the `.xcodeproj` is hand-managed, still never edit `project.pbxproj` as text.
 understands the format; the file is a graph of cross-referenced UUIDs and a hand edit corrupts it in
 ways that surface much later.
 
+## Every tool that builds must agree on one cache
+
+The trap table above is about flags you type. The same defect arrives silently through tools that
+pick a build location for you: `xcodebuildmcp` defaults to a private store under its own directory,
+and a Swift language server with no build config compiles against a target it guessed.
+
+Both are the same failure — a second cache, cold, that nothing else reads — and neither reports it.
+Bind them to Xcode's folder for the checkout before the first build. `scripts/setup-tooling.sh` does
+both if the project has it.
+
+| Tool | Unbound behavior | Symptom |
+|-|-|-|
+| `xcodebuildmcp` | Builds into `~/Library/Developer/XcodeBuildMCP/workspaces/` | Every build cold; a second multi-GB cache — 3.53 GB measured on one checkout |
+| `sourcekit-lsp` | Falls back to a macOS target | `No such module 'UIKit'` on every file in an iOS framework |
+
+For sourcekit-lsp specifically, `xcode-build-server config` binds the scheme and `xcode-build-server
+parse` supplies the flags — **both** are needed. A command-line `xcodebuild` never writes the
+`.xcactivitylog` the server watches (only the Xcode IDE does), so a bare `config` leaves it flagless
+and it fails over to macOS without saying so.
+
 ## The xcodebuildmcp CLI
 
 When the project uses it, or when driving simulators and UI automation:
 `references/xcodebuildmcp.md`.
+
+Do not work from a remembered tool list. The CLI ships its own agent skill (`xcodebuildmcp init`)
+which is versioned with the binary, and workflow names change between releases.

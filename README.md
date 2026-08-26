@@ -136,10 +136,11 @@ and `${CLAUDE_PLUGIN_ROOT}` resolves only inside that manifest.
 `/vvkit:scripts` writes a stable interface into a target project:
 
 ```
-scripts/build.sh   compile-check
-scripts/test.sh    run tests; writes the log the Stop hook reads
-scripts/lint.sh    lint; fails on errors only
-scripts/map.sh     regenerate the ranked code map
+scripts/build.sh          compile-check
+scripts/test.sh           run tests; writes the log the Stop hook reads
+scripts/lint.sh           lint; fails on errors only
+scripts/map.sh            regenerate the ranked code map
+scripts/setup-tooling.sh  bind xcodebuildmcp and sourcekit-lsp to Xcode's cache
 ```
 
 They auto-detect project, scheme and simulator at runtime — nothing is substituted in, so a renamed
@@ -148,6 +149,12 @@ the table in `commands/scripts.md` records what and why.
 
 `scripts/test.sh` existing is also what activates the test gate, and its run log is what makes that
 gate honest. Without something writing that log, the gate fires whether or not tests ran.
+
+`setup-tooling.sh` exists because two tools pick a build location for you and neither says so. The
+`xcodebuildmcp` CLI builds into a private store — 3.53 GB of duplicate cache measured on one
+checkout, cold on every build — and `sourcekit-lsp` with no build config falls back to a macOS
+target and reports `No such module 'UIKit'` on every file in an iOS framework. Both configs name a
+path hashed from the checkout's location, so they are generated per clone and never committed.
 
 ## Developing
 

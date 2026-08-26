@@ -28,6 +28,9 @@
   ],
   "templates": {
     "swiftlint.yml": ".swiftlint.yml",
+    "Brewfile": "Brewfile",
+    "mcp.json": ".mcp.json",
+    "xcodebuildmcp/": ".xcodebuildmcp/",
     "scripts/": "scripts/",
     "testsupport/": "TestSupport/"
   },

@@ -10,6 +10,7 @@ scripts/build.sh   compile-check; exit 0 means it compiles
 scripts/test.sh    run tests; writes a run log the Stop hook reads
 scripts/lint.sh    lint; non-zero on error severity only
 scripts/map.sh     generate the code map into .agents/state/ (gitignored)
+scripts/setup-tooling.sh   bind xcodebuildmcp and sourcekit-lsp to Xcode's cache
 scripts/lib/       shared helpers
 ```
 
@@ -48,6 +49,7 @@ a missing file.
 | `scripts/build.sh` | Run it | Exit 0, and the log shows compiled files |
 | `scripts/test.sh` | Run it | Exit 0 with a non-zero test count, **or** a clear "no test target" failure |
 | `scripts/map.sh` | Run it, then read the output | Real targets listed, and the top-ranked symbols are domain types rather than generated noise |
+| `scripts/setup-tooling.sh` | Run `--print`, then run it | `--print` names a real DerivedData folder; the run reports a non-zero `.compile` entry count |
 
 Report the wall-clock time of each. Run `build.sh` a second time and report that too — the second
 run should be markedly faster, which is how you confirm the shared cache is actually being reused.
@@ -56,6 +58,23 @@ If the second run is not faster, something is invalidating DerivedData; say so r
 If a script fails for a reason specific to this project — no test target, a scheme needing a
 different destination — **fix the script and re-run.** It is the project's script now. Do not leave a
 known-broken one in place and note it in the report.
+
+## 4b. Bind the tooling
+
+Run `scripts/setup-tooling.sh`. It writes two machine-specific configs that cannot be committed,
+because both name a DerivedData folder hashed from this checkout's absolute path:
+
+| Written | Consumer | Unbound behavior |
+|-|-|-|
+| `.xcodebuildmcp/config.yaml` | the xcodebuildmcp CLI and MCP server | Builds into a private store — every build cold, and a second multi-GB cache |
+| `buildServer.json` + `.compile` | sourcekit-lsp | Falls back to a macOS target; `No such module 'UIKit'` on every framework file |
+
+Order matters: `.compile` is built from the raw logs `build.sh` and `test.sh` tee aside, so a run
+before the first build reports zero compile entries. That is correct, not a failure — say so, and
+re-run after step 4.
+
+`Brewfile` lists what these need. `brew bundle` installs it, and every script degrades to a working
+slower path when a tool is absent rather than failing.
 
 ## 5. Wire the gate
 
@@ -94,6 +113,9 @@ Each of these was measured on a large Xcode project. Do not "simplify" one witho
 | Counts parsed from the raw log | `xcpretty` silently drops Swift Testing output |
 | Fail when 0 tests ran | `xcodebuild` exits 0 when a filter matches nothing |
 | Failures copied aside before the next run | Log and result bundle are otherwise overwritten, making an intermittent failure unattributable |
+
+| `derivedDataPath` bound for xcodebuildmcp | Without it the CLI builds into a private store: 3.53 GB of duplicate cache measured on one checkout |
+| Simulator chosen by name, ranked booted-first | Reuses a warm device where one exists, and pins the cold case to a known one so runs stop drifting between devices |
 
 **Deliberately not included**, because they need project-specific judgment: multi-simulator worker
 pools, generated aggregate test schemes, coverage reporting, and sanitizer lanes. Each is a real win

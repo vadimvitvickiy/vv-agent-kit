@@ -90,9 +90,12 @@ rm AGENTS.md && ln -s CLAUDE.md AGENTS.md
 ```
 
 Then walk each selected pack's `templates` mapping in `pack.json` and copy every entry — the mapping
-is the source of truth, not this list, because a pack can add entries without this file changing. For
-the Swift pack that is `swiftlint.yml` to `.swiftlint.yml`, `scripts/` to `scripts/` (step 7b), and
-`testsupport/` to `TestSupport/`.
+is the source of truth, not this list, because a pack can add entries without this file changing.
+
+**A copied `.mcp.json` is inert until someone approves it.** Claude Code prompts once per project for
+project-scoped MCP servers, and until that is answered the file is present and no tool from it loads.
+The repo looks correctly configured either way, so confirm with `/mcp` rather than by reading the
+file, and say in step 9 that approval is still outstanding if it is.
 
 **Never overwrite an existing config.** If one is present, show the diff and ask.
 
@@ -129,4 +132,6 @@ Append `templates/gitignore.fragment` unless `.agents/` is already ignored.
 - Any hook dropped for a missing prerequisite.
 - Any pack source copied but not yet compiled — `TestSupport/` on an Xcode project — naming the
   target it has to join. Copied and unreferenced looks identical to installed.
+- Any MCP server written to `.mcp.json` and not yet approved. Unapproved and absent look identical
+  from the repo.
 - What to do next: run `/vvkit:explore` to generate the structure map.

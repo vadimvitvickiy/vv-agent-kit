@@ -61,6 +61,45 @@ kit_scheme() {
   printf '%s\n' "$schemes" | head -1
 }
 
+# --- DerivedData location ---------------------------------------------------
+
+# Xcode's build location for THIS checkout. The folder is named
+# <Project>-<hash of its absolute path>, so it is machine-specific by
+# construction: it cannot be committed, and anything that needs it — the
+# xcodebuildmcp CLI, sourcekit-lsp — has to resolve it at runtime or build into a
+# store of its own.
+#
+# Call with the project args plus -scheme. Globbing on the project basename is the
+# fast path; asking xcodebuild is authoritative but costs seconds, so it is used
+# only when the glob is ambiguous (the same repo cloned at two paths) or empty
+# (never built on this machine).
+kit_derived_data() {
+  local root custom base hits count
+  custom="$(defaults read com.apple.dt.Xcode IDECustomDerivedDataLocation 2>/dev/null)"
+  if [ -z "$custom" ]; then
+    root="$HOME/Library/Developer/Xcode/DerivedData"
+  elif [ "${custom#/}" != "$custom" ]; then
+    root="$custom"
+  else
+    # A relative value is stored relative to the workspace. That is how Xcode
+    # writes that style of setting, not a quirk of reading it back.
+    root="$(pwd)/$custom"
+  fi
+
+  base="$(basename "${2:-}" 2>/dev/null | sed 's/\.[^.]*$//')"
+  if [ -n "$base" ]; then
+    hits="$(find "$root" -maxdepth 1 -name "$base-*" -type d 2>/dev/null)"
+    count="$(printf '%s' "$hits" | grep -c . 2>/dev/null)"
+    if [ "$count" = "1" ]; then
+      printf '%s\n' "$hits"
+      return 0
+    fi
+  fi
+
+  xcodebuild "$@" -showBuildSettings 2>/dev/null \
+    | awk -F' = ' '/^ *BUILD_DIR = /{ sub(/\/Build\/Products$/, "", $2); print $2; exit }'
+}
+
 # --- simulator selection ----------------------------------------------------
 
 # The device to fall back to when nothing suitable is already booted. Left unset,

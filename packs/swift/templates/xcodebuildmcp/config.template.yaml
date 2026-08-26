@@ -1,0 +1,52 @@
+# Template for .xcodebuildmcp/config.yaml — the defaults shared by the
+# `xcodebuildmcp` CLI and the MCP server.
+#
+# Generate the real file with `scripts/setup-tooling.sh`. Only the template is
+# committed: every value the script fills in is machine-specific, and a committed
+# config.yaml resolves to another developer's paths.
+#
+# derivedDataPath is the reason this file exists. Left unset, xcodebuildmcp builds
+# into its own isolated store under ~/Library/Developer/XcodeBuildMCP/workspaces/
+# — a cold build, and a second multi-GB cache nothing else ever reads. Measured on
+# one SDK checkout: 3.53 GB accumulated there before the binding was added, and
+# not one byte written after. Pointed at Xcode's own folder, xcodebuildmcp, Xcode,
+# scripts/build.sh and scripts/test.sh all share a single warm cache.
+#
+# simulatorId is deliberately absent — UDIDs are regenerated per machine and per
+# Xcode install. simulatorName is re-resolved to this machine's UDID at runtime.
+schemaVersion: 1
+
+# The CLI reports usage to Sentry by default. Off here because an agent invokes it
+# far more often than a human would, and the traffic is not the project's to send.
+sentryDisabled: true
+
+# Narrower than the default set: this gates what the MCP SERVER exposes, and every
+# workflow it exposes costs tool-listing context in every session. The CLI is
+# unaffected and can still invoke anything. Add `device`, `macos`, `swift-package`
+# or `debugging` when the project actually needs them as MCP tools.
+enabledWorkflows:
+  - simulator
+  - simulator-management
+  - ui-automation
+
+sessionDefaults:
+  @PROJECT_KEY@: @PROJECT_PATH@
+  scheme: @SCHEME@
+  simulatorName: @SIMULATOR_NAME@
+  simulatorPlatform: iOS Simulator
+  derivedDataPath: @DERIVED_DATA_PATH@
+  # The same two flags scripts/build.sh passes. Xcode 26 re-validates macro and
+  # package-plugin fingerprints and can hang; more importantly, a build with
+  # different flags is a different build description, and two of those sharing one
+  # DerivedData evict each other on every alternation.
+  extraArgs:
+    - -skipMacroValidation
+    - -skipPackagePluginValidation
+
+# For a project that ships more than one platform, replace `sessionDefaults` with
+# named profiles and select one per command with `--profile <name>`:
+#
+#   sessionDefaultsProfiles:
+#     ios:   { ...the block above... }
+#     tvos:  { ...same, with a tvOS scheme and simulatorPlatform: tvOS Simulator }
+#   activeSessionDefaultsProfile: ios

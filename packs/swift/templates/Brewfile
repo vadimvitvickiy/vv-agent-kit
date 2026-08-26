@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+#
+# Tooling the scripts and hooks in this project expect. `brew bundle` to install.
+#
+# Nothing here is required for the project to build — every script degrades to a
+# working, slower path when a tool is missing, and says which one it wanted. They
+# are listed so a new checkout does not have to discover that one at a time.
+
+# scripts/lint.sh, and the plugin's lint-on-edit hook.
+brew "swiftlint"
+
+# Turns raw xcodebuild output into something a human can read. scripts/build.sh
+# and scripts/test.sh use it when present and fall back to `cat` when not — the
+# counts and failures they report are always parsed from the RAW log, because
+# formatters silently drop Swift Testing output.
+brew "xcbeautify"
+
+# Local developer and agent tooling. CI never invokes either.
+#
+# Homebrew refuses to load a formula from an untrusted tap, which fails
+# `brew bundle` on a build machine that has no reason to install these at all.
+unless ENV["CI"]
+  # Drives builds, simulators, logs and UI automation. Configure it for this
+  # checkout with scripts/setup-tooling.sh — unconfigured it builds into a private
+  # store rather than the cache everything else shares.
+  # Run `brew trust getsentry/xcodebuildmcp` once before the first `brew bundle`.
+  tap "getsentry/xcodebuildmcp"
+  brew "xcodebuildmcp"
+
+  # Bridges sourcekit-lsp to Xcode's build flags. Without it, sourcekit-lsp falls
+  # back to a macOS target and reports "No such module 'UIKit'" on every file in
+  # an iOS framework. scripts/setup-tooling.sh generates its config.
+  brew "xcode-build-server"
+end
