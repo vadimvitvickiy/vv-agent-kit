@@ -56,9 +56,16 @@ repo; verification of any contract, schema or interface the change touches; the 
 when a spec or ticket exists.
 
 **3. Plan — never delegated.** Design decisions stay where the full conversation is. Splitting them
-across agents produces conflicting implicit assumptions. Write the plan to `.agents/plans/`.
+across agents produces conflicting implicit assumptions. Agree the design first —
+`vvkit:designing-changes` — and write the plan to `.agents/plans/`.
 
-**4. Implement — one writer.** Exactly one writer at any moment. Choose fresh-per-task or
+Several independent failures — different subsystems, no shared state, each understandable alone —
+are the case where research fan-out pays most: one read-only investigator per failure, each
+returning the root cause and the change it proposes. The fixes still land through one writer. When
+fixing one failure might fix the others, investigate them together first.
+
+**4. Implement — one writer.** Exactly one writer at any moment. Executing a written plan, task by
+task, is `vvkit:planning-changes`. Choose fresh-per-task or
 full-context by the table above. Parallel implementers are never used: file disjointness is rarely
 enforceable, and shared project files make it worse.
 

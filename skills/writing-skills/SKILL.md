@@ -104,6 +104,41 @@ is there when needed and absent when not.
 
 See `references/frontmatter.md` for the frontmatter fields and the validator's full rule list.
 
+When a skill's prose tells the agent to run a bundled script, name the interpreter —
+`bash scripts/tool.sh`, not `scripts/tool.sh`. Some packagers strip executable bits, and a bare path
+then fails with `Permission denied`.
+
+## Test the behavior, not only the structure
+
+The validator proves a skill is well-formed. It cannot prove the skill changes what an agent does,
+and a skill that changes nothing is pure listing cost.
+
+Before writing, give a fresh subagent the task that tempts the failure, **without** the skill, and
+record what it does and the reasons it gives, verbatim. If it already behaves, there is nothing to
+write — stop. Otherwise write guidance aimed at those specific reasons, re-run the same task with the
+skill loaded, and repeat until it complies. A new rationalization in a re-run gets its own counter.
+
+One sample misleads. Run each variant at least five times, and read wide disagreement between runs
+as wording that does not yet bind.
+
+Test a discipline skill under pressure, because that is where rules get broken. Combine three or
+more: time (a deploy window closing), sunk cost (hours of work to throw away), authority (a senior
+says skip it), exhaustion (the end of a long day), and the appeal of being pragmatic rather than
+dogmatic. Make the scenario concrete — real paths, a forced choice between named options, "what do
+you do?" rather than "what should you do?" — and give it no exit through "I would ask". Test other
+kinds by use rather than by pressure: a technique on a new case, a reference by whether the right
+entry gets found and applied.
+
+For each rationalization the runs surface, close it where it appears: an explicit negation in the
+rule itself, a row in a table pairing the excuse with the reality, and the thought as a red flag
+the agent can recognize in itself. Then re-run; a counter that closes one loophole often opens the
+next.
+
+Match the form to the failure. A rule the agent breaks under pressure needs a prohibition and the
+rationalizations it answers. Output of the wrong shape needs a recipe — what the output *is*, its
+parts in order — because a prohibition on shape gets negotiated: in the superpowers plugin's own
+wording tests, a prohibition produced more of the unwanted content than a recipe did.
+
 ## Before shipping
 
 - [ ] `./scripts/validate.sh` exits 0
@@ -117,3 +152,4 @@ See `references/frontmatter.md` for the frontmatter fields and the validator's f
       component. This is the only check that reports what Claude Code actually discovered rather than
       what the layout suggests
 - [ ] Every claim in the body is one you could source if asked
+- [ ] A fresh subagent showed the failure without the skill, and did not show it with the skill

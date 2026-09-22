@@ -4,6 +4,44 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-09-22
+
+Absorbs the superpowers plugin (6.4.1), so a project can run on this kit alone.
+
+### Added
+
+- `designing-changes`: classify a request as spike, bounded or architectural; write your
+  understanding back before designing; offer approaches, not a verdict; each approval covers only the
+  stage that was shown.
+- `planning-changes`: turn an agreed design into a plan an executor with no context can follow —
+  files, interfaces, test-first steps with expected output, constraints copied verbatim, a review
+  focus. `references/executing-a-plan.md` covers the isolated workspace, a progress ledger that
+  survives compaction, rulings, the per-task subagent loop with a capped fix loop, and one final
+  review.
+- `debugging-systematically`: instrument every boundary a failing path crosses; one hypothesis and
+  one change per run; three failed fixes is a design question for the human; what to do when the
+  cause is outside the code; hardening the path after the fix.
+- `reviewing-code`: reviewing against the requirements, with a list of what was set aside; how to
+  ask for a review; how to receive one as the author. The description now triggers on both.
+- `writing-tests`: test-first as the default order; what a test may assert — hand-derived
+  expectations, no change detectors, no assertions on doubles, fakes at the right level; the
+  mutation check.
+- `verifying-changes`: a green suite is not the same as meeting the brief; failures you did not
+  cause are reported too.
+- `committing-changes`: integrating a finished branch — the suite on the merged tree, the base
+  confirmed, options offered, nothing discarded or forced without an explicit request.
+- `delegating-work`: parallel read-only investigators for independent failures.
+- `writing-skills`: test a skill on a fresh subagent before and after writing it, under combined
+  pressure for discipline skills; match the form of guidance to the failure; name the interpreter
+  for bundled scripts.
+
+### Not carried over
+
+- Superpowers' rule to delete any code written before its test. `writing-tests` keeps test-first as
+  the default and the break-the-line check as the proof when the code came first.
+- The brainstorming visual companion, which depends on a server bundled with that plugin.
+- `using-superpowers` and `diagnosing-superpowers`, which concern that plugin itself.
+
 ## [0.5.0] — 2026-08-26
 
 ### Added

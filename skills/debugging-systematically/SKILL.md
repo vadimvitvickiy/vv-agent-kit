@@ -38,6 +38,26 @@ view. The defect is wherever the invariant was supposed to hold and did not.
 Fix it at that layer, so the whole class of the bug becomes unrepresentable rather than this one
 instance becoming survivable.
 
+## Instrument every boundary the path crosses
+
+When the failing path crosses components — handler to service to database, workflow to build script
+to signer — reading code rarely finds the hop that dropped the value, because each layer looks
+correct on its own. Log what enters and what leaves each boundary, run once, and the first boundary
+whose input is right and output is wrong names the component to read. One instrumented run replaces
+a guess per layer.
+
+Treat configuration the same way. A variable set in the workflow and absent in the script it
+launches is a boundary failure, and from inside the script it is indistinguishable from a logic bug.
+
+## One hypothesis, one change
+
+State the hypothesis as a sentence — "X is wrong because Y" — and make the smallest change that
+would falsify it. Two changes in one run cannot be attributed: if the failure goes away, you do not
+know which change did it, and the one that did nothing stays in the code as a false fix.
+
+When a hypothesis fails, revert its change before forming the next one. Fixes stacked on failed
+hypotheses are how a diff fills with changes nobody can justify.
+
 ## Band-aids that are never the fix
 
 Each of these turns a red signal green without changing what was wrong. The cost lands later, on
@@ -53,6 +73,35 @@ someone with less context than you have right now.
 
 If you are genuinely blocked and must ship a workaround, **say it is a workaround and state the real
 cause**. An unlabelled band-aid is indistinguishable from a fix, so nobody ever comes back for it.
+
+## Three failed fixes is a design finding
+
+Three well-reasoned fixes that each failed, or each moved the symptom somewhere new, are no longer
+three wrong hypotheses. When every fix exposes more shared state or coupling in a different place,
+the structure is wrong, and a fourth fix at the same level is sunk cost.
+
+Stop and take it to the human: what the three attempts revealed, and the structural question they
+raise. Whether to restructure is their decision, not something to slide into a bug fix.
+
+The human's questions are signals too. "Is that not happening?" means you assumed without checking;
+"will it show us…?" means evidence should have been gathered first; "stop guessing" means fixes are
+being proposed without a cause. Each is a cue to go back to reproducing and tracing.
+
+## When the cause is outside the code
+
+Sometimes a thorough investigation lands on something genuinely environmental: timing on shared
+infrastructure, an external service, a platform defect. Then write down what was investigated, add
+handling that fails visibly — a bounded retry with a logged reason, a timeout, a clear error — and
+logging that would catch it next time. Be suspicious of reaching this conclusion: most "no root
+cause" findings are an investigation stopped early.
+
+## After the fix, harden the path
+
+The fix belongs at the origin. Once it is in, consider making the same bad value impossible to reach
+again: reject it at the entry point, check it where the operation depends on it, and refuse the
+dangerous operation outright in contexts where it must never run, such as a test touching a real
+directory. Each of these fails loudly. A guard that swallows the bad state instead is the band-aid
+from the table above.
 
 ## Binary search when the trace goes cold
 

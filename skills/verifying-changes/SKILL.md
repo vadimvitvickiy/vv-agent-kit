@@ -27,7 +27,8 @@ Run the full suite **once at the end**, as the final gate before reporting. Not 
 
 ## Reporting honestly
 
-- If tests fail, say so, and include the output.
+- If tests fail, say so, and include the output — including failures you did not cause. A red test
+  that scrolled past unmentioned falsifies the report by omission.
 - If a step was skipped, say which and why.
 - If something is done and verified, state it plainly without hedging.
 - If you could not verify something, say that rather than implying you did.
@@ -52,10 +53,18 @@ A green result is only as good as what the tool actually checked:
 When you rely on a cached or filtered run, name the gap rather than treating the green as complete
 coverage.
 
+## Passing is not the same as done
+
+A green suite proves the code does what its tests check. Whether it does what was asked is a
+separate question, answered by re-reading the brief, plan or ticket and checking each requirement
+against the diff. Tests written in the same change inherit the author's reading of the requirement,
+so they cannot catch a misreading of it.
+
 ## Before claiming done
 
 - [ ] The command was actually run, in this session, after the last edit
 - [ ] Its output was read, not assumed
 - [ ] The test count is non-zero and matches expectation
 - [ ] The full suite has been swept once, at the end
+- [ ] The brief, plan or ticket was re-read, and each requirement checked against the diff
 - [ ] Anything unverified is stated as unverified

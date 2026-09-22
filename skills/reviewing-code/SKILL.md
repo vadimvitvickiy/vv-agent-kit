@@ -1,6 +1,6 @@
 ---
 name: reviewing-code
-description: Use when reading a diff or pull request for defects, or when acting as the reviewer on a change you did not write.
+description: Use when reading a diff or pull request for defects, when acting as the reviewer on a change you did not write, or when review feedback arrives on your own change.
 ---
 
 # Reviewing code
@@ -71,6 +71,20 @@ attention on:
 Convention comes after, and only where a convention is actually established. See
 `vvkit:writing-comments` for what counts as an over-commented diff.
 
+## Review against the requirements too
+
+When a plan, design or ticket exists, it is part of the review's input. Check that everything it
+asks for is present, and flag every deviation — the author confirms whether it was intended, and an
+unflagged one gets approved by default. If the problem is in the plan rather than the code, say so.
+
+A design says what the software must do, not every input it will meet. Where it is silent, judge by
+what a reasonable person using the software would expect, and grade the finding by its effect on
+them — not by whether the design happened to name the input that triggers it.
+
+Before the verdict, list every behavior you considered and set aside as outside the requirements,
+one line each with the reason. The author rules on each line; nothing gets dropped silently. An
+empty list means you set nothing aside.
+
 ## Finding nothing is a result
 
 Say so plainly. Do not manufacture findings to look thorough.
@@ -95,5 +109,44 @@ skimmed along with everything else. Credibility is the only tool a reviewer actu
 - ...
 ```
 
-Then state which findings you consider blocking and which you would leave. A review that reports
-without recommending leaves the decision to the person with the least context.
+Then state which findings you consider blocking and which you would leave, and a verdict: ready to
+merge, not ready, or ready with named fixes. A review that reports without recommending leaves the
+decision to the person with the least context.
+
+## Asking for a review
+
+Request one after a substantial piece of work, and always before merging to the default branch.
+Give the reviewer what it cannot infer, and nothing of your reasoning:
+
+- **What was built**, in a sentence or two, and **what it should do** — the plan, design or ticket.
+- **The exact range**: from the commit the work started at, or `git merge-base <base> HEAD`, to
+  `HEAD`. Never `HEAD~1` for work that spans commits; it silently drops all but the last one.
+- **Read-only.** The reviewer inspects history with `git show`, `git diff` and `git log`, and never
+  moves `HEAD` or touches the working tree; another revision goes in a separate worktree.
+- **No sub-reviewers.** One review seat, done by the reviewer itself. A diff too large for one pass
+  gets reviewed in passes, and the review says so.
+
+Then fix Critical findings at once, Important ones before moving on, and record Minor ones.
+
+## When you are the author
+
+A finding is a claim about code, and it gets the same scrutiny as any other claim. The reviewer saw
+the diff, not the reasons behind it, so an item can be right in general and wrong for this codebase.
+
+- **Clarify every unclear item before implementing any.** Items in one review are often related.
+  Implementing the four you understand while asking about the other two builds a partial change on
+  the very misreading the answer would have corrected.
+- **Check each item against the code.** Does it break existing behavior? Does the current form exist
+  for a reason — a platform floor, a compatibility constraint, a decision the human already made?
+- **Grep before building it "properly".** When a finding asks for a fuller implementation, check that
+  anything calls it. An unused path should be deleted, not completed.
+- **Push back with evidence** — a test, a call site, a constraint — not with agreement and not with
+  defensiveness. If the pushback turns out wrong, say what you checked, and fix it.
+- **Implement one item at a time and test each**, blocking issues first. A batch of fixes that breaks
+  a test cannot say which fix broke it.
+- **A conflict with an earlier decision by the human goes to the human.** Neither author nor
+  reviewer settles it.
+
+Acknowledge with the change, not with praise. "Fixed: the nil path at `Parser.swift:88`" tells the
+reviewer the item was understood. "Great catch!" tells them nothing, and reads as agreement you have
+not checked.

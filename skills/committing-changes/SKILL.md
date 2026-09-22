@@ -1,6 +1,6 @@
 ---
 name: committing-changes
-description: Use when writing a commit message, opening a pull request, or titling and describing a change for someone else to review.
+description: Use when writing a commit message, opening a pull request, titling and describing a change for someone else to review, or deciding how to integrate a finished branch.
 ---
 
 # Committing changes
@@ -106,6 +106,28 @@ users will notice, a deliberate workaround.
 lines — beyond roughly 400, reviewers find *fewer* defects per line, because attention degrades and
 reading turns into skimming. A description cannot rescue a diff that is too large to review; splitting
 it can. If the change cannot be split, say so and tell the reviewer which parts deserve the attention.
+
+## Integrating a finished branch
+
+Integration is the human's decision, so present it rather than take it:
+
+1. **Run the full suite on the tree about to be integrated.** A green run earlier in the session
+   proves only the tree it ran on. If it is red, report the failures and stop.
+2. **Confirm the base branch** the work forked from, from the plan, the conversation or the branch's
+   upstream — or ask. Merging into the wrong base is expensive to undo.
+3. **Offer the options**: merge locally, push and open a pull request, or keep the branch as it is.
+   Wait for the answer.
+
+A local merge is verified by running the suite on the merged result before anything is deleted; if
+it fails, the branch and its worktree stay while you investigate. A pull request keeps its worktree,
+because review feedback gets fixed there.
+
+Discarding work happens only when the human asks for it in so many words, and only after they
+confirm a list of exactly what goes: the branch, its commits, its worktree. Worktree removal that
+refuses because of uncommitted files means those files exist nowhere else — show them, and ask
+whether to commit, move or delete them; never `--force` on your own initiative. A rejected push
+means the remote moved: investigate, and force-push only on an explicit request. Remove only
+worktrees you created; anything else belongs to whoever made it.
 
 ## Never
 

@@ -34,15 +34,17 @@ Skills load on their own when the situation matches. You never have to name one.
 
 | Skill | Fires when |
 |-|-|
+| `designing-changes` | A change is asked for and the approach is not agreed yet, or the request is open-ended |
+| `planning-changes` | An agreed design needs a plan, or a written plan is being carried out or resumed |
 | `writing-tests` | Behavior changes, a bug is fixed, or a test needs judging on whether it earns its place |
 | `verifying-changes` | Deciding what to build or run, and before claiming anything is done or passing |
 | `debugging-systematically` | A test fails or behavior does not match expectation — before any fix is proposed |
-| `reviewing-code` | Reading a diff or pull request for defects, on a change you did not write |
+| `reviewing-code` | Reading a diff for defects, asking for a review, or receiving one on your own change |
 | `delegating-work` | A change spans several files, or subagents are on the table |
 | `exploring-a-codebase` | Starting in an unfamiliar repo, or a map or architecture note looks stale |
 | `writing-comments` | A diff adds explanatory prose alongside code |
 | `writing-logs` | Adding log statements, or deciding what level a message belongs at |
-| `committing-changes` | Writing a commit message, or titling and describing a pull request |
+| `committing-changes` | Writing a commit message, describing a pull request, or integrating a finished branch |
 | `capturing-decisions` | A rationale emerges that would otherwise die with the session |
 | `injecting-dependencies` | Writing a constructor, or adding a parameter so something can be swapped in a test |
 | `writing-project-instructions` | A `CLAUDE.md` is being edited, has grown long, or repeats an installed skill |
@@ -103,7 +105,7 @@ Skills are flat. The tier is expressed by the name, and by what each skill refus
 | `writing-comments` | `swift-style` |
 | `verifying-changes` | `xcode-builds` |
 | `reviewing-code` | `swift-reviewer` (agent) |
-| `delegating-work`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `committing-changes`, `writing-project-instructions`, `writing-skills` | — |
+| `designing-changes`, `planning-changes`, `delegating-work`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `committing-changes`, `writing-project-instructions`, `writing-skills` | — |
 
 Each Swift skill declares its neutral counterpart as `REQUIRED BACKGROUND` and does **not** restate
 it. Restating is how one ruleset ends up in three files that then drift apart — the validator checks
