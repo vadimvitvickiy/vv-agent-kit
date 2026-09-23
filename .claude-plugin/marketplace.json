@@ -29,6 +29,17 @@
         "ios",
         "xcode"
       ]
+    },
+    {
+      "name": "vvkit-go",
+      "source": "./plugins/go",
+      "description": "Go build, test and lint scripts, a golangci-lint v2 config, and format-on-edit. Install per project, with --scope project",
+      "category": "workflow",
+      "keywords": [
+        "go",
+        "golang",
+        "golangci-lint"
+      ]
     }
   ]
 }

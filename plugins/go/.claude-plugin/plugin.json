@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
-  "name": "vvkit",
-  "displayName": "Agent Kit",
-  "version": "0.11.0",
-  "description": "Portable agent practices: design, planning, delegation, verification, debugging, review and testing discipline. Stack packs ship as separate plugins",
+  "name": "vvkit-go",
+  "displayName": "Agent Kit — Go",
+  "version": "0.1.0",
+  "description": "Go build, test and lint scripts, a golangci-lint v2 config, and format-on-edit for Go projects",
   "author": {
     "name": "vadimvitvickiy",
     "url": "https://github.com/vadimvitvickiy"
@@ -12,10 +12,12 @@
   "repository": "https://github.com/vadimvitvickiy/vv-agent-kit",
   "license": "MIT",
   "keywords": [
-    "skills",
-    "workflow",
-    "testing",
-    "code-review",
-    "debugging"
+    "go",
+    "golang",
+    "golangci-lint",
+    "testing"
+  ],
+  "dependencies": [
+    "vvkit"
   ]
 }

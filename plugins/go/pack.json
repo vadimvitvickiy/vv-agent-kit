@@ -1,0 +1,22 @@
+{
+  "name": "go",
+  "description": "Go build, test and lint scripts, golangci-lint config, format-on-edit",
+  "detect": [
+    "go.mod",
+    "go.work"
+  ],
+  "skills": [],
+  "agents": [],
+  "rules": [],
+  "templates": {
+    "golangci.yml": ".golangci.yml",
+    "scripts/": "scripts/"
+  },
+  "env": {
+    "KIT_SOURCE_GLOB": "*.go"
+  },
+  "commands": [
+    "scripts"
+  ],
+  "context": []
+}

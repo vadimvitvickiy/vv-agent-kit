@@ -7,23 +7,27 @@ invokes the same commands.
 
 ```
 scripts/build.sh   compile-check; exit 0 means it compiles
-scripts/test.sh    run tests; writes a run log the Stop hook reads
-scripts/lint.sh    lint; non-zero on error severity only
-scripts/map.sh     generate the code map into .agents/state/ (gitignored)
-scripts/setup-tooling.sh   bind xcodebuildmcp and sourcekit-lsp to Xcode's cache
-scripts/lib/       shared helpers
+scripts/test.sh    run tests; writes a run log the Stop hook reads, fails when 0 tests ran
+scripts/lint.sh    lint; skips with a message when the linter is not installed
+scripts/db.sh      local database: up, migrate, reset (local only), seed, psql — backend only
 ```
 
-The scripts **auto-detect** the project, scheme and simulator at runtime. Nothing is substituted into
-them, so a renamed scheme or a new Xcode version does not silently break them.
+Each stack adds its own on top — Swift adds `map.sh`, `setup-tooling.sh` and `lib/`. The scripts
+**auto-detect** what they can at runtime, so nothing project-specific is substituted into them.
 
 ## 1. Detect the stack
 
-Probe for `*.xcworkspace`, `*.xcodeproj`, `Package.swift`, `package.json`, `Makefile`. Confirm with
-the user when more than one plausible stack is present.
+Match the project against each `plugins/<stack>/pack.json` `detect` list. Confirm with the user when
+more than one matches — a Go service with a `compose.yaml` is both `go` and `backend`, and gets both.
 
-Currently only the Swift/Xcode set ships. For any other stack, say so plainly and stop rather than
-writing scripts that wrap a command you guessed.
+| Stack | Scripts from | Also copies |
+|-|-|-|
+| `swift` | `plugins/swift/templates/scripts/` | — |
+| `go` | `plugins/go/templates/scripts/` | `golangci.yml` → `.golangci.yml` |
+| `backend` | `plugins/backend/templates/scripts/` (`db.sh`) | `compose.yaml`, only when the project has none |
+
+For a stack with no pack, say so plainly and stop rather than writing scripts that wrap a command you
+guessed.
 
 ## 2. Check for collisions
 
@@ -35,7 +39,7 @@ generator cannot know. Prefer keeping it and recording it in `CLAUDE.md`.
 
 ## 3. Copy
 
-Copy `plugins/swift/templates/scripts/` into `scripts/`, preserving the executable bit. Verify with
+Copy each matched stack's scripts into `scripts/`, preserving the executable bit. Verify with
 `ls -l` that every one of them is executable — a non-executable hook or script fails in a way that reads like
 a missing file.
 
@@ -48,6 +52,7 @@ a missing file.
 | `scripts/lint.sh` | Run it | Exit 0 or 1 with a real report; not a crash |
 | `scripts/build.sh` | Run it | Exit 0, and the log shows compiled files |
 | `scripts/test.sh` | Run it | Exit 0 with a non-zero test count, **or** a clear "no test target" failure |
+| `scripts/db.sh` | `up`, then `migrate`, then `status` | The database reports healthy and a migration version; `reset` refuses a non-local `DATABASE_URL` |
 | `scripts/map.sh` | Run it, then read the output | Real targets listed, and the top-ranked symbols are domain types rather than generated noise |
 | `scripts/setup-tooling.sh` | Run `--print`, then run it | `--print` names a real DerivedData folder; the run reports a non-zero `.compile` entry count |
 

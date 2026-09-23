@@ -122,12 +122,13 @@ active wherever their plugin is enabled and no-op where they do not apply. The t
 turn, so it stays inert until the project opts in — which happens by having `scripts/test.sh`, not by
 configuration.
 
-Set `KIT_SOURCE_GLOB` in `.claude/settings.json` when the project's sources are not `*.swift`.
+Copy each selected pack's `env` from `pack.json` into the `env` of `.claude/settings.json` — the Go
+pack sets `KIT_SOURCE_GLOB` to `*.go`, which points the test gate at Go sources.
 `KIT_TEST_COMMAND` is only needed to override `scripts/test.sh` with something else.
 
 ## Step 7b — Generate the scripts
 
-Run `vvkit:scripts` to write `scripts/{build,test,lint}.sh` and verify each by running it.
+Run `/vvkit:scripts` to write `scripts/{build,test,lint}.sh` and verify each by running it.
 
 This is what gives the project a stable interface and what activates the test gate. Skip it only if
 the project already has working build and test scripts — in which case record those in `CLAUDE.md`
