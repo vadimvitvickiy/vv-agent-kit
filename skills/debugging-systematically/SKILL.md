@@ -58,6 +58,17 @@ know which change did it, and the one that did nothing stays in the code as a fa
 When a hypothesis fails, revert its change before forming the next one. Fixes stacked on failed
 hypotheses are how a diff fills with changes nobody can justify.
 
+## A live incident mitigates first
+
+When production is failing now, stopping the harm comes before understanding it: roll back, turn
+the flag off, shed the traffic. That is not a band-aid from the table below — it is a decision made
+in the open, and it is undone once the cause is fixed.
+
+Before mitigating, keep what the failure left behind — the logs, a failing request, the bad record —
+because the rollback erases the reproduction. Label the change as mitigation in the commit and in
+the report, then run the rest of this skill against that evidence. A mitigation nobody comes back
+to becomes the band-aid it resembled.
+
 ## Band-aids that are never the fix
 
 Each of these turns a red signal green without changing what was wrong. The cost lands later, on

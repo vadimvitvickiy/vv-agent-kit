@@ -63,8 +63,18 @@ attention on:
   never torn down, a handle or subscription that outlives its owner.
 - **Shared state** — a read-modify-write that is not atomic, initialization reachable from two
   threads, mutable state crossing an isolation boundary.
+- **Trust boundaries** — outside input reaching a query, a shell, a file path or a template
+  unescaped; a new endpoint or handler with no authorization check, or one that checks who the
+  caller is but not what they own; a secret in code or in a log. Confirm the input is actually
+  attacker-controlled and the path reachable before reporting — where the framework already escapes
+  it, the finding is noise.
+- **Contracts** — a changed API, schema, wire format, persisted field or event that something
+  already deployed still reads: an older app version, another service, rows written last year.
+  Removing or renaming is breaking even when every caller in this repo was updated.
 - **Swallowed failure** — an error caught and discarded, a result ignored, a failure path that
   returns a plausible-looking empty value instead of failing.
+- **Remote calls** — no timeout, a retry around an operation that is not idempotent, a retry loop
+  with no cap.
 - **Boundaries** — the first element, the last, the empty collection, the maximum, the negative.
 - **Behavior changing without a test** — see `vvkit:writing-tests` for whether one is owed.
 
