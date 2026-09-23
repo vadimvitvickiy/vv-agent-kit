@@ -14,7 +14,7 @@ acting on it is the care taken writing it.
 | The guidance is | It belongs in |
 |-|-|
 | True in any repo, needed only for some tasks | a skill |
-| True in any repo, needed on literally every turn | the plugin's own `CLAUDE.md`, not a skill |
+| True in any repo, needed on literally every turn | `hooks/using-vvkit.md`, injected at session start — a plugin's own `CLAUDE.md` is never loaded |
 | Specific to one repo | `templates/` or `packs/`, scaffolded in and owned by that repo |
 | A rule that must hold whether or not the model cooperates | a hook |
 | A task with its own context window and a narrow tool set | an agent |

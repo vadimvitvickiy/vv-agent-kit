@@ -4,6 +4,23 @@ All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-09-23
+
+### Added
+
+- `using-vvkit` SessionStart hook. Injects a situation-to-skill table, the job superpowers'
+  `using-superpowers` hook did, so skills load without a project or user `CLAUDE.md` listing them.
+  Measured headless, isolated from user settings, three runs per prompt: debugging, design and review
+  requests loaded their skill in 1 of 9 runs without it and 9 of 9 with it; commit, plan and
+  "is it done?" requests stayed at 9 of 9; a plain question loaded nothing either way. Costs about
+  550 tokens per session.
+
+### Fixed
+
+- `writing-skills` routed every-turn guidance to "the plugin's own `CLAUDE.md`". Claude Code never
+  loads a plugin's `CLAUDE.md` — verified headless — so that guidance was inert. It now goes in
+  `hooks/using-vvkit.md`.
+
 ## [0.6.0] — 2026-09-22
 
 Absorbs the superpowers plugin (6.4.1), so a project can run on this kit alone.

@@ -76,6 +76,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | Hook | Event |
 |-|-|
 | `session-context` | Injects branch and working-tree state at session start |
+| `using-vvkit` | Injects which skill to load in which situation, at session start and after `/clear` or compaction. Without it, debugging, design and review requests loaded their skill in 1 of 9 test runs; with it, 9 of 9 |
 | `swiftlint` | Autocorrects an edited Swift file; surfaces only what it could not fix |
 | `test-gate` | Blocks the turn once per session when source changed after the last test run — **inert unless the project opts in** |
 
@@ -120,7 +121,7 @@ neutral tier. Nothing about the neutral tier changes.
 skills/       one flat namespace; the tier is in the name
 agents/       reviewer subagents
 commands/     /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore, /vvkit:wire
-hooks/        session context, lint-on-edit, test gate
+hooks/        session context, skill routing, lint-on-edit, test gate
 packs/        per-stack rules and config that onboard copies into a project
 templates/    the neutral project scaffold
 scripts/      validate.sh — the structural gate

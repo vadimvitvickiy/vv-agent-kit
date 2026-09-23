@@ -9,6 +9,12 @@
             "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session-context.sh\"",
             "shell": "bash",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/using-vvkit.sh\"",
+            "shell": "bash",
+            "timeout": 15
           }
         ]
       }
