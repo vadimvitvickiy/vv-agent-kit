@@ -48,7 +48,9 @@ path.
 
 Every hook must fail open: `set -uo pipefail`, and any unexpected condition exits 0. Exit 2 is the
 only code fed back to the model. A hook that can block a turn must be opt-in per project — a blocking
-gate inherited by a project that never asked for it gets the whole plugin disabled.
+gate inherited by a project that never asked for it gets the whole plugin disabled. Refusing a single
+tool call whose fix is one more field is not a blocking gate, and may be on by default with an off
+switch.
 
 ## What `scripts/validate.sh` enforces
 

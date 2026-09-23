@@ -15,6 +15,7 @@ think you remember it: skills change between versions.
 | Deciding what to build or run, or about to say work is done, fixed or passing | `vvkit:verifying-changes` |
 | Reviewing a diff, asking for a review, or receiving one | `vvkit:reviewing-code` |
 | Work spans several files, or subagents are on the table | `vvkit:delegating-work` |
+| About to launch any subagent | `vvkit:choosing-subagent-models` |
 | A commit message, a pull request, or integrating a finished branch | `vvkit:committing-changes` |
 | Starting in an unfamiliar repo, or locating code | `vvkit:exploring-a-codebase` |
 | Writing a constructor, or adding a parameter as a test seam | `vvkit:injecting-dependencies` |

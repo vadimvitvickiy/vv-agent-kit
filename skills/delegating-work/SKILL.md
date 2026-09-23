@@ -51,7 +51,7 @@ duplicated across three files that then drift apart.
 **1. Scope.** Pin the goal, what is affected, what is explicitly out of scope.
 
 **2. Research — fan out.** Launch every applicable reader in one message, read-only, with an
-explicit model. Readers are independent and never write. Three that usually apply: prior art in this
+explicit model — `vvkit:choosing-subagent-models`. Readers are independent and never write. Three that usually apply: prior art in this
 repo; verification of any contract, schema or interface the change touches; the requirements source
 when a spec or ticket exists.
 

@@ -41,6 +41,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `debugging-systematically` | A test fails or behavior does not match expectation — before any fix is proposed |
 | `reviewing-code` | Reading a diff for defects, asking for a review, or receiving one on your own change |
 | `delegating-work` | A change spans several files, or subagents are on the table |
+| `choosing-subagent-models` | Any subagent is about to be launched — which of `haiku`, `sonnet`, `opus` its job needs |
 | `exploring-a-codebase` | Starting in an unfamiliar repo, or a map or architecture note looks stale |
 | `writing-comments` | A diff adds explanatory prose alongside code |
 | `writing-logs` | Adding log statements, or deciding what level a message belongs at |
@@ -78,6 +79,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `session-context` | Injects branch and working-tree state at session start |
 | `using-vvkit` | Injects which skill to load in which situation, at session start and after `/clear` or compaction. Without it, debugging, design and review requests loaded their skill in 1 of 9 test runs; with it, 9 of 9 |
 | `swiftlint` | Autocorrects an edited Swift file; surfaces only what it could not fix |
+| `subagent-model-gate` | Refuses a subagent launch that names no `model`, which would inherit the session's. Never picks one itself. On by default; `KIT_SUBAGENT_MODEL_GATE=0` turns it off |
 | `test-gate` | Blocks the turn once per session when source changed after the last test run — **inert unless the project opts in** |
 
 ## The one rule
@@ -106,7 +108,7 @@ Skills are flat. The tier is expressed by the name, and by what each skill refus
 | `writing-comments` | `swift-style` |
 | `verifying-changes` | `xcode-builds` |
 | `reviewing-code` | `swift-reviewer` (agent) |
-| `designing-changes`, `planning-changes`, `delegating-work`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `committing-changes`, `writing-project-instructions`, `writing-skills` | — |
+| `designing-changes`, `planning-changes`, `delegating-work`, `choosing-subagent-models`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `committing-changes`, `writing-project-instructions`, `writing-skills` | — |
 
 Each Swift skill declares its neutral counterpart as `REQUIRED BACKGROUND` and does **not** restate
 it. Restating is how one ruleset ends up in three files that then drift apart — the validator checks

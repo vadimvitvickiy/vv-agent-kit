@@ -68,10 +68,7 @@ fixes made there skip review. `vvkit:delegating-work` covers the spawn prompt; o
   the path. Anything pasted into a spawn prompt, or printed back, stays in the coordinator's context.
 - **Batch small same-shape tasks** — the same one-line change across several files — into one spawn,
   reviewed as one diff.
-- **Choose each model by role, and set it explicitly.** The cheapest tier for a task whose plan text
-  already contains the code; a mid tier as the floor for reviewers and for implementers working from
-  prose, because the cheapest models take two to three times the turns on multi-step work and cost
-  more overall; the most capable for the final review. An omitted model inherits the session's.
+- **Choose each model by role, and set it explicitly** — `vvkit:choosing-subagent-models`.
 - **Require a status from the implementer**: done, done with concerns, needs context, or blocked.
   Read concerns before review. Give missing context and re-spawn. A blocked implementer needs
   something to change — more context, a more capable model, a smaller task, or a ruling on the

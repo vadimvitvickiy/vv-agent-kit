@@ -34,7 +34,7 @@ plugin `agents/`.
 | `description` | free text | **Required.** Drives auto-delegation. Answer "when to use me", not "what I do". |
 | `tools` | `Read, Grep, Glob, Bash, Write, Edit, …` | **Always set explicitly.** Omitting inherits every tool plus every MCP server. |
 | `disallowedTools` | `Write, Edit` | Denylist, applied before `tools`. Prefer an allowlist. |
-| `model` | `haiku` / `sonnet` / `opus` / `inherit` | Omitted inherits the main session's model — a trivial lookup then runs at full cost, and a critical review silently downgrades on a cheap session. Set it. |
+| `model` | `haiku` / `sonnet` / `opus` / `inherit` | Omitted inherits the main session's model. Set it — see `vvkit:choosing-subagent-models`. |
 | `maxTurns` | integer | Bound execution on well-defined tasks. |
 | `isolation` | `worktree` | File-modifying tasks needing an isolated repo copy. |
 | `background` | `true` | Run concurrently without blocking the main conversation. |
@@ -54,16 +54,7 @@ agents, for security. Copy the agent into `.claude/agents/` to use them.
 
 ## Model selection
 
-Make it explicit on every spawn. Omitted means "inherit", which is almost never what you want.
-
-| Work | Model |
-|-|-|
-| Research, exploration, code reading, "where is X" | `sonnet` — never `haiku`; a missed file costs far more than the tokens saved |
-| Planning, critical review, architectural judgment | `opus` |
-| Genuinely trivial: read one known file, grep one known string | `haiku` — escalate to `sonnet` if there is any ambiguity about *where* to look |
-
-`CLAUDE_CODE_SUBAGENT_MODEL=<id>` forces a model for all subagents. A debugging sledgehammer; it
-kills tiering.
+`vvkit:choosing-subagent-models` — the model for each kind of work, and the special cases.
 
 ## What a subagent receives
 

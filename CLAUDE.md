@@ -68,6 +68,10 @@ A hook that can block a turn must be **opt-in**. `test-gate.sh` is registered fo
 exits immediately unless that project has an executable `scripts/test.sh` or sets `KIT_TEST_COMMAND`. A blocking gate inherited by a project
 that never asked for it gets the whole plugin disabled.
 
+A hook that refuses a single tool call, where the fix is the same call with one more field, is not a
+blocking gate and may be on by default — `subagent-model-gate.sh` is the one case. It still ships
+with an off switch.
+
 Fail open, always. `set -uo pipefail`, and any unexpected condition exits 0 — a bug in a hook must
 never be able to wedge a session. Exit 2 is the only code fed back to the model; use it sparingly,
 and only where a blocked turn is genuinely warranted.
