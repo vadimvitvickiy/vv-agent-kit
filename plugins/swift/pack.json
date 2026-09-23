@@ -35,5 +35,17 @@
   ],
   "context": [
     "architecture.md"
+  ],
+  "companions": [
+    {
+      "plugin": "swift-concurrency@swift-concurrency-agent-skill",
+      "marketplace": "AvdLee/Swift-Concurrency-Agent-Skill",
+      "why": "Swift 6 strict-concurrency migration and current concurrency APIs, maintained by Antoine van der Lee"
+    },
+    {
+      "plugin": "swiftui-pro@swiftui-agent-skill",
+      "marketplace": "twostraws/swiftui-agent-skill",
+      "why": "Current SwiftUI APIs over deprecated and soft-deprecated ones, and VoiceOver, maintained by Paul Hudson"
+    }
   ]
 }

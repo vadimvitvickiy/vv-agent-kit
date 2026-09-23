@@ -42,6 +42,26 @@ project's `.claude/settings.json`, which is committed, so teammates get the same
 a backend service — never sees the Swift skills, agents or hooks, and pays no listing space for
 them. `/vvkit:onboard` installs every stack it detects.
 
+### Companion plugins
+
+Where someone else maintains the better skill for a stack, the kit points at it instead of copying
+it — a copy is a fork, and a fork drifts. Each pack lists its companions in `pack.json`, and
+`/vvkit:onboard` offers them per project:
+
+| Stack | Companion | Covers |
+|-|-|-|
+| Swift | `swift-concurrency@swift-concurrency-agent-skill` ([AvdLee](https://github.com/AvdLee/Swift-Concurrency-Agent-Skill)) | Swift 6 strict-concurrency migration and current concurrency APIs |
+| Swift | `swiftui-pro@swiftui-agent-skill` ([twostraws](https://github.com/twostraws/swiftui-agent-skill)) | Current SwiftUI APIs over deprecated ones, VoiceOver |
+| Backend | `postgres-best-practices@supabase-agent-skills` ([Supabase](https://github.com/supabase/agent-skills)) | Postgres query, schema, locking and connection rules |
+| Backend | `supply-chain-risk-auditor@trailofbits`, `insecure-defaults@trailofbits` ([Trail of Bits](https://github.com/trailofbits/skills)) | Dependency supply-chain risk; hardcoded secrets and weak defaults |
+
+Each is installed like a stack, with its marketplace declared at project scope so teammates get it:
+
+```bash
+claude plugin marketplace add AvdLee/Swift-Concurrency-Agent-Skill --scope project
+claude plugin install swift-concurrency@swift-concurrency-agent-skill --scope project
+```
+
 ## What you get
 
 Skills load on their own when the situation matches. You never have to name one.

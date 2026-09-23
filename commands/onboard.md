@@ -50,8 +50,25 @@ claude plugin install vvkit-swift@vv-agent-kit --scope project
 ```
 
 That records the stack plugin, and `vvkit` as its dependency, as `true` under `enabledPlugins` in
-`.claude/settings.json`, so everyone who clones the repo gets the same stacks. A stack that was not selected stays uninstalled:
-its skills, agents and hooks never appear in this project, descriptions included.
+`.claude/settings.json`, so everyone who clones the repo gets the same stacks. A stack that was not
+selected stays uninstalled: its skills, agents and hooks never appear in this project, descriptions
+included.
+
+### Offer the companions
+
+A selected pack's `companions` in `pack.json` are other authors' plugins that cover what the kit
+deliberately does not copy — skills maintained by the people who know that stack best. Copying one
+into the kit would fork it, and a fork drifts from its source. List each with its `why`, skip any
+whose `when` does not hold for this project, and install only the ones the user picks, at project
+scope:
+
+```bash
+claude plugin marketplace add AvdLee/Swift-Concurrency-Agent-Skill --scope project
+claude plugin install swift-concurrency@swift-concurrency-agent-skill --scope project
+```
+
+Offer them; never install one unasked. Each adds its skill descriptions to every session in this
+project, so a companion nobody on the project needs is pure listing cost.
 
 ## Step 5 — Verify before asserting
 

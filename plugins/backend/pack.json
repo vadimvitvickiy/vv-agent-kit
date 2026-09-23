@@ -18,5 +18,23 @@
   "commands": [
     "scripts"
   ],
-  "context": []
+  "context": [],
+  "companions": [
+    {
+      "plugin": "postgres-best-practices@supabase-agent-skills",
+      "marketplace": "supabase/agent-skills",
+      "why": "Postgres query, schema, locking and connection rules ranked by impact, maintained by Supabase",
+      "when": "the project uses Postgres"
+    },
+    {
+      "plugin": "supply-chain-risk-auditor@trailofbits",
+      "marketplace": "trailofbits/skills",
+      "why": "Audits npm, PyPI and Go dependencies for version-matched advisories and supply-chain risk, from Trail of Bits"
+    },
+    {
+      "plugin": "insecure-defaults@trailofbits",
+      "marketplace": "trailofbits/skills",
+      "why": "Finds hardcoded credentials, fallback secrets and weak defaults in configuration, from Trail of Bits"
+    }
+  ]
 }
