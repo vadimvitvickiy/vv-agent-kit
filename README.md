@@ -67,6 +67,15 @@ Skills load on their own when the situation matches. You never have to name one.
 | `writing-project-instructions` | A `CLAUDE.md` is being edited, has grown long, or repeats an installed skill |
 | `writing-skills` | Authoring or editing a component of this plugin |
 
+**Go (`vvkit-go`) and Backend (`vvkit-backend`) — tooling, no skills.** Every skill candidate for them
+was dropped because Opus already did the job without it (see below). What they ship works whether or
+not the model is careful:
+
+| Plugin | Ships |
+|-|-|
+| `vvkit-go` | `scripts/{build,test,lint}.sh` — `test.sh` runs `-race -count=1 -shuffle=on` and fails when 0 tests ran, which `go test` reports as a pass. A golangci-lint v2 config drawn from maratori's golden config, Prometheus, Consul and cluster-api. Format-on-edit with goimports or gofmt |
+| `vvkit-backend` | A database guard hook. squawk lint on every edited migration. `compose.yaml` for Postgres 18 and optional Redis. `scripts/db.sh`, whose `reset` refuses a non-local target |
+
 **Swift (`vvkit-swift`) — the same disciplines, instantiated:**
 
 | Skill | Fires when |
@@ -97,6 +106,9 @@ Skills load on their own when the situation matches. You never have to name one.
 | `subagent-model-gate` | Refuses a subagent launch that names no `model`, which would inherit the session's. Never picks one itself. On by default; `KIT_SUBAGENT_MODEL_GATE=0` turns it off |
 | `test-gate` | Blocks the turn once per session when source changed after the last test run — **inert unless the project opts in** |
 | `swiftlint` (`vvkit-swift`) | Autocorrects an edited Swift file; surfaces only what it could not fix |
+| `gofmt` (`vvkit-go`) | Formats an edited Go file with goimports, or gofmt when goimports is absent |
+| `db-guard` (`vvkit-backend`) | Refuses schema-dropping tool commands (`drizzle-kit push --force`, `prisma migrate reset`, `rails db:reset`, `migrate drop`) and DROP/TRUNCATE/unbounded DELETE or UPDATE sent to a non-local database, until re-run with `KIT_DB_ACK=1`. A tripwire, not a security boundary; `KIT_DB_GUARD=0` turns it off |
+| `squawk` (`vvkit-backend`) | Lints an edited up-migration with [squawk](https://squawkhq.com) when it is installed: non-concurrent indexes, table rewrites, constraints without `NOT VALID`, missing `lock_timeout` |
 
 ## The one rule
 
@@ -136,9 +148,13 @@ Adding a stack means adding a `plugins/<stack>/` plugin — its own manifest dec
 dependency, the skills that pair with the neutral tier, and its `pack.json` — plus a marketplace
 entry. Nothing about the neutral tier changes.
 
-A stack skill is only worth adding where a model gets the stack wrong without it. Go was evaluated
-for exactly this: three runs each of testing, concurrency, and error-handling and logging tasks on
-Opus, with no skill, and every run already did what the skill would have said. No Go plugin ships.
+A stack skill is only worth adding where a model gets the stack wrong without it. Go and backend
+work were evaluated for exactly this — three Opus runs per task with no skill: Go testing,
+concurrency, error handling and logging; a schema rename behind a mobile API, a dependency upgrade;
+fixing an applied migration, indexing a 120M-row table, a slow query from an EXPLAIN, and cleaning
+duplicate rows with a production URL in `.env`. Every run already did what a skill would have said,
+so `vvkit-go` and `vvkit-backend` ship tooling instead: scripts, config, and hooks for the failures
+that published incidents show happen anyway.
 
 ## Layout
 
@@ -149,6 +165,8 @@ hooks/             session context, skill routing, subagent model gate, test gat
 templates/         the neutral project scaffold
 plugins/swift/     the vvkit-swift plugin: skills, reviewer agent, lint hook, and the pack
                    (pack.json, rules/, templates/) that onboard copies into a project
+plugins/go/        the vvkit-go plugin: format hook, and scripts and golangci config to copy
+plugins/backend/   the vvkit-backend plugin: database guard and squawk hooks, compose and db.sh
 scripts/      validate.sh — the structural gate
 tests/        fixtures the validator must reject
 ```

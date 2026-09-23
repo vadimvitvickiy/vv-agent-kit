@@ -40,6 +40,18 @@
         "golang",
         "golangci-lint"
       ]
+    },
+    {
+      "name": "vvkit-backend",
+      "source": "./plugins/backend",
+      "description": "Database guardrails for backend services: destructive-command tripwire, squawk migration lint, local Postgres. Install per project, with --scope project",
+      "category": "workflow",
+      "keywords": [
+        "backend",
+        "postgres",
+        "database",
+        "migrations"
+      ]
     }
   ]
 }

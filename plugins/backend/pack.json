@@ -1,0 +1,22 @@
+{
+  "name": "backend",
+  "description": "Database guardrails and local Postgres for backend services",
+  "detect": [
+    "compose.yaml",
+    "compose.yml",
+    "docker-compose.yml",
+    "migrations/*.sql",
+    "db/migrations/*.sql"
+  ],
+  "skills": [],
+  "agents": [],
+  "rules": [],
+  "templates": {
+    "compose.yaml": "compose.yaml",
+    "scripts/": "scripts/"
+  },
+  "commands": [
+    "scripts"
+  ],
+  "context": []
+}
