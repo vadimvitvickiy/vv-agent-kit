@@ -61,8 +61,15 @@ Two ways to get this wrong:
 
 - **Faking a middle collaborator.** That is a unit test wearing a component test's name. Fake the
   edge, or don't fake it.
-- **Dropping to unit because the seam is missing.** Add the seam — a defaulted parameter leaves
-  production call sites unchanged. If the seam is genuinely out of scope, say so explicitly.
+- **Dropping to unit because the seam is missing.** Add the seam by moving construction out to the
+  caller, so the test and production paths are the same path — `vvkit:injecting-dependencies`. If
+  the seam is genuinely out of scope, say so explicitly.
+
+**The database is not an edge to fake with a different engine.** An in-memory stand-in for another
+engine — SQLite for Postgres — accepts queries, constraints and locking the production engine
+rejects, so the test passes on exactly the code that fails in production. Run the real engine in a
+container or a throwaway instance, or fake the repository interface above it and cover its queries
+in a test that does run the real engine.
 
 ## The acceptance filter
 
@@ -78,8 +85,9 @@ Every test clears all ten before it counts.
    reason to widen.
 4. **No tautologies.** Asserting a constant, asserting non-nil when the content is the point, or
    re-asserting what the previous line already proved.
-5. It lives in the target that owns the code under test.
-6. It runs in parallel with the rest of the suite.
+5. It lives in the test target, module or package that owns the code under test.
+6. It runs in parallel with the rest of the suite — or, where it shares a real resource such as a
+   database, it is marked serial and the reason is stated beside it.
 7. It stays green across three consecutive runs.
 8. **No sleep, and no bumped timeout, to paper over a race.** Wait for the condition the test cares
    about, not for a duration. Where there is no condition to wait on, propose the injected clock or

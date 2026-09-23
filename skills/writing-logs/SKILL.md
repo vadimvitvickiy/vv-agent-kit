@@ -12,6 +12,14 @@ whatever your stack calls them; the distinctions are what matter.
 
 ## Where a log belongs
 
+It depends on who reads the logs and how. **A policy the project already follows wins** — a logging
+guide, or the density of the files around yours — over both tables below.
+
+### An app or a library running on a device
+
+Logs stay on the device until someone collects them, and there is rarely a trace to go with them.
+The trail of method entries is the only reconstruction of what happened, so it is written densely.
+
 | Code pattern | Log | Level |
 |-|-|-|
 | Public or internal method entry | The method name | `info` |
@@ -20,8 +28,29 @@ whatever your stack calls them; the distinctions are what matter.
 | Catch block | The error | `error` |
 | Error callback or failure branch | The error | `error` |
 | Conditional branch controlling flow | Which branch, with the state that decided it | `trace` |
-| Network, IPC, or database call | Before the call, with its parameters | `debug` |
+| Network, IPC, or database call | Before the call, with identifying parameters | `debug` |
 | State mutation others observe | The new value | `trace` |
+
+### A service
+
+Every line is multiplied by traffic, shipped, indexed and paid for. Method-entry logging at `info`
+turns one request into dozens of lines that say less than one span would; where the service has
+tracing, the trace is the trail.
+
+| Event | Log | Level |
+|-|-|-|
+| A request or job completes | Route or job, outcome, duration | `info` |
+| A request or job fails | The error, and the identifiers that locate the case — never the payload | `error` |
+| A dependency call fails, retries or times out | The dependency, the attempt, the error | `warning` |
+| An event someone will audit — an order placed, a permission changed | The event and the entity identifiers | `info` |
+| A precondition or branch a trace cannot explain | Which one, and the state that decided it | `debug` |
+
+Two rules hold on every service line:
+
+- **Structured fields, not prose.** `user_id=42 outcome=denied` can be queried; a sentence can only
+  be grepped, and the wording drifts.
+- **Every line carries the request or correlation ID.** It is the only way to pull one request out
+  of a million interleaved lines.
 
 ## Choosing the level
 
@@ -45,7 +74,8 @@ Cherry-picking two fields of a result is noise. It is incomplete, it invites bik
 fields matter, and it rots the moment the model grows a field.
 
 Either the type carries a meaningful description worth logging in full, or the log adds nothing —
-delete it.
+delete it. A model holding personal data or credentials is logged by identifier, or through a
+description that redacts them.
 
 ## What not to log
 
@@ -76,7 +106,8 @@ Logger APIs, privacy annotations and import rules live in the matching stack ski
 
 ## Checklist
 
-- [ ] New or modified methods log entry
+- [ ] On a device: new or modified methods log entry. In a service: every request or job outcome
+      is logged once, with its request ID, as structured fields
 - [ ] Every failed precondition logs its reason
 - [ ] Every catch block and error callback logs the error
 - [ ] Significant branches log which path was taken
