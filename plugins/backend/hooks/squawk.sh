@@ -23,7 +23,7 @@ file="$(jq -r '.tool_input.file_path // .tool_response.filePath // empty' 2>/dev
 [ -n "$file" ] || exit 0
 case "$file" in
   *.down.sql|*_down.sql|*/down.sql) exit 0 ;;
-  */migrations/*.sql|*/migrate/*.sql|*/migrations/*/*.sql) ;;
+  */migrations/*.sql|*/migrate/*.sql) ;;
   *) exit 0 ;;
 esac
 [ -f "$file" ] || exit 0
