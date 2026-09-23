@@ -77,7 +77,9 @@ Every test clears all ten before it counts.
 
 1. It compiles and passes.
 2. **It fails when the code is wrong.** Break the line the test claims to cover, confirm the test
-   fails, restore it, confirm the diff over source is empty. Non-negotiable for anything involving
+   fails, restore it, confirm the diff over source is empty. Restore by reversing your own edit —
+   never `git checkout` or `git restore` on the file, which also discards every uncommitted change in
+   it, including the implementation under test. Non-negotiable for anything involving
    timing, callbacks, or polling. A test that passes against broken code is worse than no test — it
    buys false confidence.
 3. **No access widening.** Never loosen visibility to reach something. Drive the type through its
