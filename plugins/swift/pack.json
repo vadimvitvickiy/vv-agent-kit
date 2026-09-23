@@ -22,10 +22,6 @@
     "style.md",
     "tests.md"
   ],
-  "hooks": [
-    "swiftlint.sh",
-    "test-gate.sh"
-  ],
   "templates": {
     "swiftlint.yml": ".swiftlint.yml",
     "Brewfile": "Brewfile",

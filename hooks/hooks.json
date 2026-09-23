@@ -32,19 +32,6 @@
         ]
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/swiftlint.sh\"",
-            "shell": "bash",
-            "timeout": 20
-          }
-        ]
-      }
-    ],
     "Stop": [
       {
         "hooks": [

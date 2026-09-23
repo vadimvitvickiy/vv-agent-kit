@@ -4,7 +4,7 @@ Read before writing a test for anything that crosses a thread, queue, or isolati
 concurrency test is *required* is decided in `vvkit:writing-tests`. This file is **how** to write one.
 
 The hazards themselves — non-atomic `lazy`, unsynchronised statics, non-composing per-field locks —
-are catalogued in `vvkit:swift-concurrency`. This file is how to *test* for them.
+are catalogued in `vvkit-swift:swift-concurrency`. This file is how to *test* for them.
 
 Most concurrency hazard is not `async`/`await`. Dispatch queues used as guards, locks, reactive
 schedulers, timers, KVO and delegate callbacks are all first-class concurrency — not the legacy case.
@@ -38,7 +38,7 @@ before writing your own.
 | Hang guard | Watchdog on a **dedicated** thread, so it survives a wedged cooperative pool | build it |
 
 `/vvkit:onboard` copies the shipped three into the project as `TestSupport/`, from
-`packs/swift/templates/testsupport/`. They are plain source files the project then owns — not a
+`plugins/swift/templates/testsupport/`. They are plain source files the project then owns — not a
 dependency, and not something the plugin updates later.
 
 `offCooperativePool` comes with them, for running a body on a real thread rather than the

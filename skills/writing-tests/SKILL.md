@@ -132,7 +132,7 @@ marks behavior nobody protects.
 ## Stack-specific conventions
 
 Framework APIs, assertion shapes and concurrency-test mechanics live in the matching stack skill —
-for Swift, `vvkit:swift-testing`.
+for Swift, `vvkit-swift:swift-testing`.
 
 ## Never do these to make a test pass
 

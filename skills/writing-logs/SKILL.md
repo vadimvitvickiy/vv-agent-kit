@@ -102,7 +102,7 @@ fall back to the enclosing type name. Inventing a second label for one file frag
 ## Stack-specific conventions
 
 Logger APIs, privacy annotations and import rules live in the matching stack skill — for Swift,
-`vvkit:swift-logging`.
+`vvkit-swift:swift-logging`.
 
 ## Checklist
 

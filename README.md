@@ -24,7 +24,23 @@ Then confirm what Claude Code actually discovered — not what the layout sugges
 claude plugin details vvkit
 ```
 
-Everything is namespaced `vvkit` — `/vvkit:onboard`, `vvkit:writing-tests`, `vvkit:swift-reviewer`.
+The neutral disciplines are namespaced `vvkit` — `/vvkit:onboard`, `vvkit:writing-tests`. Each stack
+is its own plugin, namespaced after it — `vvkit-swift:swift-testing`, `vvkit-swift:swift-reviewer`.
+
+### Adding a stack to a project
+
+`vvkit` is installed once, for your user, and applies everywhere. A stack is installed per project,
+in the repos that use it:
+
+```bash
+claude plugin install vvkit-swift@vv-agent-kit --scope project
+claude plugin details vvkit-swift
+```
+
+That records `{"enabledPlugins": {"vvkit-swift@vv-agent-kit": true}}` in the project's
+`.claude/settings.json`, which is committed, so teammates get the same stack. A repo without it —
+a backend service — never sees the Swift skills, agents or hooks, and pays no listing space for
+them. `/vvkit:onboard` installs every stack it detects.
 
 ## What you get
 
@@ -51,7 +67,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `writing-project-instructions` | A `CLAUDE.md` is being edited, has grown long, or repeats an installed skill |
 | `writing-skills` | Authoring or editing a component of this plugin |
 
-**Swift — the same disciplines, instantiated:**
+**Swift (`vvkit-swift`) — the same disciplines, instantiated:**
 
 | Skill | Fires when |
 |-|-|
@@ -70,7 +86,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `/vvkit:scripts` | Writes `build.sh`, `test.sh`, `lint.sh` and `map.sh` into a project and verifies them by running them |
 | `/vvkit:explore` | Regenerates the code map and reconciles it against the hand-written architecture notes |
 | `/vvkit:wire` | Reconciles a `CLAUDE.md` against the installed skills, replacing duplicated rules with references |
-| `vvkit:swift-reviewer` | Read-only Swift review subagent — correctness first, conventions second |
+| `vvkit-swift:swift-reviewer` | Read-only Swift review subagent — correctness first, conventions second |
 
 **Hooks**, all fail-open and none of them opinionated about your project unless you ask:
 
@@ -78,9 +94,9 @@ Skills load on their own when the situation matches. You never have to name one.
 |-|-|
 | `session-context` | Injects branch and working-tree state at session start |
 | `using-vvkit` | Injects which skill to load in which situation, at session start and after `/clear` or compaction. Without it, debugging, design and review requests loaded their skill in 1 of 9 test runs; with it, 9 of 9 |
-| `swiftlint` | Autocorrects an edited Swift file; surfaces only what it could not fix |
 | `subagent-model-gate` | Refuses a subagent launch that names no `model`, which would inherit the session's. Never picks one itself. On by default; `KIT_SUBAGENT_MODEL_GATE=0` turns it off |
 | `test-gate` | Blocks the turn once per session when source changed after the last test run — **inert unless the project opts in** |
+| `swiftlint` (`vvkit-swift`) | Autocorrects an edited Swift file; surfaces only what it could not fix |
 
 ## The one rule
 
@@ -91,15 +107,17 @@ Everything in this repo answers a single question:
 | Answer | Home | Consequence |
 |-|-|-|
 | Yes | `skills/`, `agents/`, `commands/`, `hooks/` | Lives in the plugin. Never copied into a project. Updating the plugin updates every project at once. |
-| No | `templates/`, `packs/` | Inert data. `/vvkit:onboard` scaffolds it into a project, which then owns it. |
+| No | `templates/`, `plugins/<stack>/templates/` and `rules/` | Inert data. `/vvkit:onboard` scaffolds it into a project, which then owns it. |
 
 A target name, a script path, a scheme, a ticket prefix inside a skill is the defect this plugin
 exists to prevent. `scripts/validate.sh` enforces the mechanical half of that rule; the judgment
 half is why `vvkit:writing-skills` exists.
 
-## Two tiers, one namespace
+## Two tiers, one plugin per stack
 
-Skills are flat. The tier is expressed by the name, and by what each skill refuses to repeat.
+The neutral tier is the `vvkit` plugin. Each stack is a plugin of its own, installed only in the
+projects that use it. The tier is expressed by the name, and by what each skill
+refuses to repeat.
 
 | Neutral — the discipline | Swift — the instantiation |
 |-|-|
@@ -114,24 +132,30 @@ Each Swift skill declares its neutral counterpart as `REQUIRED BACKGROUND` and d
 it. Restating is how one ruleset ends up in three files that then drift apart — the validator checks
 that the cross-references resolve, but only discipline keeps them from being copies.
 
-Adding a stack means adding a `packs/<stack>/` directory and the skills that pair with the existing
-neutral tier. Nothing about the neutral tier changes.
+Adding a stack means adding a `plugins/<stack>/` plugin — its own manifest declaring `vvkit` as a
+dependency, the skills that pair with the neutral tier, and its `pack.json` — plus a marketplace
+entry. Nothing about the neutral tier changes.
+
+A stack skill is only worth adding where a model gets the stack wrong without it. Go was evaluated
+for exactly this: three runs each of testing, concurrency, and error-handling and logging tasks on
+Opus, with no skill, and every run already did what the skill would have said. No Go plugin ships.
 
 ## Layout
 
 ```
-skills/       one flat namespace; the tier is in the name
-agents/       reviewer subagents
-commands/     /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore, /vvkit:wire
-hooks/        session context, skill routing, lint-on-edit, test gate
-packs/        per-stack rules and config that onboard copies into a project
-templates/    the neutral project scaffold
+skills/            the neutral tier — the vvkit plugin
+commands/          /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore, /vvkit:wire
+hooks/             session context, skill routing, subagent model gate, test gate
+templates/         the neutral project scaffold
+plugins/swift/     the vvkit-swift plugin: skills, reviewer agent, lint hook, and the pack
+                   (pack.json, rules/, templates/) that onboard copies into a project
 scripts/      validate.sh — the structural gate
 tests/        fixtures the validator must reject
 ```
 
 Discovery is by convention, not declared in the manifest. Only `skills/`, `agents/` and `commands/`
-at the repo root are picked up, so a skill nested any deeper **silently never loads**.
+at a plugin's root are picked up, so a skill nested any deeper **silently never loads** — which is
+also why `plugins/swift/skills/` is invisible to `vvkit` and belongs to `vvkit-swift` alone.
 
 Hooks are the exception: `hooks/*.sh` alone is inert. They must be declared in `hooks/hooks.json`,
 and `${CLAUDE_PLUGIN_ROOT}` resolves only inside that manifest.

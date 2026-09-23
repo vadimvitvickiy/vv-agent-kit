@@ -36,7 +36,7 @@ that wins is whichever was read last — which is the always-on copy, because it
 Replace the copy with a reference:
 
 ```markdown
-- **Testing:** `vvkit:writing-tests` for whether a test is owed, `vvkit:swift-testing` for how to write one.
+- **Testing:** `vvkit:writing-tests` for whether a test is owed, `vvkit-swift:swift-testing` for how to write one.
 - **Debugging:** `vvkit:debugging-systematically` — trace to origin before proposing a fix.
 ```
 

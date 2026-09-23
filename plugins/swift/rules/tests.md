@@ -15,4 +15,4 @@ Never widen access to reach something. If the behaviour is unreachable through t
 is a design finding to report.
 
 Full rule, exemptions and the acceptance filter: `vvkit:writing-tests`.
-Swift Testing conventions and the `#expect` silent-pass trap: `vvkit:swift-testing`.
+Swift Testing conventions and the `#expect` silent-pass trap: `vvkit-swift:swift-testing`.

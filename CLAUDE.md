@@ -1,6 +1,7 @@
 # Working on vv-agent-kit
 
-This repo is a Claude Code plugin. Its content is instructions for agents, so a defect here is
+This repo is a Claude Code marketplace of plugins: `vvkit` at the root holds the neutral tier, and
+each stack is a plugin under `plugins/<stack>/` that a project installs when it uses that stack. Its content is instructions for agents, so a defect here is
 silently inherited by every project that installs it.
 
 ## Before every commit
@@ -21,7 +22,8 @@ validator that passes everything is worse than none.
 
 Everything answers one question: **does this text stay true in another repo?**
 
-Yes → `skills/`, `agents/`, `commands/`, `hooks/`. No → `templates/`, `packs/`.
+Yes → `skills/`, `agents/`, `commands/`, `hooks/` of the plugin it belongs to. No → `templates/`, or a
+stack plugin's `templates/` and `rules/`.
 
 A repo-specific fact in a skill is the defect this kit exists to prevent. If you find yourself
 writing a target name, a script path, a scheme, or a ticket prefix into a skill, it belongs in a
@@ -34,7 +36,8 @@ template instead.
   Never summarize the skill's workflow — a description that narrates the process becomes a shortcut
   agents take *instead of* reading the body. This is enforced by the validator, imperfectly; the
   judgment is still yours.
-- Neutral skills are verb-first gerunds (`writing-tests`). Stack skills are prefixed (`swift-testing`).
+- Neutral skills are verb-first gerunds (`writing-tests`) and live in `skills/`. Stack skills are
+  prefixed (`swift-testing`) and live in their stack's plugin, `plugins/<stack>/skills/`.
 - A stack skill opens with `**REQUIRED BACKGROUND:** vvkit:<neutral-skill>` and does not restate that
   skill's content.
 - Heavy reference material (100+ lines) goes in `references/` beside the `SKILL.md`, linked by a
@@ -84,11 +87,12 @@ echo 'not json' | ./hooks/<name>.sh; echo "exit=$?"   # must be 0
 
 ## Versioning
 
-`version` lives in `.claude-plugin/plugin.json` only. Set in both the manifest and the marketplace
-entry, Claude Code silently prefers the manifest — the marketplace value is never read, so a bump
+Each plugin has its own `version`, in its own `.claude-plugin/plugin.json` only — the root one for
+`vvkit`, `plugins/<stack>/.claude-plugin/plugin.json` for a stack. Set in both the manifest and the
+marketplace entry, Claude Code silently prefers the manifest — the marketplace value is never read, so a bump
 there looks applied and is not.
 
-**Bump it in the same commit as any content change.** The install is cached at
+**Bump a plugin's version in the same commit as any content change to that plugin.** The install is cached at
 `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`, so an unbumped push never reaches an
 installed plugin: `claude plugin marketplace update` reports success and the inventory is unchanged.
 Verified — a new skill was absent from `claude plugin details` until the version moved.

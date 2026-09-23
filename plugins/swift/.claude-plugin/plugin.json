@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
-  "name": "vvkit",
-  "displayName": "Agent Kit",
+  "name": "vvkit-swift",
+  "displayName": "Agent Kit — Swift",
   "version": "0.10.0",
-  "description": "Portable agent practices: design, planning, delegation, verification, debugging, review and testing discipline. Stack packs ship as separate plugins",
+  "description": "Swift and Xcode instantiations of the vvkit disciplines: testing, concurrency, style, logging, builds, and a Swift reviewer",
   "author": {
     "name": "vadimvitvickiy",
     "url": "https://github.com/vadimvitvickiy"
@@ -12,10 +12,13 @@
   "repository": "https://github.com/vadimvitvickiy/vv-agent-kit",
   "license": "MIT",
   "keywords": [
-    "skills",
-    "workflow",
-    "testing",
-    "code-review",
-    "debugging"
+    "swift",
+    "ios",
+    "xcode",
+    "swiftui",
+    "testing"
+  ],
+  "dependencies": [
+    "vvkit"
   ]
 }

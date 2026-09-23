@@ -25,8 +25,8 @@ think you remember it: skills change between versions.
 | Editing a CLAUDE.md or AGENTS.md | `vvkit:writing-project-instructions` |
 | Authoring a skill, agent, command or hook | `vvkit:writing-skills` |
 
-Stack skills — `swift-*`, `xcode-builds` — add to the matching skill above; their descriptions say
-when.
+Stack plugins — `vvkit-swift` — add skills to the matching one above; their descriptions say when.
+A stack plugin is installed only in projects that use it; elsewhere its skills are simply absent.
 
 Several can match at once: load each. A skill loaded earlier in the session is still in context, so
 do not load it again. Where the user's instructions or a project's CLAUDE.md conflict with a skill,

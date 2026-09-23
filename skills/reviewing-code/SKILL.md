@@ -15,7 +15,7 @@ Review and repair are separate steps. A review that arrives carrying its own pat
 patch — the diff is applied or discarded, and the findings behind it are never read at all.
 
 Where the tooling allows it, enforce this rather than remember it: a reviewer with read-only tools
-cannot drift into fixing. `vvkit:swift-reviewer` sets `tools` explicitly for this reason.
+cannot drift into fixing. `vvkit-swift:swift-reviewer` sets `tools` explicitly for this reason.
 
 ## Scope is the diff, not the repository
 

@@ -35,7 +35,7 @@ generator cannot know. Prefer keeping it and recording it in `CLAUDE.md`.
 
 ## 3. Copy
 
-Copy `packs/swift/templates/scripts/` into `scripts/`, preserving the executable bit. Verify with
+Copy `plugins/swift/templates/scripts/` into `scripts/`, preserving the executable bit. Verify with
 `ls -l` that every one of them is executable — a non-executable hook or script fails in a way that reads like
 a missing file.
 

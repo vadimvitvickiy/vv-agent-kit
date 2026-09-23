@@ -15,7 +15,7 @@ acting on it is the care taken writing it.
 |-|-|
 | True in any repo, needed only for some tasks | a skill |
 | True in any repo, needed on literally every turn | `hooks/using-vvkit.md`, injected at session start — a plugin's own `CLAUDE.md` is never loaded |
-| Specific to one repo | `templates/` or `packs/`, scaffolded in and owned by that repo |
+| Specific to one repo | `templates/`, or a stack plugin's `templates/` and `rules/`, scaffolded in and owned by that repo |
 | A rule that must hold whether or not the model cooperates | a hook |
 | A task with its own context window and a narrow tool set | an agent |
 
@@ -75,6 +75,10 @@ Put the primary case first: each listing entry is capped, and what is cut is the
 Neutral skills are verb-first gerunds — `writing-tests`, `reviewing-code`. Stack skills carry the
 stack as a prefix — `swift-testing`, `swift-logging`. Read together they say *discipline* and
 *instantiation*, which is the whole architecture in two words.
+
+A stack skill lives in its stack's plugin, `plugins/<stack>/skills/`, and is invoked under that
+plugin's namespace — `vvkit-swift:swift-testing`. The split is what lets a project take only its stacks:
+plugins install per project, but a single plugin skill cannot be hidden.
 
 `name` must equal the containing directory. The invocation name falls back to the directory when the
 field is absent, so a mismatch leaves the path saying one thing and the invocation another — a

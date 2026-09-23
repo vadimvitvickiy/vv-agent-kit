@@ -39,7 +39,19 @@ Present what you found and ask about only what you could not determine. Batch th
 
 ## Step 4 — Select packs
 
-List `packs/*/pack.json` and pre-check each whose `detect` globs match. Confirm with the user.
+Each stack is its own plugin, with its pack data in `plugins/<stack>/pack.json`. List them and
+pre-check each whose `detect` globs match. Confirm with the user.
+
+Stack plugins are installed per project, so only the confirmed stacks get one. In step 7, install
+each at project scope:
+
+```bash
+claude plugin install vvkit-swift@vv-agent-kit --scope project
+```
+
+That records `"enabledPlugins": {"vvkit-swift@vv-agent-kit": true}` in `.claude/settings.json`, so
+everyone who clones the repo gets the same stacks. A stack that was not selected stays uninstalled:
+its skills, agents and hooks never appear in this project, descriptions included.
 
 ## Step 5 — Verify before asserting
 
@@ -82,7 +94,7 @@ rm AGENTS.md && ln -s CLAUDE.md AGENTS.md
 ## Step 7 — Write the layout
 
 ```
-.claude/settings.json          from templates/settings.json
+.claude/settings.json          from templates/settings.json, plus the stack plugins from step 4
 .claude/rules/                 from the selected packs' rules/
 .claude/context/               structure.md, decisions.md
 .claude/context/specs/         empty
@@ -105,8 +117,8 @@ into nothing until they are added to the test target. Do not add them by editing
 say plainly in step 9 that the files were copied and which target they must join. Verify membership
 by asking the build system, never by their folder — see `vvkit:exploring-a-codebase`.
 
-**Hooks are registered by the plugin, not wired here.** `session-context` and the lint hook are
-always active and no-op where they do not apply. The test gate is the only hook that can block a
+**Hooks are registered by the plugins, not wired here.** `session-context` and a stack's lint hook are
+active wherever their plugin is enabled and no-op where they do not apply. The test gate is the only hook that can block a
 turn, so it stays inert until the project opts in — which happens by having `scripts/test.sh`, not by
 configuration.
 

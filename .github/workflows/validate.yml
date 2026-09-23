@@ -25,12 +25,12 @@ jobs:
           fi
 
       - name: Shellcheck
-        run: shellcheck --severity=warning hooks/*.sh scripts/*.sh packs/*/templates/scripts/*.sh packs/*/templates/scripts/lib/*.sh
+        run: shellcheck --severity=warning hooks/*.sh plugins/*/hooks/*.sh scripts/*.sh plugins/*/templates/scripts/*.sh plugins/*/templates/scripts/lib/*.sh
 
       - name: Hooks fail open on garbage input
         run: |
           status=0
-          for hook in hooks/*.sh; do
+          for hook in hooks/*.sh plugins/*/hooks/*.sh; do
             echo 'not json' | "$hook" >/dev/null 2>&1
             code=$?
             echo "$hook exit=$code"
@@ -44,7 +44,7 @@ jobs:
       - name: Hooks fail open on empty input
         run: |
           status=0
-          for hook in hooks/*.sh; do
+          for hook in hooks/*.sh plugins/*/hooks/*.sh; do
             : | "$hook" >/dev/null 2>&1 || status=1
           done
           exit "$status"

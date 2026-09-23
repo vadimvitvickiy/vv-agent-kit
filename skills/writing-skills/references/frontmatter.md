@@ -61,12 +61,13 @@ switch.
 - The whole frontmatter block is at most 1024 characters.
 - Every `SKILL.md` has an H1.
 - No `@`-link in `skills/`, `agents/` or `commands/`.
-- No brace-delimited placeholder token outside `templates/`, `packs/`, `tests/`.
+- No brace-delimited placeholder token outside `templates/`, `plugins/*/templates/`, `tests/`.
 - No `README.md` install command containing a `<placeholder>`.
-- Every `vvkit:<name>` cross-reference resolves to a real skill, command or agent.
-- Every `.sh` under `hooks/` and `packs/` is executable and sets `-uo pipefail`.
+- Every `vvkit:<name>` or `vvkit-<stack>:<name>` cross-reference resolves to a real skill, command or
+  agent in that plugin.
+- Every `.sh` under a plugin's `hooks/` or `templates/` is executable and sets `-uo pipefail`.
 
 ## Manifest
 
-`version` lives in `.claude-plugin/plugin.json` only. Set in both the manifest and the marketplace
+Each plugin's `version` lives in its own `.claude-plugin/plugin.json` only. Set in both the manifest and the marketplace
 entry, Claude Code silently prefers the manifest and the marketplace value is never used.

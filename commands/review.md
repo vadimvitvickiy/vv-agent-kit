@@ -25,10 +25,11 @@ not pick one and ignore the rest.
 
 | Extensions | Agent |
 |-|-|
-| `.swift` | `vvkit:swift-reviewer` |
+| `.swift` | `vvkit-swift:swift-reviewer` |
 
-When no reviewer matches the changed files, say so plainly and review inline against
-`vvkit:reviewing-code` rather than silently doing nothing.
+A reviewer ships with its stack plugin, so it is unavailable where the project has not installed that
+plugin. When no reviewer matches the changed files, or its plugin is not installed, say so plainly and
+review inline against `vvkit:reviewing-code` rather than silently doing nothing.
 
 ## 3. Dispatch
 

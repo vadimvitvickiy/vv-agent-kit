@@ -11,8 +11,8 @@ request. It is not a summary of this file — this file is the short pointer, th
 Yes → it belongs in `skills/`, `agents/`, `commands/` or `hooks/`, and every project that installs
 the plugin gets it.
 
-No → it belongs in `templates/` or `packs/`, which are inert data that `/vvkit:onboard` scaffolds into
-a project, after which that project owns it.
+No → it belongs in `templates/`, or a stack plugin's `templates/` and `rules/`, which are inert data
+that `/vvkit:onboard` scaffolds into a project, after which that project owns it.
 
 A repo-specific fact in a skill — a target name, a script path, a scheme, a ticket prefix — is the
 exact defect this plugin exists to prevent. If you are writing one, you are writing a template.
@@ -48,4 +48,5 @@ echo 'not json' | ./hooks/<name>.sh; echo "exit=$?"   # must be 0
 ## Commits
 
 `<type>: <subject>`, imperative, no period, under 72 characters. The body explains why, since the
-diff already shows what. No AI attribution in commit messages or in any committed file.
+diff already shows what. By this repo's own convention, no AI attribution in commit messages or in
+any committed file.

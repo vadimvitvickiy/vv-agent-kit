@@ -9,14 +9,22 @@
     {
       "name": "vvkit",
       "source": "./",
-      "description": "Portable agent practices: delegation, verification, debugging, review and testing discipline, with a Swift/Xcode pack",
+      "description": "Portable agent practices: design, planning, delegation, verification, debugging, review and testing discipline",
       "category": "workflow",
       "keywords": [
         "skills",
         "workflow",
         "testing",
         "code-review",
-        "debugging",
+        "debugging"
+      ]
+    },
+    {
+      "name": "vvkit-swift",
+      "source": "./plugins/swift",
+      "description": "Swift and Xcode instantiations of the vvkit disciplines. Install per project, with --scope project",
+      "category": "workflow",
+      "keywords": [
         "swift",
         "ios",
         "xcode"

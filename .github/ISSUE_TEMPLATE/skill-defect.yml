@@ -6,7 +6,7 @@ body:
     id: skill
     attributes:
       label: Which component
-      description: "The skill, agent, command or hook — e.g. vvkit:swift-testing"
+      description: "The skill, agent, command or hook — e.g. vvkit-swift:swift-testing"
       placeholder: "vvkit:"
     validations:
       required: true
