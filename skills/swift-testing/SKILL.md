@@ -10,6 +10,10 @@ distinction, and the acceptance filter are decided there. This file covers only 
 
 The stack is native Swift Testing: `@Test`, `@Suite`, `#expect`, `#require`, `confirmation`.
 
+It does not cover XCTest. UI automation (XCUITest) is built on XCTest, and a suite already written
+in XCTest stays in XCTest — two frameworks in one suite split setup, assertions and failure output
+across two conventions. `vvkit:writing-tests` applies to both.
+
 ## Shape of a test
 
 ```swift

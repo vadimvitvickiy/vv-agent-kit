@@ -8,6 +8,9 @@ description: Use when writing or reviewing comments and doc comments, or when a 
 The default is **no comment**. Clear names and structure carry the meaning; a comment is what you add
 when they provably cannot.
 
+**Where the project has an established convention, follow the project.** The limits below are the
+default for code that has none.
+
 ## The one test
 
 A comment must answer **why**, and the why must be non-obvious from the code beside it.
@@ -20,7 +23,7 @@ or a smaller function — not a comment.
 
 | Kind | Limit |
 |-|-|
-| Line comment | **1 line.** No exceptions. |
+| Line comment | **1 line.** |
 | Member doc comment (function, property, case) | **1 line.** A second only for a genuinely subtle exception. |
 | Type-level doc comment (class, struct, enum, protocol, module) | Several lines, to orient a reader about the whole type. |
 

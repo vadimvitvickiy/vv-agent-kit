@@ -9,6 +9,12 @@ description: Use when writing a commit message, opening a pull request, titling 
 paraphrases the diff has spent the reader's attention to tell them something they were about to read
 anyway.
 
+## The repo's convention wins
+
+Read `git log --oneline -20` before the first message. Where the history follows a convention — a
+ticket prefix, its own set of types, sentence case, trailers — follow it. Everything below is the
+default for a repo with none, and for whatever its convention does not cover.
+
 ## Never commit or push unasked
 
 Staging is a commit's antechamber — `git add`, `git commit` and `git push` all wait for an explicit
@@ -16,7 +22,9 @@ request. "Finish the feature" is not one.
 
 Before the first commit, **check the current branch**. Committing onto a checked-out default branch
 is the one mistake that costs someone else time rather than yours: it bypasses the review the branch
-existed to get. If you are on `main` or `master`, branch first.
+existed to get. If you are on `main` or `master`, branch first — unless the history shows the
+project works on the default branch directly, with no merges or pull requests, and the human asked
+for the commit. Then say that is what you are doing.
 
 ## The subject line
 
@@ -131,7 +139,8 @@ worktrees you created; anything else belongs to whoever made it.
 
 ## Never
 
-- No AI attribution, in a message, a description, or a committed file.
+- No AI attribution unless the project asks for it — in its instructions, or as a trailer its
+  history already carries. Where it says nothing, add none.
 - No ticket identifier in code comments — a PR footer is the right home for it.
 - No "misc fixes", "wip", or "address feedback" as a final message. What feedback, and what changed?
 - No description that restates the diff file by file. That is the diff's job, and it does it better.
