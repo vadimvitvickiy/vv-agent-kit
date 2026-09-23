@@ -79,8 +79,9 @@ problem gets in the way of the work; propose nothing that does not serve the goa
 
 ## Write it down when it is architectural
 
-Save the agreed design where the project keeps them, or `.agents/plans/` when it names nowhere. Then
-reread it for:
+Save the agreed design where the project keeps them. When it names nowhere, use `.agents/plans/` —
+but only if `git check-ignore -q .agents/plans` succeeds; otherwise ask where designs go, rather than
+committing one by accident. Then reread it for:
 
 - placeholders, "TBD", or a section left vague;
 - two sections that contradict each other;

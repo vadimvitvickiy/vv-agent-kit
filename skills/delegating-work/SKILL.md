@@ -57,7 +57,7 @@ when a spec or ticket exists.
 
 **3. Plan — never delegated.** Design decisions stay where the full conversation is. Splitting them
 across agents produces conflicting implicit assumptions. Agree the design first —
-`vvkit:designing-changes` — and write the plan to `.agents/plans/`.
+`vvkit:designing-changes` — and write the plan down beside the design.
 
 Several independent failures — different subsystems, no shared state, each understandable alone —
 are the case where research fan-out pays most: one read-only investigator per failure, each

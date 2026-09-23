@@ -14,10 +14,13 @@ truth.
 
 ## Two artifacts, one hard line
 
+A project may have either, both or neither. The paths are the ones `/vvkit:onboard` scaffolds;
+elsewhere, look for an `ARCHITECTURE.md`, a `docs/` directory, or a map a tool generates.
+
 | Artifact | Written by | Trust it for |
 |-|-|-|
-| `.agents/state/map.xml` | a generator, never a human | Which types matter and roughly where they are |
-| `.claude/context/architecture.md` | a human | Constraints and gotchas that no amount of reading reveals |
+| A code map — `.agents/state/map.xml` after onboarding | a generator, never a human | Which types matter and roughly where they are |
+| Architecture notes — `.claude/context/architecture.md` after onboarding | a human | Constraints and gotchas that no amount of reading reveals |
 
 If a repo has a hand-written file describing its directory tree, that file is a liability. The
 information is derivable, so it is duplicated; being duplicated, it drifts.
@@ -26,9 +29,9 @@ information is derivable, so it is duplicated; being duplicated, it drifts.
 
 1. **Read the generated map** if there is one. It is cheap and ranks the codebase by what is actually
    referenced.
-2. **Read the architecture constraints.** Layering rules, frozen names, generated files. These are
-   the things that get you in trouble precisely because they are invisible in the file you are
-   editing.
+2. **Read the architecture constraints** if there are any. Layering rules, frozen names, generated
+   files. These are the things that get you in trouble precisely because they are invisible in the
+   file you are editing.
 3. **Then search.** The map tells you which types matter; grep tells you where they are used today.
 
 ## Matching the tool to the question

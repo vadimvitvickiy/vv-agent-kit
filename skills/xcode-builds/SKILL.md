@@ -11,7 +11,7 @@ This file covers how to run it.
 ## Always prefer the project's script
 
 If the repo has `scripts/build.sh` or `scripts/test.sh`, use it. If it has none, generate them with
-`vvkit:scripts` rather than hand-writing an invocation.
+`/vvkit:scripts` rather than hand-writing an invocation.
 
 This is not a style preference. A hand-written `xcodebuild` command is usually slower by a large
 multiple, and the reasons are invisible from the command line — see the table below. A hand-rolled

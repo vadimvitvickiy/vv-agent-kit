@@ -5,24 +5,27 @@ description: Use when a decision, correction, or design rationale emerges that w
 
 # Capturing decisions
 
-Session state is disposable. `.agents/` is gitignored by construction, so **anything that must
-outlive the session has to be promoted** into `.claude/context/`.
+Session state is disposable. **Anything that must outlive the session has to be promoted** into
+the repository, wherever this project keeps its decisions.
 
 | What | Goes to |
 |-|-|
-| A decision and the reasoning behind it | `.claude/context/decisions.md` |
-| A validated design | `.claude/context/specs/` |
-| A correction about how to work | durable memory (`MEMORY.md`) |
-| A plan in flight, scratch, tool state | `.agents/` — and stays there |
+| A decision and the reasoning behind it | The project's decision record — `docs/adr/`, `docs/decisions/`, a `decisions.md`. After `/vvkit:onboard`, `.claude/context/decisions.md` |
+| A validated design | Where the project keeps designs. After onboarding, `.claude/context/specs/` |
+| A correction about how to work | Durable memory, when the harness has one |
+| A plan in flight, scratch, tool state | The session's scratch area — `.agents/` after onboarding — and stays there |
+
+If the project keeps decisions nowhere, ask where before creating a place for them. A new directory
+is a convention imposed on everyone who clones the repo.
 
 ## Promote it into the repo it is about
 
-`.claude/context/` holds facts about **this** repository. A design for a different project does not
+The decision record holds facts about **this** repository. A design for a different project does not
 belong here just because it was drafted in this session — it belongs in that project's repo, and
 committing it here puts another codebase's history into this one permanently.
 
 Before promoting, ask: *would someone cloning this repo need this?* If the answer is no, it goes to
-the other repo, or stays in `.agents/`.
+the other repo, or stays in scratch.
 
 ## Why promotion is a step and not a habit
 
