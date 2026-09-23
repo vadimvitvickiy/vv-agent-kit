@@ -56,6 +56,22 @@ before treating it as the brief. When the request already states all of this, re
 than asking the same questions again. Every later choice gets checked against this note, so its
 accuracy matters more than its length.
 
+## Say the premises out loud
+
+A premise is whatever was already true when the session started and nobody said. Nothing points at
+it, so nothing checks it: careful rounds of design on a wrong premise deliver the wrong thing, once
+per round, each time more convincingly.
+
+Put them in the note. Ask **what would have to be true for this to be the right approach?** and
+write the answers down — who needs it, what the problem costs today, what it is assumed to be free
+of. It is usually the first time anyone has written them. A premise that is cheap to measure gets
+measured before the design rests on it; compensation code for a problem nobody measured is the
+typical casualty.
+
+Premises stay live after approval. Two signals mean re-read them before the next step: fixes that
+each land on a new variant of the same problem, and work going unusually smoothly — the moment
+nobody is looking is the moment an assumption goes unexamined.
+
 ## Offer approaches, not a verdict
 
 Propose two or three approaches with their trade-offs, leading with the one you recommend and why. A
@@ -69,6 +85,10 @@ back once code depends on it.
 
 Scale each section to its difficulty — a sentence where it is obvious, a few paragraphs where it is
 not — and confirm each before moving on. A single wall of design gets approved in one skim.
+
+Mark each choice as a **decision** — weighed against a named alternative — or a **default**, picked
+because something had to be. An unmarked default stops looking like a choice within a few messages
+and starts looking like a property of the problem, and nobody revisits a property.
 
 Cover the boundaries, the data flow, what happens on failure, and how it will be tested. For each
 unit, you should be able to say what it does, how it is used, and what it depends on. If a unit
