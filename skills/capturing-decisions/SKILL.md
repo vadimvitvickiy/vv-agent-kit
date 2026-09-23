@@ -50,6 +50,15 @@ Do **not** record what the repository already tells you: code structure, git his
 stated in the project's own documentation. If asked to remember something already recorded there, ask
 what was non-obvious about it and record that instead.
 
+## Deferred work carries a date
+
+Work set aside on purpose looks identical, a month later, to work that was forgotten. Record each
+deferral with its absolute date, the reason, and what would bring it back — "when a second channel
+exists", "after the migration lands".
+
+Read against its date, an old deferral whose trigger never came is a reason that has expired. Delete
+it or schedule it; one left sitting teaches every reader that the list is not maintained.
+
 ## The shape of a record
 
 One fact per entry. State what was decided, then **why**, then what it rules out. Convert relative
