@@ -37,8 +37,8 @@ claude plugin install vvkit-swift@vv-agent-kit --scope project
 claude plugin details vvkit-swift
 ```
 
-That records `{"enabledPlugins": {"vvkit-swift@vv-agent-kit": true}}` in the project's
-`.claude/settings.json`, which is committed, so teammates get the same stack. A repo without it —
+That records `vvkit-swift` — and `vvkit`, its dependency — as `true` under `enabledPlugins` in the
+project's `.claude/settings.json`, which is committed, so teammates get the same stack. A repo without it —
 a backend service — never sees the Swift skills, agents or hooks, and pays no listing space for
 them. `/vvkit:onboard` installs every stack it detects.
 

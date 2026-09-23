@@ -49,8 +49,8 @@ each at project scope:
 claude plugin install vvkit-swift@vv-agent-kit --scope project
 ```
 
-That records `"enabledPlugins": {"vvkit-swift@vv-agent-kit": true}` in `.claude/settings.json`, so
-everyone who clones the repo gets the same stacks. A stack that was not selected stays uninstalled:
+That records the stack plugin, and `vvkit` as its dependency, as `true` under `enabledPlugins` in
+`.claude/settings.json`, so everyone who clones the repo gets the same stacks. A stack that was not selected stays uninstalled:
 its skills, agents and hooks never appear in this project, descriptions included.
 
 ## Step 5 — Verify before asserting
