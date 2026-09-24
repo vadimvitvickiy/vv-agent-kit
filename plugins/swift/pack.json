@@ -47,5 +47,14 @@
       "marketplace": "twostraws/swiftui-agent-skill",
       "why": "Current SwiftUI APIs over deprecated and soft-deprecated ones, and VoiceOver, maintained by Paul Hudson"
     }
+  ],
+  "tools": [
+    {
+      "name": "simslim",
+      "tap": "mobai-app/tap",
+      "brew": "mobai-app/tap/simslim",
+      "why": "Cuts a simulator's memory from about 4 GB to under 1 GB by disabling background daemons, so more simulators fit on one Mac",
+      "setup": "Write the project's profile to .simslim/dev.json, deriving it as vvkit-swift:xcode-builds references/simslim.md describes under 'Committing a profile'"
+    }
   ]
 }

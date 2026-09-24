@@ -62,6 +62,15 @@ claude plugin marketplace add AvdLee/Swift-Concurrency-Agent-Skill --scope proje
 claude plugin install swift-concurrency@swift-concurrency-agent-skill --scope project
 ```
 
+### Optional tools
+
+A pack's `tools` are command-line tools its skills know how to use but no build needs. Onboarding
+offers them, adding the ones picked to the project's `Brewfile`:
+
+| Stack | Tool | Covers |
+|-|-|-|
+| Swift | [`simslim`](https://github.com/mobai-app/simslim) | Disables a simulator's background daemons to cut its memory. `xcode-builds` checks it before a missing push or a stale widget gets debugged as an app bug |
+
 ## What you get
 
 Skills load on their own when the situation matches. You never have to name one.

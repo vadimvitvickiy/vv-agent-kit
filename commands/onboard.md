@@ -70,6 +70,19 @@ claude plugin install swift-concurrency@swift-concurrency-agent-skill --scope pr
 Offer them; never install one unasked. Each adds its skill descriptions to every session in this
 project, so a companion nobody on the project needs is pure listing cost.
 
+### Offer the tools
+
+A selected pack's `tools` in `pack.json` are command-line tools the pack's skills know how to use,
+but that nothing in the project needs to build. List each with its `why`, and for each one the user
+picks:
+
+- Add its `tap` and `brew` lines to the non-CI block of the project's `Brewfile`.
+- Carry out its `setup`, if it has one.
+
+Leave installing to the user: `brew bundle` from the `Brewfile`, after `brew trust` on the tap. A
+tool nobody picked is not mentioned in the `Brewfile` at all. The skills still say to install it
+when it would help.
+
 ## Step 5 — Verify before asserting
 
 **Every convention about to be written into `CLAUDE.md` is first checked against the code. A claim

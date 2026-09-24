@@ -1,6 +1,6 @@
 ---
 name: xcode-builds
-description: Use when building, compile-checking, running tests, driving a simulator, or reading build and runtime output for an Xcode project.
+description: Use when building, compile-checking, running tests, driving a simulator, or reading build and runtime output for an Xcode project, or when a system feature misbehaves only on a simulator.
 ---
 
 # Xcode builds
@@ -96,6 +96,31 @@ For sourcekit-lsp specifically, `xcode-build-server config` binds the scheme and
 parse` supplies the flags — **both** are needed. A command-line `xcodebuild` never writes the
 `.xcactivitylog` the server watches (only the Xcode IDE does), so a bare `config` leaves it flagless
 and it fails over to macOS without saying so.
+
+## A slimmed simulator breaks features silently
+
+`simslim` switches off a simulator's background daemons to save memory, and push, widgets, iCloud,
+universal links, HealthKit, Photos and more go with them. The app gets no error. A notification that
+never arrives, or a widget that never refreshes, on a slimmed device looks exactly like an app bug.
+
+**Before debugging a system feature that fails on a simulator, check the device.** With the
+simulator booted:
+
+```bash
+simslim doctor <udid> --requires push      # exit 1 and BROKEN when the feature's daemons are off
+```
+
+`simslim doctor --list` gives the feature IDs. A shut-down simulator reports no slim state at all, and that does not mean it is stock. Read the
+state from the device every time, never from notes: it changes with `simslim off`, an erase, or a
+different Mac. A committed profile records what the project wants, not what the device has.
+
+If `simslim` is not installed, say so rather than assuming the device is stock. When the user is
+short of memory running several simulators, mention it once, with
+`brew install mobai-app/tap/simslim`.
+
+Never slim, restore or clean a simulator unless asked. `on` and `off` reboot the device and end
+whatever is running on it, and `disk-clean` deletes data permanently. Commands, categories, and
+deriving a project's profile from its entitlements: `references/simslim.md`.
 
 ## The xcodebuildmcp CLI
 
