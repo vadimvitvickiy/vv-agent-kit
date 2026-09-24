@@ -44,34 +44,10 @@ struct MapperTests {
 - **`try #require(x)`** rather than asserting non-nil and then force-unwrapping.
 - **`@Test(arguments:)` only for genuinely table-driven cases** — same body, different data. Do not
   parameterise cases whose assertions differ.
+- **Pass input/expected pairs as one collection of case structs.** `arguments: inputs, expected`
+  runs the cartesian product, so mismatched pairs fail; `zip` stops at the shorter list and silently
+  drops an unpaired input. Cases run in parallel — add `.serialized` if they share state.
 - **Name tests as human sentences** in the `@Test("…")` display name.
-
-## Two argument collections are a product, not pairs
-
-`@Test(arguments: a, b)` runs every element of `a` against every element of `b`. Passing inputs and
-their expected outputs as two collections therefore runs each input against every expected value,
-and every mismatched pair fails.
-
-Pair them in one collection of test-case values, so each input sits next to its expected output:
-
-```swift
-struct SlugCase { let title: String; let slug: String }
-
-@Test(arguments: [
-    SlugCase(title: "Swift Testing", slug: "swift-testing"),
-    SlugCase(title: "", slug: ""),
-])
-func formatsSlug(_ testCase: SlugCase) {
-    #expect(Slug(testCase.title) == testCase.slug)
-}
-```
-
-`zip(inputs, expected)` also pairs them, but it relies on two lists staying in the same order, and
-it stops at the shorter one: an input added without its expected value drops out of the run with no
-error. Keep the product form for real combinations, such as every role against every content type.
-
-Each argument runs as its own test case, on a fresh suite instance, **in parallel with the other
-cases**. Cases that share global or on-disk state need `.serialized`.
 
 ## `#expect` can silently assert nothing
 
@@ -126,17 +102,14 @@ struct CurrencyTests {        // ← this is what -only-testing needs
 
 | Scope | Identifier |
 |-|-|
-| Whole bundle | `MoonoCoreTests` |
-| One suite | `MoonoCoreTests/CurrencyTests` |
-| One test | `MoonoCoreTests/CurrencyTests/codeComparisonIgnoresCase()` |
+| Whole bundle | `AppTests` |
+| One suite | `AppTests/CurrencyTests` |
+| One test | `AppTests/CurrencyTests/codeComparisonIgnoresCase()` |
 
-Copying the display name out of the log produces a filter that matches nothing. **`xcodebuild` then
-runs zero tests and exits 0** — the filter is not validated, so a wrong identifier is indistinguishable
-from a suite that passed. Nothing in the output says the name was never found.
-
-So a subset run is only meaningful if you **read the count**. A test script that does not fail on a
-zero count will report success for a filter that selected nothing, on every run, forever. See
-`vvkit:verifying-changes`.
+Copying the display name out of the log produces a filter that matches nothing, and **`xcodebuild`
+then runs zero tests and exits 0** — nothing in the output says the name was never found. So a
+subset run means something only if you **read the count**, and a test script that does not fail on
+a zero count reports success for an empty filter on every run.
 
 Where a suite is nested in a type, the path follows the types, not the display names. When in doubt,
 take the identifier from the source rather than the log.

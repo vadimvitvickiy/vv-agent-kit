@@ -53,19 +53,14 @@ On failure, read the `.xcresult` rather than grepping console output:
 xcrun xcresulttool get --format json --path <path>.xcresult
 ```
 
-Raw build logs bury one failure among thousands of progress lines, and grepping for `error`
-reliably finds the wrong ones — warnings-as-text, paths containing the word, and the summary line.
-
 ## What a green build does not tell you
 
-- **Incremental builds keyed on source fingerprints can skip a resource-only change.** Editing an
-  asset catalog or a strings file may produce a cached "success" that never re-ran the generator.
-- **A test filter with a typo'd identifier runs zero tests and exits 0.** Read the executed count,
-  never the exit code alone.
+On top of the gaps listed in `vvkit:verifying-changes`:
+
+- **An asset catalog or strings file edit can produce a cached "success"** that never re-ran the
+  generator.
 - **A scheme can exclude the target you changed.** Building the app scheme does not necessarily
   build every framework in the project.
-
-When you rely on a cached or filtered run, say so rather than reporting it as full coverage.
 
 ## Generated project files
 

@@ -19,11 +19,8 @@ private let log = Logger(subsystem: "com.example.app", category: "ExampleService
 ```
 
 The subsystem is the bundle identifier and is constant across the module. The **category** is the
-filter someone reaches for at 3am — make it the type name.
-
-**Match the category the file already uses.** Scan for an existing declaration and reuse it. Only
-when a file has no logger at all, fall back to the enclosing type name. Two categories for one file
-fragments the filter, which defeats the point of having one.
+filter someone reaches for at 3am — reuse the one the file already declares, as
+`vvkit:writing-logs` says for labels.
 
 ## Privacy annotations
 
@@ -60,7 +57,5 @@ stay clean.
 
 ## Checklist
 
-- [ ] Category matches what the file already uses
 - [ ] Every interpolation has a considered privacy annotation
-- [ ] No credentials, tokens, or personal data at any level
 - [ ] Anything needed in a bug report is `info` or above, not `debug`
