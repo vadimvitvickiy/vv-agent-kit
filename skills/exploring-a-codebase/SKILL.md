@@ -64,8 +64,7 @@ Two traps worth knowing before you trust the answer:
   license header sweep resets it for the whole file. `-w` ignores whitespace and `-C` follows code
   moved between files; without them you will attribute a decision to whoever ran the formatter.
 - **Bisect names the commit that exposed a defect, not always the one that introduced it** — see
-  `vvkit:debugging-systematically`. Automate the predicate rather than judging each step by eye; a
-  hand-classified bisect lands on a wrong answer without ever announcing that it did.
+  `vvkit:debugging-systematically`, which also covers automating the predicate.
 
 A commit message that explains a constraint is worth more than the architecture note that paraphrased
 it, because it is dated and attached to the change that made it true.

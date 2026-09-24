@@ -41,25 +41,21 @@ the second sentence is almost always the one restating the first.
 - **Ticket ids.** Worst in public API docs, where they leak an internal tracker to consumers.
 - **Commentary on the change.** A comment describes the code as it stands, never how it got there.
 
-## Always
-
-- **Public declarations keep their doc comments.** They are the contract, and are exempt from the
-  member limit where the contract genuinely needs the words.
-- **Never delete an existing comment or TODO** unless explicitly asked. This rule constrains what you
-  *write*, never what you remove.
-
 ## When a doc comment is warranted
 
 | Declaration | Doc comment |
 |-|-|
-| Public or exported | **Yes** — always. It is the contract. |
+| Public or exported | **Yes** — always. It is the contract, and exempt from the member limit where the contract genuinely needs the words |
 | Internal helper with a non-obvious exception | Yes — one line naming the exception |
 | Internal helper that is self-evident from its name | No |
 | Override or conformance with no added behavior | No |
 | A constant whose value encodes a decision | Yes — why *this* value |
 
-**Never overwrite an existing doc comment.** Add where one is missing; reconcile only when the
-contract it describes has actually changed.
+## Existing comments
+
+**Never delete an existing comment or TODO** unless explicitly asked — these rules constrain what
+you *write*, never what you remove. **Never overwrite an existing doc comment**: add where one is
+missing, and reconcile only when the contract it describes has actually changed.
 
 ## Self-check before finishing
 

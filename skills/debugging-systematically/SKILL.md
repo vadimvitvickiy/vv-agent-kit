@@ -128,14 +128,6 @@ the strongest available clue about *where to read*, not as the answer.
 
 The same logic applies to input: halve the failing dataset until one record fails alone.
 
-## Commit granularity is a debugging instrument
-
-This is why one logical change per commit matters, and the argument is not tidiness. A commit that
-mixes a rename with a behavior change makes the bisect land on a diff nobody can read, and the
-investigation stalls exactly where it should have finished.
-
-Granularity is paid for once, when committing. It is collected months later, by whoever is bisecting.
-
 ## Before you fix
 
 - [ ] The failure reproduces on demand, and you know the rate if it is intermittent

@@ -91,12 +91,11 @@ description that redacts them.
 - **No context.** A message reading "here" or "done" tells the 3am reader nothing.
 - **Sensitive data.** Never log tokens, credentials, or personal data. Check every interpolation.
 - **Wrong level.** A failure logged at `debug` is invisible exactly when it matters.
-- **Missing the label or category.** An unlabelled line cannot be filtered out of a busy log.
-- **Logging inside a pure factory.** Move it to the call site.
 
 ## Labels
 
-Scan the file for an existing label or category and reuse it. Only when the file has no logs at all,
+Every line carries a label or category; an unlabelled one cannot be filtered out of a busy log.
+Scan the file for an existing one and reuse it. Only when the file has no logs at all,
 fall back to the enclosing type name. Inventing a second label for one file fragments the filter.
 
 ## Stack-specific conventions
