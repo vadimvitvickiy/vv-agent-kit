@@ -46,6 +46,33 @@ struct MapperTests {
   parameterise cases whose assertions differ.
 - **Name tests as human sentences** in the `@Test("…")` display name.
 
+## Two argument collections are a product, not pairs
+
+`@Test(arguments: a, b)` runs every element of `a` against every element of `b`. Passing inputs and
+their expected outputs as two collections therefore runs each input against every expected value,
+and every mismatched pair fails.
+
+Pair them in one collection of test-case values, so each input sits next to its expected output:
+
+```swift
+struct SlugCase { let title: String; let slug: String }
+
+@Test(arguments: [
+    SlugCase(title: "Swift Testing", slug: "swift-testing"),
+    SlugCase(title: "", slug: ""),
+])
+func formatsSlug(_ testCase: SlugCase) {
+    #expect(Slug(testCase.title) == testCase.slug)
+}
+```
+
+`zip(inputs, expected)` also pairs them, but it relies on two lists staying in the same order, and
+it stops at the shorter one: an input added without its expected value drops out of the run with no
+error. Keep the product form for real combinations, such as every role against every content type.
+
+Each argument runs as its own test case, on a fresh suite instance, **in parallel with the other
+cases**. Cases that share global or on-disk state need `.serialized`.
+
 ## `#expect` can silently assert nothing
 
 ```swift
