@@ -38,6 +38,10 @@ tier, so the table survives a model release.
   fetching pages buys nothing the synthesis does not already get.
 - **Escalate instead of repeating.** A blocked implementer or a fix loop that is not converging goes
   up a tier. The same spawn on the same model produces the same result.
+- **Two failed rounds end re-dispatching.** After two rounds that fail or contradict each other, do
+  not send the same brief again. Take over the core of the task in the main conversation, or
+  re-dispatch a narrower piece of it one tier up. A wide brief that failed twice fails on scope, and
+  a stronger model given the same scope inherits the same ambiguity.
 
 ## Special cases
 

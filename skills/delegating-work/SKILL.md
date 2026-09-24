@@ -81,9 +81,26 @@ Every spawn carries four things. Missing any one is the usual cause of a useless
 2. **What is already ruled out** — so the agent doesn't re-derive dead ends.
 3. **Known paths** — files, symbols, line numbers you already have.
 4. **An output contract** — exact shape and a length cap. Without one, the result is unparseable
-   and floods the context you delegated to protect.
+   and floods the context you delegated to protect. Require a `file:line` or verbatim command output
+   behind every claim, and verified facts listed apart from inferences. A claim with no location
+   cannot be checked, and an inference mixed in with facts gets accepted as one.
 
 A subagent receives no conversation history. Anything it needs must be in the prompt.
+
+## Accepting a result
+
+A subagent's report is a claim about the work, not evidence of it. It describes what the agent
+intended, and it cites locations with the same fluency whether or not it read them.
+
+- **Read the cited `file:line` yourself** for every claim a decision rests on. Skimming the report
+  is not checking it.
+- **Re-derive counts and outcomes from the machine.** "Changed N places" is checked with
+  `git diff --stat`; "tests pass" by re-running them. A build, test or lint gate is judged by its
+  output only.
+- **High-risk conclusions need a second opinion that never saw the first** — data deletion,
+  security, production configuration, or anything the user will act on. Launch two independent
+  agents on the same question, or one agent briefed to refute the first's answer, and accept only
+  what both agents agree on or what the refuter failed to break. One agent's confident answer and its own re-check share every blind spot.
 
 ## Common mistakes
 
@@ -91,7 +108,7 @@ A subagent receives no conversation history. Anything it needs must be in the pr
 |-|-|
 | Fanning out implementers to go faster | Conflicting edits; writes stay serial |
 | Delegating the plan | The planner needs the full conversation |
-| Accepting a subagent's "done" | It reports what it intended; check the diff |
+| Accepting a subagent's "done" | It reports what it intended; see "Accepting a result" |
 | Running the pipeline on a one-sentence change | That is what the gate is for |
 | Omitting the output contract | Unstructured results defeat the isolation |
 | Nesting subagents | Subagents cannot spawn subagents; chain from the main conversation |
