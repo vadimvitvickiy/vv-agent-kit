@@ -110,6 +110,7 @@ not the model is careful:
 | Skill | Fires when |
 |-|-|
 | `swift-testing` | Writing tests with Swift Testing, including for concurrent or shared state |
+| `swift-testing-async` | Testing async/await code, or a test that sleeps or polls for work in flight |
 | `swift-concurrency` | Swift code shares state across threads, queues or isolation domains |
 | `swift-style` | Creating or editing a Swift type — member order, layout, `guard` vs `if` |
 | `swift-logging` | Adding logging through `os.Logger` or an equivalent facade |
@@ -162,7 +163,7 @@ refuses to repeat.
 
 | Neutral — the discipline | Swift — the instantiation |
 |-|-|
-| `writing-tests` | `swift-testing` |
+| `writing-tests` | `swift-testing`, `swift-testing-async` |
 | `writing-logs` | `swift-logging` |
 | `writing-comments` | `swift-style` |
 | `verifying-changes` | `xcode-builds` |

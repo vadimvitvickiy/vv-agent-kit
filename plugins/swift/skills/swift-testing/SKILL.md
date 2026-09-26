@@ -78,6 +78,8 @@ Strictly in this order. Move down only when the tool above genuinely cannot expr
 
 1. **Virtual time.** Inject a scheduler or clock the test controls. Deterministic and instant. If
    the type does not accept one, **propose that seam** — a missing seam is a design finding.
+   For async/await code — task groups, timeouts, cancellation — the seam is a spy the test
+   releases: `vvkit-swift:swift-testing-async`.
 2. **`confirmation`.** For "this fires exactly N times", and for "must stay silent"
    (`expectedCount: 0`). Failure reads "confirmed 0 times, but expected 1" rather than a bare
    timeout.
