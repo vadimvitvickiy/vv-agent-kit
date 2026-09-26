@@ -27,7 +27,7 @@ Each measured on a large project:
 |-|-|
 | `-destination 'generic/platform=iOS Simulator'` | Resolves several architectures and evicts the shared cache slice every time you alternate with Xcode — 9,227 file compiles / 247s, versus 1,278 / 104s with a concrete simulator UDID |
 | `CODE_SIGNING_ALLOWED=NO` | A build-setting override changes the build description. If Xcode builds the same DerivedData without it, the two evict each other — a 5,879-file rebuild on every switch. Simulator products need no signing anyway |
-| `-derivedDataPath` on a routine build | Opts out of the cache the IDE is warming. Use it only for a deliberately isolated or reproducible build |
+| `-derivedDataPath` on a routine build | Opts out of the cache the IDE is warming. Even pointed at Xcode's own folder, it moves the module and compilation caches inside it, and every switch with Xcode recompiles everything — 26 of 26 files on an iOS app. Use it only for a deliberately isolated or reproducible build |
 | `xcodebuild clean` | Discards the cache that makes everything else fast. The build system reads sources from disk every run; a clean buys no correctness |
 
 Also worth knowing: two build configurations sharing one DerivedData ping-pong the generated module
@@ -85,7 +85,14 @@ both if the project has it.
 | Tool | Unbound behavior | Symptom |
 |-|-|-|
 | `xcodebuildmcp` | Builds into `~/Library/Developer/XcodeBuildMCP/workspaces/` | Every build cold; a second multi-GB cache — 3.53 GB measured on one checkout |
+| `xcodebuildmcp`, bound by `derivedDataPath` alone | Module and compilation caches move inside that folder | Every switch with Xcode or the scripts recompiles the whole project |
 | `sourcekit-lsp` | Falls back to a macOS target | `No such module 'UIKit'` on every file in an iOS framework |
+
+Bound correctly, switching between tools compiles nothing, but a switch between the Xcode IDE and a
+command-line build still relinks and re-signs. Swift Build folds each linker task's `PATH` into its
+signature, and the IDE's differs from a shell's. That costs seconds, not a rebuild. Leave it alone:
+copying Xcode's `PATH` into the agent's environment depends on Xcode internals that change without
+notice.
 
 For sourcekit-lsp specifically, `xcode-build-server config` binds the scheme and `xcode-build-server
 parse` supplies the flags — **both** are needed. A command-line `xcodebuild` never writes the

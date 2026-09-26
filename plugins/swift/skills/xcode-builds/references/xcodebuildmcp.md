@@ -40,6 +40,20 @@ xcodebuildmcp purge          # what the private store currently holds
 scripts/setup-tooling.sh     # bind derivedDataPath to Xcode's folder for this checkout
 ```
 
+`derivedDataPath` alone is only half the binding. Passed explicitly, it moves the module and
+compilation caches inside that folder, where Xcode keeps them one level up beside it. The compiler
+arguments then differ from Xcode's, and every switch between xcodebuildmcp and Xcode or the scripts
+recompiles the project. Measured on an iOS app with a framework: 26 of 26 Swift files on every
+alternation. `setup-tooling.sh` therefore also writes five build settings into `extraArgs` —
+`COMPILATION_CACHE_CAS_PATH`, `MODULE_CACHE_DIR`, `SDK_EXPLICIT_MODULES_OUTPUT_PATH`,
+`CLANG_MODULES_BUILD_SESSION_FILE` and `SDK_STAT_CACHE_DIR` — pointing each at the folder Xcode uses.
+With all five, alternating compiled nothing; with `MODULE_CACHE_DIR` and
+`SDK_EXPLICIT_MODULES_OUTPUT_PATH` alone, it still recompiled everything.
+
+A config written before the script set these has `derivedDataPath` and nothing more. Re-run
+`scripts/setup-tooling.sh`, and check the template for the five settings if the project's copy
+predates them.
+
 The binding cannot be committed: the folder is named from a hash of the checkout's absolute path, so
 it differs per machine and per clone. That is why it is generated per checkout rather than shipped.
 
@@ -65,5 +79,5 @@ Two silent failures live here, and both present as "the tools are just not there
 ## Exit criteria
 
 - The tool list came from `--help`, `tools`, or the vendor's own skill — not from memory.
-- `derivedDataPath` is bound for this checkout before the first build.
+- `derivedDataPath` and the five cache settings are bound for this checkout before the first build.
 - If the MCP server is being used, `/mcp` shows it connected.

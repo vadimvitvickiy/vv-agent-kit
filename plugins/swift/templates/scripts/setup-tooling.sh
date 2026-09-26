@@ -11,10 +11,11 @@
 #
 # Why it matters. Left unset, xcodebuildmcp builds into its own isolated store
 # under ~/Library/Developer/XcodeBuildMCP/workspaces/ — a cold build and a second
-# multi-GB cache that nothing else ever reads. Pointed at Xcode's folder,
-# xcodebuildmcp, Xcode, scripts/build.sh and scripts/test.sh all share one warm
-# cache. Without buildServer.json, sourcekit-lsp falls back to a macOS target and
-# reports "No such module 'UIKit'" on every file in an iOS framework.
+# multi-GB cache that nothing else ever reads. Pointed at Xcode's folder, with the
+# module and compilation caches pinned where Xcode keeps them, xcodebuildmcp,
+# Xcode, scripts/build.sh and scripts/test.sh all share one warm cache. Without
+# buildServer.json, sourcekit-lsp falls back to a macOS target and reports
+# "No such module 'UIKit'" on every file in an iOS framework.
 #
 # Run once per checkout, and again after moving the repo, changing
 # Xcode > Settings > Locations > Derived Data, or adding source files.
@@ -75,10 +76,14 @@ if [ "$SETUP_MCP" -eq 1 ] && [ -f "$TEMPLATE" ]; then
   SIM_UDID="$(kit_sim_udid iOS)"
   SIM_NAME="$(kit_sim_name "$SIM_UDID" iOS)"
 
+  # Xcode keeps the module and compilation caches beside the per-checkout folder,
+  # not inside it. The config pins them there; see the template's header.
+  DERIVED_DATA_ROOT="$(dirname "$DERIVED_DATA")"
+
   mkdir -p "$(dirname "$CONFIG")"
   # Substituted in awk rather than sed: a DerivedData path can contain characters
   # sed reads as delimiters or backreferences.
-  awk -v dd="$DERIVED_DATA" -v pkey="$PROJECT_KEY" -v ppath="$PROJECT_PATH" \
+  awk -v dd="$DERIVED_DATA" -v ddroot="$DERIVED_DATA_ROOT" -v pkey="$PROJECT_KEY" -v ppath="$PROJECT_PATH" \
       -v scheme="$SCHEME" -v simname="$SIM_NAME" '
     function subst(line, token, value,   i) {
       while ((i = index(line, token)) > 0) {
@@ -92,6 +97,7 @@ if [ "$SETUP_MCP" -eq 1 ] && [ -f "$TEMPLATE" ]; then
     simname == "" && index($0, "@SIMULATOR_NAME@") > 0 { next }
     {
       $0 = subst($0, "@DERIVED_DATA_PATH@", dd)
+      $0 = subst($0, "@DERIVED_DATA_ROOT@", ddroot)
       $0 = subst($0, "@PROJECT_KEY@",       pkey)
       $0 = subst($0, "@PROJECT_PATH@",      ppath)
       $0 = subst($0, "@SCHEME@",            scheme)
