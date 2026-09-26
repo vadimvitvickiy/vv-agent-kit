@@ -73,7 +73,7 @@ kit_resolve_packages_if_stale "${PROJECT_ARGS[@]}"
 # when the .xctestrun cannot be located.
 printf 'Building tests for %s\n' "$SCHEME"
 kit_run_logged "$LOG_DIR/$SAFE.build.log" \
-  timeout "$TIMEOUT" xcodebuild \
+  kit_timeout "$TIMEOUT" xcodebuild \
     "${PROJECT_ARGS[@]}" -scheme "$SCHEME" -destination "$DESTINATION" \
     "${FLAGS[@]}" build-for-testing
 BUILD_STATUS=$?
@@ -113,7 +113,7 @@ if [ -n "$XCTESTRUN" ]; then
   # that rule protects the *build* cache from being split, and nothing compiles
   # in this phase.
   kit_run_logged "$LOG" \
-    timeout "$TIMEOUT" xcodebuild \
+    kit_timeout "$TIMEOUT" xcodebuild \
       -xctestrun "$XCTESTRUN" -destination "$DESTINATION" \
       -derivedDataPath "${XCTESTRUN%%/Build/Products/*}" \
       -resultBundlePath "$RESULT" \
@@ -122,7 +122,7 @@ if [ -n "$XCTESTRUN" ]; then
 else
   kit_warn "no .xctestrun located — falling back to a single-phase run (slower)"
   kit_run_logged "$LOG" \
-    timeout "$TIMEOUT" xcodebuild \
+    kit_timeout "$TIMEOUT" xcodebuild \
       "${PROJECT_ARGS[@]}" -scheme "$SCHEME" -destination "$DESTINATION" \
       "${FLAGS[@]}" -resultBundlePath "$RESULT" \
       ${ONLY[@]+"${ONLY[@]}"} \

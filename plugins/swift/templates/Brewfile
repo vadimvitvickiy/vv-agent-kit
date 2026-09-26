@@ -15,6 +15,11 @@ brew "swiftlint"
 # formatters silently drop Swift Testing output.
 brew "xcbeautify"
 
+# Supplies `gtimeout`, which bounds every xcodebuild in scripts/build.sh and
+# scripts/test.sh so a wedged build fails instead of hanging. Without it they run
+# unbounded and say so.
+brew "coreutils"
+
 # Local developer and agent tooling. CI never invokes either.
 #
 # Homebrew refuses to load a formula from an untrusted tap, which fails

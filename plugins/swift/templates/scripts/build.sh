@@ -64,7 +64,7 @@ LOG="$KIT_LOG_ROOT/build-logs/${SCHEME// /_}.log"
 printf 'Building %s for %s\n' "$SCHEME" "$DESTINATION"
 
 kit_run_logged "$LOG" \
-  timeout "$TIMEOUT" xcodebuild \
+  kit_timeout "$TIMEOUT" xcodebuild \
     "${PROJECT_ARGS[@]}" \
     -scheme "$SCHEME" \
     -destination "$DESTINATION" \

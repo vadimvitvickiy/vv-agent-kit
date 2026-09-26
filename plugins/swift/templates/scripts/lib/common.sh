@@ -271,6 +271,21 @@ kit_formatter() {
   fi
 }
 
+# `timeout` is GNU coreutils and macOS does not ship it; Homebrew's coreutils
+# installs it as `gtimeout`. Without either, run unbounded rather than fail:
+# calling a missing `timeout` exits 127 before xcodebuild ever starts.
+kit_timeout() {
+  local limit="$1"; shift
+  if command -v timeout >/dev/null 2>&1; then
+    timeout "$limit" "$@"
+  elif command -v gtimeout >/dev/null 2>&1; then
+    gtimeout "$limit" "$@"
+  else
+    kit_warn "no timeout or gtimeout on PATH — running without a time limit (brew install coreutils)"
+    "$@"
+  fi
+}
+
 kit_run_logged() {
   local log="$1"; shift
   mkdir -p "$(dirname "$log")"
