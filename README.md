@@ -83,6 +83,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `planning-changes` | An agreed design needs a plan, or a written plan is being carried out or resumed |
 | `writing-tests` | Behavior changes, a bug is fixed, or a test needs judging on whether it earns its place |
 | `verifying-changes` | Deciding what to build or run, and before claiming anything is done or passing |
+| `reflecting-on-changes` | Code was just written or changed — a self-review loop over the unstaged diff, capped at three passes |
 | `debugging-systematically` | A test fails or behavior does not match expectation — before any fix is proposed |
 | `reviewing-code` | Reading a diff for defects, asking for a review, or receiving one on your own change |
 | `delegating-work` | A change spans several files, or subagents are on the table |
@@ -91,6 +92,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `writing-comments` | A diff adds explanatory prose alongside code |
 | `writing-logs` | Adding log statements, or deciding what level a message belongs at |
 | `committing-changes` | Writing a commit message, describing a pull request, or integrating a finished branch |
+| `resolving-conflicts` | A merge, rebase or cherry-pick conflicts, or a branch is integrated across a refactor the other side made |
 | `capturing-decisions` | A rationale emerges that would otherwise die with the session |
 | `injecting-dependencies` | Writing a constructor, or adding a parameter so something can be swapped in a test |
 | `writing-project-instructions` | A `CLAUDE.md` is being edited, has grown long, or repeats an installed skill |
@@ -126,7 +128,9 @@ not the model is careful:
 | `/vvkit:explore` | Regenerates the code map and reconciles it against the hand-written architecture notes |
 | `/vvkit:wire` | Reconciles a `CLAUDE.md` against the installed skills, replacing duplicated rules with references |
 | `/vvkit:worktree` | Hands each independent task to an agent in its own git worktree and branch, using the harness's worktree isolation. Only runs when typed |
-| `/vvkit:merge` | Commits staged work, rebases a branch onto its local base, verifies, fast-forwards the base and removes the branch and its worktree — plain git. Only runs when typed |
+| `/vvkit:merge` | Commits staged work, merges the base into the branch, verifies, merges the branch into the base and removes the branch and its worktree — plain git; `--rebase` for linear history. Only runs when typed |
+| `/vvkit:rebase` | Rebases the current branch onto a local or remote base and adapts it to refactors the base made. Only runs when typed |
+| `/vvkit:open-pr` | Writes a pull request title and description, pushes the branch and opens the creation page in the browser without submitting. Only runs when typed |
 | `vvkit:commit-reviewer` | Read-only review subagent for commits that already exist — the range as a whole, then each commit |
 | `vvkit-swift:swift-reviewer` | Read-only Swift review subagent — correctness first, conventions second |
 
@@ -171,7 +175,7 @@ refuses to repeat.
 | `writing-comments` | `swift-style` |
 | `verifying-changes` | `xcode-builds` |
 | `reviewing-code` | `swift-reviewer` (agent) |
-| `designing-changes`, `planning-changes`, `delegating-work`, `choosing-subagent-models`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `committing-changes`, `writing-project-instructions`, `writing-skills` | — |
+| `designing-changes`, `planning-changes`, `delegating-work`, `choosing-subagent-models`, `exploring-a-codebase`, `capturing-decisions`, `debugging-systematically`, `injecting-dependencies`, `reflecting-on-changes`, `resolving-conflicts`, `committing-changes`, `writing-project-instructions`, `writing-skills` | — |
 
 Each Swift skill declares its neutral counterpart as `REQUIRED BACKGROUND` and does **not** restate
 it. Restating is how one ruleset ends up in three files that then drift apart — the validator checks
@@ -194,7 +198,7 @@ that published incidents show happen anyway.
 ```
 skills/            the neutral tier — the vvkit plugin
 commands/          /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore, /vvkit:wire,
-                   /vvkit:worktree, /vvkit:merge
+                   /vvkit:worktree, /vvkit:merge, /vvkit:rebase, /vvkit:open-pr
 agents/            commit-reviewer
 hooks/             session context, skill routing, subagent model gate, test gate
 templates/         the neutral project scaffold

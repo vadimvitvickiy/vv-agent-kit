@@ -13,10 +13,12 @@ think you remember it: skills change between versions.
 | A test fails, something errors, or behavior does not match expectation | `vvkit:debugging-systematically` |
 | Adding or changing behavior, fixing a bug, or judging a test | `vvkit:writing-tests` |
 | Deciding what to build or run, or about to say work is done, fixed or passing | `vvkit:verifying-changes` |
+| Code was just written or changed, before reporting it done | `vvkit:reflecting-on-changes` |
 | Reviewing a diff, asking for a review, or receiving one | `vvkit:reviewing-code` |
 | Work spans several files, or subagents are on the table | `vvkit:delegating-work` |
 | About to launch any subagent | `vvkit:choosing-subagent-models` |
 | A commit message, a pull request, or integrating a finished branch | `vvkit:committing-changes` |
+| A merge, rebase or cherry-pick conflicts, or crosses a refactor | `vvkit:resolving-conflicts` |
 | Starting in an unfamiliar repo, or locating code | `vvkit:exploring-a-codebase` |
 | Writing a constructor, or adding a parameter as a test seam | `vvkit:injecting-dependencies` |
 | Writing comments or doc comments | `vvkit:writing-comments` |
