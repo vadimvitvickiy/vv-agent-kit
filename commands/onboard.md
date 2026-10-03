@@ -126,7 +126,7 @@ rm AGENTS.md && ln -s CLAUDE.md AGENTS.md
 ```
 .claude/settings.json          from templates/settings.json, plus the stack plugins from step 4
 .claude/rules/                 from the selected packs' rules/
-.claude/context/               structure.md, decisions.md
+.claude/context/               architecture.md (from templates/context/), decisions.md
 .claude/context/specs/         empty
 .agents/{plans,state,scratch}/ empty
 ```
@@ -177,4 +177,4 @@ Append `templates/gitignore.fragment` unless `.agents/` is already ignored.
   target it has to join. Copied and unreferenced looks identical to installed.
 - Any MCP server written to `.mcp.json` and not yet approved. Unapproved and absent look identical
   from the repo.
-- What to do next: run `/vvkit:explore` to generate the structure map.
+- What to do next: run `/vvkit:explore` to generate the code map.

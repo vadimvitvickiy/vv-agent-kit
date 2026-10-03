@@ -33,11 +33,11 @@ review inline against `vvkit:reviewing-code` rather than silently doing nothing.
 
 ## 3. Dispatch
 
-**Pass the diff in the prompt.** The agent must not re-fetch it — re-fetching risks reviewing a
-different working tree than the one you resolved, and wastes the isolation.
+**Hand the diff over as a file, not a paste.** Write the resolved diff to a file and pass its
+path, so the reviewer reads exactly the tree you resolved and the diff stays out of this context.
 
-Include in the spawn prompt: the diff, what the change is meant to do, and the required output
-format. See `vvkit:delegating-work` for the full spawn contract.
+Include in the spawn prompt: the diff's path, what the change is meant to do, and the required
+output format. See `vvkit:delegating-work` for the full spawn contract.
 
 The rulesets are **not** restated here. They live in the agent definition. Duplicating them into
 this file is how one rule ends up in three places that then drift apart — the specific failure this
