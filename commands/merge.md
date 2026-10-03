@@ -32,21 +32,81 @@ The base is `--into` when given. Otherwise it is the repository's default branch
 `main` and `master` exists when that ref is unset. Say which base you are using before rebasing.
 When the branch *is* the base, stop: there is nothing to merge.
 
-```bash
-git rebase <base>
-```
-
 Rebase onto the **local** branch — no `git fetch`, and not `origin/<base>`. Step 4 moves the local
 base, and a branch rebased onto the remote one cannot fast-forward a local base that holds commits
 the remote lacks.
 
-When a conflict occurs:
+### Read what the base did first
 
-- Before resolving, read what the base did to the file: `git log -p -n 3 <base> -- <file>`.
-- Keep both sides' intent — the base's change and this branch's.
+Before rebasing, find the fork point and what landed on the base since:
+
+```bash
+fork=$(git merge-base <base> HEAD)
+git log --oneline "$fork"..<base>
+git diff -M --name-status "$fork" <base>
+```
+
+Look for a refactor the branch never saw: a rename or a move (`R`, or a `D` beside an `A` when the
+content changed too), a deleted file, a commit whose subject says rename, extract, move or replace.
+Write down each old name with its new one. That list drives the two sections below. The same holds
+the other way round: when this branch is the one that refactored, list its renames, because the
+base may have gained new code in the old shape.
+
+```bash
+git -c merge.conflictStyle=zdiff3 rebase <base>
+```
+
+### A conflict is one commit's intent meeting code that moved
+
+The sides are swapped in a rebase: `HEAD` is the base with the commits replayed so far, and the
+other side is the commit being replayed — `git show REBASE_HEAD`. With `zdiff3` the hunk has three
+parts, and the middle one, after `|||||||`, is the code both sides started from. Middle to top is
+what the base did. Middle to bottom is what this commit meant to do.
+
+- **Find the base commit behind the top part**: `git log -p "$fork"..<base> -- <file>`, or by symbol
+  with `git log -S'<old name>' "$fork"..<base>`.
+- **Resolve from the base's side.** Keep the top part and re-apply this commit's intent to it in the
+  base's shape: the new name, the new signature, the new location. Putting the old shape back to
+  make the hunk fit undoes the refactor at one call site and leaves the next reader two
+  conventions.
+- **Follow code that moved.** When the base moved a function or a file, the change belongs where
+  the code lives now, which may be a file with no conflict markers in it. A file the base deleted
+  or moved is not re-added at its old path.
 - Stage the file and `git rebase --continue`.
 - When the right resolution is unclear, stop and ask. A guessed resolution is merged a moment
   later, and step 5 removes the worktree that could have shown the mistake.
+
+### A clean rebase can still be wrong
+
+Git compares text. Code that one side added in the shape the other side refactored away conflicts
+with nothing and breaks at build or at run time: a new call to a renamed function, a new subclass
+of a moved type, a new file in a directory that no longer exists. In a scratch repository, a
+branch that added one such call rebased cleanly across the rename and failed on import.
+
+After the rebase, for every old name on the list:
+
+```bash
+git grep -n '<old name>'
+```
+
+Every hit is code to bring up to the refactor — whichever side wrote it. The branch's new code
+takes the base's new shape; if the branch did the refactor, the base's new code takes the branch's.
+A match that is only a comment or a changelog is not a hit.
+
+Fix each one in the branch commit it belongs to — the commit that added the stale code, or, when
+the stale code came from the base, the commit that did the refactor — so no commit in the range is
+left broken for a later `bisect`:
+
+```bash
+git commit --fixup <commit>
+GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash <base>
+```
+
+When it is unclear which commit broke, `git rebase --exec '<build command>' <base>` builds after
+each one and stops at the first that fails.
+
+When adapting the branch takes more change than the branch itself made, stop and say so. That is a
+branch to redo on top of the refactor, and the human decides.
 
 ## 3. Verify the rebased tree
 
