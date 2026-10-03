@@ -125,6 +125,9 @@ not the model is careful:
 | `/vvkit:scripts` | Writes `build.sh`, `test.sh`, `lint.sh` and `map.sh` into a project and verifies them by running them |
 | `/vvkit:explore` | Regenerates the code map and reconciles it against the hand-written architecture notes |
 | `/vvkit:wire` | Reconciles a `CLAUDE.md` against the installed skills, replacing duplicated rules with references |
+| `/vvkit:worktree` | Hands each task to its own git worktree agent through `workmux`, one prompt file per task. Only runs when typed |
+| `/vvkit:merge` | Commits staged work, rebases onto the local base branch and merges the worktree branch through `workmux`. Only runs when typed |
+| `vvkit:commit-reviewer` | Read-only review subagent for commits that already exist — the range as a whole, then each commit |
 | `vvkit-swift:swift-reviewer` | Read-only Swift review subagent — correctness first, conventions second |
 
 **Hooks**, all fail-open and none of them opinionated about your project unless you ask:
@@ -190,7 +193,9 @@ that published incidents show happen anyway.
 
 ```
 skills/            the neutral tier — the vvkit plugin
-commands/          /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore, /vvkit:wire
+commands/          /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore, /vvkit:wire,
+                   /vvkit:worktree, /vvkit:merge
+agents/            commit-reviewer
 hooks/             session context, skill routing, subagent model gate, test gate
 templates/         the neutral project scaffold
 plugins/swift/     the vvkit-swift plugin: skills, reviewer agent, lint hook, and the pack
