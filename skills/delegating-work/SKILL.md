@@ -66,8 +66,10 @@ fixing one failure might fix the others, investigate them together first.
 
 **4. Implement — one writer.** Exactly one writer at any moment. Executing a written plan, task by
 task, is `vvkit:planning-changes`. Choose fresh-per-task or
-full-context by the table above. Parallel implementers are never used: file disjointness is rarely
-enforceable, and shared project files make it worse.
+full-context by the table above. Parallel implementers are never used in one working tree: file
+disjointness is rarely enforceable, and shared project files make it worse. Independent tasks the
+human asks to run side by side each get a worktree and a branch — `/vvkit:worktree` — and still
+merge one at a time.
 
 **5. Verify, then review.** The build and test gate first. Then one independent reviewer that never
 saw your reasoning — reading the diff itself, not your account of it. Fresh context is a genuine

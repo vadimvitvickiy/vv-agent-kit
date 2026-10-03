@@ -125,8 +125,8 @@ not the model is careful:
 | `/vvkit:scripts` | Writes `build.sh`, `test.sh`, `lint.sh` and `map.sh` into a project and verifies them by running them |
 | `/vvkit:explore` | Regenerates the code map and reconciles it against the hand-written architecture notes |
 | `/vvkit:wire` | Reconciles a `CLAUDE.md` against the installed skills, replacing duplicated rules with references |
-| `/vvkit:worktree` | Hands each task to its own git worktree agent through `workmux`, one prompt file per task. Only runs when typed |
-| `/vvkit:merge` | Commits staged work, rebases onto the local base branch and merges the worktree branch through `workmux`. Only runs when typed |
+| `/vvkit:worktree` | Hands each independent task to an agent in its own git worktree and branch, using the harness's worktree isolation. Only runs when typed |
+| `/vvkit:merge` | Commits staged work, rebases a branch onto its local base, verifies, fast-forwards the base and removes the branch and its worktree — plain git. Only runs when typed |
 | `vvkit:commit-reviewer` | Read-only review subagent for commits that already exist — the range as a whole, then each commit |
 | `vvkit-swift:swift-reviewer` | Read-only Swift review subagent — correctness first, conventions second |
 
