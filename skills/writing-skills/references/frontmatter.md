@@ -24,7 +24,7 @@ A malformed YAML block does not fail loudly. Claude Code loads the body with emp
 | Field | Notes |
 |-|-|
 | `name`, `description` | The description is what the caller matches against. |
-| `tools` | Explicit allow-list. Setting it is how a reviewer is prevented from writing. |
+| `tools` | Explicit allow-list. Setting it is how a reviewer is prevented from writing. Include `Skill` when the body names a `REQUIRED BACKGROUND` skill — a list without it cannot load one. |
 | `disallowedTools` | The inverse, when an allow-list would be unwieldy. |
 | `model` | `sonnet` for read-and-search agents, `opus` for judgment. Omitting it inherits the caller's model, which silently overpays for lookups and underpays for review. |
 | `effort`, `maxTurns` | Bound the work. |

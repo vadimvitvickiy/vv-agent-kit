@@ -1,7 +1,7 @@
 ---
 name: swift-reviewer
 description: Reviews changed Swift files for correctness and convention violations. Use after modifying Swift code, or when reviewing a diff or pull request.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Skill
 model: sonnet
 color: blue
 ---

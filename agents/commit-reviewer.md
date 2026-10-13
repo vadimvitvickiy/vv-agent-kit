@@ -1,7 +1,7 @@
 ---
 name: commit-reviewer
 description: Reviews commits that already exist for defects. Use after a series of commits lands, or when asked to review the last few commits or a commit range.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Skill
 model: sonnet
 color: pink
 ---
