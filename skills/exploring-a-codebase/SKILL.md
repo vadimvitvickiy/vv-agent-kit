@@ -42,6 +42,7 @@ information is derivable, so it is duplicated; being duplicated, it drifts.
 | Open-ended sweep across many files or naming conventions | A read-only subagent — see `vvkit:delegating-work` |
 | "Where is X?" and you are unsure what X is called | A subagent. A missed file costs far more than the tokens saved |
 | You already know the file | Read it. Do not search first |
+| How the codebase already solves this kind of problem, before adding to it | `vvkit:architecture-surveyor` |
 
 Know what you are looking for before opening a file. On anything large, locate the section first
 rather than reading it whole.

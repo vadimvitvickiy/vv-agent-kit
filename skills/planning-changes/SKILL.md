@@ -17,6 +17,11 @@ decisions nobody approved.
 List which files are created or changed and what each is responsible for. This is where the
 decomposition is actually decided; the tasks follow from it.
 
+Map them against a survey. When the design stage left none, launch `vvkit:architecture-surveyor` in
+the background, map the files from your own reading while it runs, and reconcile the two before
+writing a task. Put the report's path in the plan's opening block — implementers and reviewers see
+only what the plan hands them.
+
 Give each file one responsibility, keep files that change together together, and follow the
 codebase's existing layout. Splitting a file that has grown unwieldy is fair game when the plan
 already touches it; restructuring what it does not touch is not.

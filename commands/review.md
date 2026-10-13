@@ -39,6 +39,9 @@ path, so the reviewer reads exactly the tree you resolved and the diff stays out
 Include in the spawn prompt: the diff's path, what the change is meant to do, and the required
 output format. See `vvkit:delegating-work` for the full spawn contract.
 
+Size the model to the diff — `vvkit:choosing-subagent-models`. A reviewer's definition carries only
+its default.
+
 The rulesets are **not** restated here. They live in the agent definition. Duplicating them into
 this file is how one rule ends up in three places that then drift apart — the specific failure this
 kit exists to prevent.

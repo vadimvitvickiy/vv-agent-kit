@@ -52,7 +52,7 @@ duplicated across three files that then drift apart.
 
 **2. Research — fan out.** Launch every applicable reader in one message, read-only, with an
 explicit model — `vvkit:choosing-subagent-models`. Readers are independent and never write. Three that usually apply: prior art in this
-repo; verification of any contract, schema or interface the change touches; the requirements source
+repo — `vvkit:architecture-surveyor`; verification of any contract, schema or interface the change touches; the requirements source
 when a spec or ticket exists.
 
 **3. Plan — never delegated.** Design decisions stay where the full conversation is. Splitting them
@@ -97,7 +97,8 @@ intended, and it cites locations with the same fluency whether or not it read th
 - **Read the cited `file:line` yourself** for every claim a decision rests on. Skimming the report
   is not checking it.
 - **Re-derive counts and outcomes from the machine.** "Changed N places" is checked with
-  `git diff --stat`; "tests pass" by re-running them. A build, test or lint gate is judged by its
+  `git diff --stat`; "tests pass" by re-running them, or by the exit code and log that
+  `vvkit:test-runner` returns. A build, test or lint gate is judged by its
   output only.
 - **High-risk conclusions need a second opinion that never saw the first** — data deletion,
   security, production configuration, or anything the user will act on. Launch two independent

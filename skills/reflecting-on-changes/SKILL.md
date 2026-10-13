@@ -40,6 +40,8 @@ already exists forty lines up.
 4. **Failure paths.** An error swallowed or ignored at a system boundary. Input from outside
    reaching a query, a shell or a path unchecked.
 5. **Waste.** An allocation inside a loop, or two passes over a collection where one does.
+6. **Counterfeit values.** Your data built by hand into a type another part of the system owns, to
+   reuse a function that takes it. Give that function a sibling that takes your type.
 
 Leave alone what is only taste, and whatever the project does consistently a different way. A
 convention you would not have chosen is still the convention.

@@ -43,6 +43,11 @@ what they just said is ceremony, not a gate.
 
 - **Read before you ask.** Files, docs, recent commits. A question the code answers spends the
   human's attention on something you could have looked up.
+- **Launch a survey as you start reading.** Start `vvkit:architecture-surveyor` on the change in the
+  background, with a file path for its report, and do your own reading while it runs. Yours follows the path the change needs; its
+  looks sideways — how sibling features cross each boundary, who owns each type, how an abstraction
+  was last extended. Read its report before proposing an approach. Skip it only for a change
+  describable in one sentence.
 - **Check the scope first.** A request that spans several independent subsystems needs decomposing
   before any detail is refined. Name the pieces and their order, then design the first one.
 - **One question per message**, multiple choice where the options are knowable. A list of five
@@ -96,6 +101,13 @@ cannot be understood without reading its internals, its boundary is in the wrong
 
 In an existing codebase, follow its patterns. Improve what the change actually touches, when the
 problem gets in the way of the work; propose nothing that does not serve the goal.
+
+**When what exists does not take your data, extend it — never disguise the data.** A function that
+takes another type is asking for a sibling that takes yours. Building an instance of a type another
+part of the system owns, out of data that never came from there, invents the fields it has no value
+for — and everything downstream trusts them as real. A smaller diff and leaving untested code
+untouched are the reasons it gets done anyway; a sibling entry point changes no existing behavior
+either.
 
 ## Write it down when it is architectural
 

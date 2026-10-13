@@ -132,6 +132,8 @@ not the model is careful:
 | `/vvkit:rebase` | Rebases the current branch onto a local or remote base and adapts it to refactors the base made. Only runs when typed |
 | `/vvkit:open-pr` | Writes a pull request title and description, pushes the branch and opens the creation page in the browser without submitting. Only runs when typed |
 | `vvkit:commit-reviewer` | Read-only review subagent for commits that already exist — the range as a whole, then each commit |
+| `vvkit:architecture-surveyor` | Read-only survey around a planned change — sibling features, who owns each type crossing a boundary, how each abstraction was extended before — with counts and `file:line` |
+| `vvkit:test-runner` | Runs a known test, build or lint command on the cheapest model and returns the exit code, counts and failures verbatim, keeping the output out of the main conversation |
 | `vvkit-swift:swift-reviewer` | Read-only Swift review subagent — correctness first, conventions second |
 
 **Hooks**, all fail-open and none of them opinionated about your project unless you ask:
@@ -199,7 +201,7 @@ that published incidents show happen anyway.
 skills/            the neutral tier — the vvkit plugin
 commands/          /vvkit:onboard, /vvkit:review, /vvkit:scripts, /vvkit:explore, /vvkit:wire,
                    /vvkit:worktree, /vvkit:merge, /vvkit:rebase, /vvkit:open-pr
-agents/            commit-reviewer
+agents/            architecture-surveyor, commit-reviewer, test-runner
 hooks/             session context, skill routing, subagent model gate, test gate
 templates/         the neutral project scaffold
 plugins/swift/     the vvkit-swift plugin: skills, reviewer agent, lint hook, and the pack

@@ -71,6 +71,9 @@ attention on:
 - **Contracts** — a changed API, schema, wire format, persisted field or event that something
   already deployed still reads: an older app version, another service, rows written last year.
   Removing or renaming is breaking even when every caller in this repo was updated.
+- **Counterfeit values** — an instance of a type another layer or module owns, built by hand from
+  data that did not come from there, usually to reuse a function that takes it. Its invented fields
+  are read downstream as real. The fix is an entry point that takes the data's own type.
 - **Swallowed failure** — an error caught and discarded, a result ignored, a failure path that
   returns a plausible-looking empty value instead of failing.
 - **Remote calls** — no timeout, a retry around an operation that is not idempotent, a retry loop
