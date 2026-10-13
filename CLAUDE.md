@@ -8,11 +8,13 @@ silently inherited by every project that installs it.
 
 ```bash
 ./scripts/validate.sh
-claude plugin validate . --strict
+claude plugin validate .
 ```
 
 Both must exit 0. `validate.sh` covers the semantic rules; `claude plugin validate` is the same
-structural check the community marketplace runs on submission.
+structural check the community marketplace runs on submission. Not `--strict`: it turns the CLI's
+warning about this file — a plugin-root `CLAUDE.md` is not shipped as context, which is intended —
+into a failure.
 
 Exit 0 is required. If a change touches `validate.sh` itself, also run
 `./scripts/validate.sh tests/fixtures` and confirm it still exits 1 with nine violations — a

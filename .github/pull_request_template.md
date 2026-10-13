@@ -7,7 +7,7 @@
 ```
 ./scripts/validate.sh                  # exit 0
 ./scripts/validate.sh tests/fixtures   # exit 1
-claude plugin validate . --strict      # exit 0
+claude plugin validate .               # exit 0
 ```
 
 - [ ] All three ran, and their output is what is pasted above

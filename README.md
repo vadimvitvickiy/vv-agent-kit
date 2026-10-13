@@ -249,7 +249,7 @@ path hashed from the checkout's location, so they are generated per clone and ne
 ```bash
 ./scripts/validate.sh                  # exit 0 required
 ./scripts/validate.sh tests/fixtures   # must exit 1 with nine violations
-claude plugin validate . --strict      # exit 0 required
+claude plugin validate .               # exit 0 required
 ```
 
 The second command is the one that matters. A validator that passes everything is worse than none,

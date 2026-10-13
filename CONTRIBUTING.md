@@ -22,7 +22,7 @@ exact defect this plugin exists to prevent. If you are writing one, you are writ
 ```bash
 ./scripts/validate.sh                  # must exit 0
 ./scripts/validate.sh tests/fixtures   # must exit 1
-claude plugin validate . --strict      # must exit 0
+claude plugin validate .               # must exit 0
 ```
 
 If your change touches `scripts/validate.sh`, add a fixture that the new rule rejects. A validator

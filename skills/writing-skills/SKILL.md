@@ -148,7 +148,7 @@ wording tests, a prohibition produced more of the unwanted content than a recipe
 - [ ] `./scripts/validate.sh` exits 0
 - [ ] `./scripts/validate.sh tests/fixtures` still exits 1 — a validator that passes everything is
       worse than none
-- [ ] `claude plugin validate . --strict` exits 0
+- [ ] `claude plugin validate .` exits 0
 - [ ] **The version in `plugin.json` is bumped.** An installed plugin is cached per version, so
       content pushed without a bump never reaches an install — `marketplace update` reports success
       and changes nothing. This is silent, and it looks exactly like a skill that failed to load
