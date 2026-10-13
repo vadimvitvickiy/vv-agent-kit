@@ -18,7 +18,7 @@
 #
 # Configuration:
 #   KIT_TEST_COMMAND   explicit test command; overrides scripts/test.sh
-#   KIT_SOURCE_GLOB    pathspec for source files         (default '*.swift')
+#   KIT_SOURCE_GLOB    pathspec for source files         (default: every file but *.md, *.txt)
 #   KIT_TEST_LOG_DIR   dir whose newest file marks a run (default .agents/state/test-runs)
 #
 # Fail-open: anything unexpected exits 0 so a bug here can never wedge a session.
@@ -46,8 +46,22 @@ else
   exit 0
 fi
 
-glob="${KIT_SOURCE_GLOB:-*.swift}"
 log_dir="${KIT_TEST_LOG_DIR:-.agents/state/test-runs}"
+
+# The pathspecs ride in the positional parameters: macOS still ships bash 3.2,
+# where an empty array under `set -u` errors. With no glob configured, every
+# file counts except prose and the run logs themselves — a default naming one
+# language leaves the gate silently inert in every other.
+if [ -n "${KIT_SOURCE_GLOB:-}" ]; then
+  set -- "$KIT_SOURCE_GLOB"
+else
+  set -- . ':(exclude)*.md' ':(exclude)*.txt'
+  # An absolute path outside the repo is a fatal pathspec, and already excluded.
+  case "$log_dir" in
+    /*) ;;
+    *) set -- "$@" ":(exclude)$log_dir" ;;
+  esac
+fi
 
 sentinel="${TMPDIR:-/tmp}/kit-test-gate-${session}"
 [ -e "$sentinel" ] && exit 0
@@ -59,8 +73,8 @@ mtime() {
 
 changed="$(
   {
-    git diff --name-only HEAD -- "$glob"
-    git ls-files --others --exclude-standard -- "$glob"
+    git diff --name-only HEAD -- "$@"
+    git ls-files --others --exclude-standard -- "$@"
   } 2>/dev/null | sort -u
 )"
 [ -n "$changed" ] || exit 0

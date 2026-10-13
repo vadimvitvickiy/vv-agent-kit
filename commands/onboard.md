@@ -153,7 +153,8 @@ turn, so it stays inert until the project opts in — which happens by having `s
 configuration.
 
 Copy each selected pack's `env` from `pack.json` into the `env` of `.claude/settings.json` — the Go
-pack sets `KIT_SOURCE_GLOB` to `*.go`, which points the test gate at Go sources.
+pack sets `KIT_SOURCE_GLOB` to `*.go`, which narrows the test gate to Go sources. Unset, the gate
+counts every changed file except `*.md` and `*.txt`.
 `KIT_TEST_COMMAND` is only needed to override `scripts/test.sh` with something else.
 
 ## Step 7b — Generate the scripts
