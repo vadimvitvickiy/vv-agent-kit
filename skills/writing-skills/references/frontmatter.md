@@ -60,6 +60,7 @@ switch.
   workflow-narration patterns (`dispatch`, `, then `, `after that`, `step N`, `between each`).
 - The whole frontmatter block is at most 1024 characters.
 - Every `SKILL.md` has an H1.
+- Every agent has frontmatter whose `name` matches its file name, a `description`, and a `model`.
 - No `@`-link in `skills/`, `agents/` or `commands/`.
 - No brace-delimited placeholder token outside `templates/`, `plugins/*/templates/`, `tests/`.
 - No `README.md` install command containing a `<placeholder>`.

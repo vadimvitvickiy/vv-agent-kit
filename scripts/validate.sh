@@ -64,18 +64,28 @@ known_ref() {
   printf '%s\n' "$known" | grep -qx -- "$1"
 }
 
+# The YAML block between a file's first two `---` lines.
+frontmatter() {
+  awk 'NR==1 && $0=="---"{inf=1; next} inf && $0=="---"{exit} inf{print}' "$1"
+}
+
+# The value of one top-level key in a frontmatter block.
+field() {
+  printf '%s\n' "$1" | sed -n "s/^$2:[[:space:]]*//p" | head -1
+}
+
 while IFS= read -r f; do
   [ -n "$f" ] || continue
   dir="$(basename "$(dirname "$f")")"
-  front="$(awk 'NR==1 && $0=="---"{inf=1; next} inf && $0=="---"{exit} inf{print}' "$f")"
+  front="$(frontmatter "$f")"
 
   if [ -z "$front" ]; then
     report "$f" "missing YAML frontmatter"
     continue
   fi
 
-  name="$(printf '%s\n' "$front" | sed -n 's/^name:[[:space:]]*//p' | head -1)"
-  desc="$(printf '%s\n' "$front" | sed -n 's/^description:[[:space:]]*//p' | head -1)"
+  name="$(field "$front" name)"
+  desc="$(field "$front" description)"
 
   [ -n "$name" ] || report "$f" "frontmatter has no 'name'"
   [ -n "$desc" ] || report "$f" "frontmatter has no 'description'"
@@ -111,6 +121,27 @@ while IFS= read -r f; do
   # every heading in the body reads as a top-level section.
   grep -q '^# ' "$f" || report "$f" "body has no H1 heading"
 done < <(find_in_plugins skills -name SKILL.md 2>/dev/null | sort)
+
+# The spawn gate lets a plugin agent through without a `model` on the assumption
+# that its definition names one. An agent that does not would inherit the
+# caller's model, silently — so the assumption is checked here.
+while IFS= read -r f; do
+  [ -n "$f" ] || continue
+  front="$(frontmatter "$f")"
+
+  if [ -z "$front" ]; then
+    report "$f" "missing YAML frontmatter"
+    continue
+  fi
+
+  name="$(field "$front" name)"
+  desc="$(field "$front" description)"
+  model="$(field "$front" model)"
+
+  [ "$name" = "$(basename "$f" .md)" ] || report "$f" "agent name '$name' does not match its file name"
+  [ -n "$desc" ] || report "$f" "agent frontmatter has no 'description'"
+  [ -n "$model" ] || report "$f" "agent sets no 'model', so it would inherit the caller's"
+done < <(find_in_plugins agents -maxdepth 1 -name '*.md' 2>/dev/null | sort)
 
 # Placeholders are legal only in the trees that exist to be filled in.
 while IFS= read -r f; do

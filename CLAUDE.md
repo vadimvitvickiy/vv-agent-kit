@@ -15,7 +15,7 @@ Both must exit 0. `validate.sh` covers the semantic rules; `claude plugin valida
 structural check the community marketplace runs on submission.
 
 Exit 0 is required. If a change touches `validate.sh` itself, also run
-`./scripts/validate.sh tests/fixtures` and confirm it still exits 1 with eight violations — a
+`./scripts/validate.sh tests/fixtures` and confirm it still exits 1 with nine violations — a
 validator that passes everything is worse than none.
 
 ## The content rule
