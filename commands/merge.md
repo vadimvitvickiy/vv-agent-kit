@@ -98,6 +98,9 @@ git -C <base-worktree> branch -d <branch>
 nowhere else: list them and ask whether to commit, move or delete them. Never `--force`, and never
 `branch -D`.
 
+Build caches keyed by the worktree's path live outside it and outlive it, unread by anything. Remove
+them too, as the stack's build skill describes.
+
 When this session is running inside the worktree being removed, leave it through the harness's own
 worktree tool where there is one, and tell the human the directory is gone. When the branch lives in
 the main checkout, switch to the base before deleting it.

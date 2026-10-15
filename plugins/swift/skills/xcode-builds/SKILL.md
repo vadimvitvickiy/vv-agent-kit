@@ -53,6 +53,12 @@ On failure, read the `.xcresult` rather than grepping console output:
 xcrun xcresulttool get --format json --path <path>.xcresult
 ```
 
+**A full disk does not look like one.** It surfaces as a `lipo` or linker failure, or a module that
+"has been modified since the module file was built", with `database or disk is full` only at the end
+of the log. `bash scripts/derived-data.sh` in this skill's directory reports free space on the data
+volume (`df -h /` reads the sealed system volume) and which DerivedData folders are orphaned. Judge a
+cleanup by how much `df` changes, not `du`, which counts APFS clones twice.
+
 ## What a green build does not tell you
 
 On top of the gaps listed in `vvkit:verifying-changes`:
@@ -87,6 +93,12 @@ both if the project has it.
 | `xcodebuildmcp` | Builds into `~/Library/Developer/XcodeBuildMCP/workspaces/` | Every build cold; a second multi-GB cache — 3.53 GB measured on one checkout |
 | `xcodebuildmcp`, bound by `derivedDataPath` alone | Module and compilation caches move inside that folder | Every switch with Xcode or the scripts recompiles the whole project |
 | `sourcekit-lsp` | Falls back to a macOS target | `No such module 'UIKit'` on every file in an iOS framework |
+
+**Removing a worktree orphans its DerivedData folder** — 25–30 GB per built worktree on a large
+project, with nothing left that will read it. After `git worktree remove`, run `bash
+scripts/derived-data.sh --delete <removed-path>` from this skill's directory, and `xcodebuildmcp purge
+--dry-run` for its XcodeBuildMCP workspace. `--delete-orphans` sweeps every removed checkout's folder,
+not only this work's: ask first.
 
 Bound correctly, switching between tools compiles nothing, but a switch between the Xcode IDE and a
 command-line build still relinks and re-signs. Swift Build folds each linker task's `PATH` into its

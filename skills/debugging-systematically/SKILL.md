@@ -38,6 +38,10 @@ view. The defect is wherever the invariant was supposed to hold and did not.
 Fix it at that layer, so the whole class of the bug becomes unrepresentable rather than this one
 instance becoming survivable.
 
+When a toolchain fails in a way no recent change explains, read the last error in the log, not only
+the first, and rule out an exhausted resource before reading code. A full disk surfaces as a corrupt
+cache or a linker failure, and names itself only at the end of the log.
+
 ## Instrument every boundary the path crosses
 
 When the failing path crosses components — handler to service to database, workflow to build script
