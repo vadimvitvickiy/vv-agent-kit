@@ -82,4 +82,4 @@ fi
 
 printf '\nBuild succeeded in %s\n' "$ELAPSED"
 printf 'Compiled %s file(s). Log: %s\n' \
-  "$(grep -c '^SwiftCompile ' "$LOG" 2>/dev/null || echo 0)" "$LOG"
+  "$(grep -c '^SwiftCompile ' "$LOG" 2>/dev/null || true)" "$LOG"

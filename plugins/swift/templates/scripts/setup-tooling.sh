@@ -189,4 +189,4 @@ fi
 # Every entry carries "directory", swift-module and clang entries alike, so this
 # counts the array without needing a JSON parser.
 printf 'Wrote .compile  (%s compile entries — sourcekit-lsp ready)\n' \
-  "$(grep -c '"directory"' .compile 2>/dev/null || echo 0)"
+  "$(grep -c '"directory"' .compile 2>/dev/null || true)"

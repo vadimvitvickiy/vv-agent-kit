@@ -271,18 +271,17 @@ kit_formatter() {
   fi
 }
 
-# `timeout` is GNU coreutils and macOS does not ship it; Homebrew's coreutils
-# installs it as `gtimeout`. Without either, run unbounded rather than fail:
-# calling a missing `timeout` exits 127 before xcodebuild ever starts.
+# $1 = seconds, then the command. macOS ships no `timeout`; coreutils installs it
+# as `gtimeout` unless its gnubin is on PATH. Without either, perl bounds it:
+# perl is always present, and an alarm survives exec, so the command itself
+# receives SIGALRM (exit 142).
 kit_timeout() {
-  local limit="$1"; shift
   if command -v timeout >/dev/null 2>&1; then
-    timeout "$limit" "$@"
+    timeout "$@"
   elif command -v gtimeout >/dev/null 2>&1; then
-    gtimeout "$limit" "$@"
+    gtimeout "$@"
   else
-    kit_warn "no timeout or gtimeout on PATH — running without a time limit (brew install coreutils)"
-    "$@"
+    perl -e 'alarm shift; exec @ARGV or die "exec $ARGV[0]: $!\n"' "$@"
   fi
 }
 

@@ -16,8 +16,8 @@ brew "swiftlint"
 brew "xcbeautify"
 
 # Supplies `gtimeout`, which bounds every xcodebuild in scripts/build.sh and
-# scripts/test.sh so a wedged build fails instead of hanging. Without it they run
-# unbounded and say so.
+# scripts/test.sh so a wedged build fails instead of hanging. Without it a perl
+# alarm bounds them instead.
 brew "coreutils"
 
 # Local developer and agent tooling. CI never invokes either.
