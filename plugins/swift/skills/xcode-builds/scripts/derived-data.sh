@@ -24,6 +24,7 @@ case "$custom" in
   /*) ROOT="$custom" ;;
   *)  die "DerivedData location is relative to each workspace ($custom); nothing global to scan" ;;
 esac
+ROOT="${ROOT%/}"
 [ -d "$ROOT" ] || die "no DerivedData folder at $ROOT"
 
 free_space() {
@@ -40,6 +41,9 @@ classify() {
       *.noindex|SDKExplicitPrecompiledModules) continue ;;
     esac
     ws="$(plutil -extract WorkspacePath raw "$dir/info.plist" 2>/dev/null)"
+    # A tab or newline in the path would forge a line of this output.
+    case "$ws" in *"$(printf '\t')"*|*"
+"*) ws="" ;; esac
     if [ -z "$ws" ]; then
       printf 'unknown\t%s\t-\n' "$dir"
     elif [ -e "$ws" ]; then
@@ -52,6 +56,10 @@ classify() {
 
 delete() {
   local dir="$1"
+  if [ "$(dirname "$dir")" != "$ROOT" ] || [ ! -d "$dir" ]; then
+    printf 'derived-data: refusing to delete %s, not a folder in %s\n' "$dir" "$ROOT" >&2
+    return
+  fi
   printf 'deleting %s\n' "$dir"
   rm -rf "$dir" || printf 'derived-data: could not fully delete %s\n' "$dir" >&2
 }
