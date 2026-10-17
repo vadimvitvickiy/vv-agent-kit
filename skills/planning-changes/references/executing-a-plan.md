@@ -3,6 +3,15 @@
 The plan already did the thinking. Execution is carrying it out exactly, proving each step with a
 test you watched fail and then pass, and leaving a record that survives your own forgetting.
 
+## Contents
+
+- [Before the first task](#before-the-first-task)
+- [The task loop](#the-task-loop)
+- [Rulings, not stalls](#rulings-not-stalls)
+- [A subagent per task](#a-subagent-per-task)
+- [The final review](#the-final-review)
+- [Finish](#finish)
+
 ## Before the first task
 
 **Isolate the workspace.** Check first whether you are already in one: `git rev-parse --git-dir`

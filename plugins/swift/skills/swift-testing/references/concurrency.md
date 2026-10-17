@@ -10,6 +10,17 @@ Most concurrency hazard is not `async`/`await`. Dispatch queues used as guards, 
 schedulers, timers, KVO and delegate callbacks are all first-class concurrency — not the legacy case.
 The trigger is **cross-domain reachability**, not the presence of async machinery.
 
+## Contents
+
+- [Pick the weakest tool that proves the bug](#pick-the-weakest-tool-that-proves-the-bug)
+- [Seams a project needs](#seams-a-project-needs)
+- [The five shapes](#the-five-shapes)
+- [Racing a first access — the trap that makes a stress test toothless](#racing-a-first-access--the-trap-that-makes-a-stress-test-toothless)
+- [Non-async/await specifics](#non-asyncawait-specifics)
+- [Iteration counts](#iteration-counts)
+- [Under Thread Sanitizer](#under-thread-sanitizer)
+- [Never](#never)
+
 ## Pick the weakest tool that proves the bug
 
 Only move down when the tool above genuinely cannot express the failure.

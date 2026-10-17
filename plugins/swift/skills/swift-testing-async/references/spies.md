@@ -5,6 +5,13 @@ Two spies built on `AsyncStream`, compiling under Swift 6 strict concurrency. Ad
 cases to the dependency being replaced; keep the three behaviours — report, wait, exit on
 cancellation.
 
+## Contents
+
+- [The seams](#the-seams)
+- [Value provider spy](#value-provider-spy)
+- [Sleep spy](#sleep-spy)
+- [Limits](#limits)
+
 ## The seams
 
 ```swift

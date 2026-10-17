@@ -17,7 +17,7 @@ warning about this file — a plugin-root `CLAUDE.md` is not shipped as context,
 into a failure.
 
 Exit 0 is required. If a change touches `validate.sh` itself, also run
-`./scripts/validate.sh tests/fixtures` and confirm it still exits 1 with nine violations — a
+`./scripts/validate.sh tests/fixtures` and confirm it still exits 1 with ten violations — a
 validator that passes everything is worse than none.
 
 ## The content rule

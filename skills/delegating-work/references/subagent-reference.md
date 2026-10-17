@@ -2,6 +2,18 @@
 
 Mechanics for configuring subagents. The decision of *whether* to delegate lives in `SKILL.md`.
 
+## Contents
+
+- [Defining a project subagent](#defining-a-project-subagent)
+- [Frontmatter fields](#frontmatter-fields)
+- [Model selection](#model-selection)
+- [What a subagent receives](#what-a-subagent-receives)
+- [Isolation via worktree](#isolation-via-worktree)
+- [Persistent memory](#persistent-memory)
+- [Anti-patterns](#anti-patterns)
+- [Hook output](#hook-output)
+- [Checklist](#checklist)
+
 ## Defining a project subagent
 
 Store in `.claude/agents/<name>.md` and commit it. Loaded automatically at session start.

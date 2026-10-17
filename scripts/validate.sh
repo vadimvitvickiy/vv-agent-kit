@@ -177,6 +177,17 @@ done < <(
     | sort -u
 )
 
+# Agents often preview a long reference with `head` instead of reading it whole,
+# so one past 100 lines opens with a table of contents: a "Contents" heading, or
+# at least two anchor links, in its first 30 lines.
+while IFS= read -r f; do
+  [ -n "$f" ] || continue
+  [ "$(wc -l <"$f")" -gt 100 ] || continue
+  head -30 "$f" | grep -qiE '^#+ (table of )?contents' && continue
+  [ "$(head -30 "$f" | grep -c '](#')" -ge 2 ] && continue
+  report "$f" "reference is over 100 lines with no table of contents in its first 30 lines"
+done < <(find_in_plugins skills -path '*/references/*.md' 2>/dev/null | sort)
+
 # The install commands are the first thing a reader copies. A placeholder that
 # survived into them is a broken first impression, and no other check sees it:
 # the {{PLACEHOLDER}} rule above only knows about brace syntax.

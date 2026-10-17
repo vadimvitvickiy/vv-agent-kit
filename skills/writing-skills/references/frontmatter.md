@@ -62,6 +62,8 @@ switch.
 - Every `SKILL.md` has an H1.
 - Every agent has frontmatter whose `name` matches its file name, a `description`, and a `model`.
 - No `@`-link in `skills/`, `agents/` or `commands/`.
+- Every `references/*.md` over 100 lines has a table of contents in its first 30 lines — a
+  `Contents` heading, or at least two anchor links.
 - No brace-delimited placeholder token outside `templates/`, `plugins/*/templates/`, `tests/`.
 - No `README.md` install command containing a `<placeholder>`.
 - Every `vvkit:<name>` or `vvkit-<stack>:<name>` cross-reference resolves to a real skill, command or

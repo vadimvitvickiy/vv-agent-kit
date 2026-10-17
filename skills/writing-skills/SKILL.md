@@ -45,6 +45,10 @@ Two more consequences worth designing around:
   and forgotten.
 - After compaction only the first ~5,000 tokens of each recently-invoked skill are re-attached, under
   a shared budget. Put the load-bearing rule near the top, not in a closing summary.
+- **Every rule competes with every other.** Compliance falls as instructions are added, and earlier
+  ones win: in IFScale (Jaroslawicz et al., 2025, 20 models) the best reached 68% at 500
+  instructions, with a bias toward the first. Merge rules that say the same thing twice, and when a
+  rule goes in, look for one to take out.
 
 ## The description contract
 
@@ -53,8 +57,10 @@ Third person. Starts with `Use when`. States **triggering conditions only**.
 The reason narration is banned is mechanical, not stylistic. The description is the part that is
 always loaded, and the body is the part that is not. A description that summarizes the procedure gets
 substituted for the body: the agent reads the summary, believes it now has the rule, and never opens
-the file. A narrated description does not merely describe the skill badly — it reliably prevents the
-skill from being read.
+the file. The superpowers plugin reports the case: a description saying "code review between tasks"
+got one review where the body required two, and rewritten as a trigger, the agent followed the body.
+Anthropic's own examples pair what a skill does with when to use it; this kit keeps triggers only,
+and its skills still fired first in every run measured.
 
 ```yaml
 # No — narrates the workflow, so it becomes the workflow
@@ -95,7 +101,11 @@ is something the model already believes and does not need told. "200 owners prod
 initialisations and 201 distinct objects" is a fact that changes what it does next.
 
 If you cannot say how you know a claim is true, you are writing filler, and filler is what makes an
-agent skim the whole file.
+agent skim the whole file. Say where a number comes from, and whether it was measured or only
+reported.
+
+Give the reason where a rule is not obvious and skip it where it is. Keep emphasis plain: Anthropic
+advises dialing back "CRITICAL" and "MUST" for current models, which overreact to it.
 
 ## Splitting into `references/`
 
@@ -105,6 +115,10 @@ a field table, a full API surface, a long worked example.
 Link it by **plain relative path**. Never with `@`: that pulls the file in whenever the skill loads,
 which spends exactly the context the split was made to save. The point of a reference file is that it
 is there when needed and absent when not.
+
+A reference over 100 lines opens with a table of contents, and references stay one level deep —
+Anthropic reports agents previewing such files with `head` rather than reading them whole, so what
+is below the fold, or a link away, may never be seen. The validator checks the contents rule.
 
 See `references/frontmatter.md` for the frontmatter fields and the validator's full rule list.
 
@@ -116,6 +130,10 @@ then fails with `Permission denied`.
 
 The validator proves a skill is well-formed. It cannot prove the skill changes what an agent does,
 and a skill that changes nothing is pure listing cost.
+
+An unpushed working tree can be tested before it ships: `claude -p "<task>" --plugin-dir <repo>
+--output-format stream-json --verbose` loads it in place of the installed copy and logs every
+`Skill` call. `claude plugin eval` runs a checked-in suite of cases with a no-plugin baseline arm.
 
 Before writing, give a fresh subagent the task that tempts the failure, **without** the skill, and
 record what it does and the reasons it gives, verbatim. If it already behaves, there is nothing to
@@ -141,7 +159,10 @@ next.
 Match the form to the failure. A rule the agent breaks under pressure needs a prohibition and the
 rationalizations it answers. Output of the wrong shape needs a recipe — what the output *is*, its
 parts in order — because a prohibition on shape gets negotiated: in the superpowers plugin's own
-wording tests, a prohibition produced more of the unwanted content than a recipe did.
+wording tests (reported, not published), a prohibition produced more of the unwanted content than a
+recipe did. In this kit, adding a three-line report recipe to `writing-tests` took runs that named
+the bug each new test catches from 0 of 3 to 3 of 3. A multi-step workflow gets a checklist the
+agent copies into its work and checks off, so no step is skipped silently.
 
 ## Before shipping
 

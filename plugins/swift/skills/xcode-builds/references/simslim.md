@@ -7,6 +7,13 @@ no error when that happens: nothing arrives, nothing updates, and the code path 
 Installed with `brew install mobai-app/tap/simslim`. Behaviour below was checked against 0.10.0 on
 an iOS 27.0 runtime. `simslim --help` is the authority when the two disagree.
 
+## Contents
+
+- [Reading a simulator's state](#reading-a-simulators-state)
+- [Categories and what they break](#categories-and-what-they-break)
+- [Commands that change a simulator](#commands-that-change-a-simulator)
+- [Committing a profile](#committing-a-profile)
+
 ## Reading a simulator's state
 
 Slim state lives in each simulator's launchd overrides. No project file records it, and it does not
