@@ -5,140 +5,149 @@ description: Use when adding or changing behavior, fixing a bug, or judging whet
 
 # Writing tests
 
-**New or changed behavior ships with a test in the same change.** Not later, not in a follow-up. If
-you changed what the code *does*, a test must fail when you undo it.
+**A behavior change ships with a test that fails when the change is undone — and with no test that
+cannot name the bug it catches.** Both halves bind. A green suite proves nothing broke; it says
+nothing about whether the new code is exercised. Volume is the opposite failure: agents asked for a
+well-tested change produce dozens of tests that restate the code, and every one of them makes the
+next refactor more expensive.
 
-A green suite does not satisfy this. It proves nothing broke; it says nothing about whether the code
-you just wrote is exercised at all.
+## Before writing a test
 
-## When a test is required
+Answer all three, or do not write it:
 
-Required, no exceptions:
+1. **Which bug does it catch?** A plausible one-line mistake a refactor or a wrong fix could
+   introduce — not "someone deletes the function". Check it is a bug, not a decision.
+2. **What ships broken if it is deleted?** If another test or the compiler would already fail, it
+   is redundant.
+3. **Does it survive a refactor that keeps behavior?** A test that breaks when internals move and
+   the observable result does not is pinning the implementation.
 
-- A new type, function, or case carrying logic.
-- A changed branch, predicate, mapping, or constant that alters behavior.
-- **Every bug fix.** Write the reproducing test first, watch it fail, then fix. A fix without a
-  reproducing test is how the same bug ships twice.
+## How many
 
-Not required:
+- **One to three tests per behavior change.** Give the reason before writing a fourth. No cap for
+  concurrency and ordering, persistence and recovery, or money and access gating — each
+  interleaving that matters is its own behavior.
+- **One owner per rule.** Test it once, at the lowest layer that owns it. A higher layer gets one
+  wiring test, not a rerun of the rule's cases, unless it carries a transport or lifecycle risk of
+  its own.
+- **Tests that differ in one input are one parameterized test.**
 
-- Generated code and vendored third-party code.
-- Pure UI layout. Test the view-model field mapping instead — the mapping is where the logic is.
-- Renames, moves, formatting, comments. No behavior changed.
+Always required: a new type, function or case carrying logic; a changed branch, predicate, mapping
+or constant that alters behavior; a race; persistence; money; **every bug fix**.
 
-If a change is genuinely untestable, **say so explicitly, with the reason**. Never skip silently.
+Not required — name the existing test or compiler check that would catch a mistake instead:
 
-## Write the test first
+- Generated and vendored code; renames, moves, formatting, comments.
+- Pure UI layout. Test the view-model mapping — that is where the logic is.
+- Pure wiring: a one-line pass-through, a memberwise init, a property that restates a `switch`. A
+  new or changed hand-off between components is not wiring — see Unit or component.
 
-Write the test before the code whenever you can, and watch it fail for the reason you expect — the
+A change that is genuinely untestable is said to be, with the reason. Never skip silently.
+
+## Order
+
+**Write the test first** whenever you can, and watch it fail for the reason you expect — the
 behavior missing, not a typo or an import error. A test written after the code passes on its first
-run, which proves nothing about whether it can fail, and it checks the cases you remembered while
-writing the code rather than the ones the behavior needs. Then write the least code that passes, and
-refactor only while green.
+run, which proves nothing about whether it can fail. When the code came first, break the line the
+test covers and watch it fail (acceptance filter, item 2).
 
-When the code came first, the second item of the acceptance filter below — break the line, watch
-the test fail — is the proof that test-first would have given you. It is not optional in either
-order.
+**A bug fix starts with the reproduction**, watched failing for the reported reason. If the fix came
+first, stash it and run the test against the unfixed code: re-breaking the code afterwards tests
+only your theory of the bug. Afterwards keep the test if it guards a regression nothing else covers,
+fold it into a parameterized test as a row, or discard it if it was only a diagnostic — and say
+which.
 
 ## Unit or component
 
 A unit test discharges the rule only when the behavior lives inside one type. When the behavior *is*
 the collaboration, the change ships a **component test**: real collaborators composed in-process,
-faked only at the outer edges — network, clock, presentation.
+faked only at the outer edges — network, clock, presentation. That applies to a new component (a
+type that drives others through their interfaces), a substantial change to a hand-off (a new call,
+changed ordering, a new gate or teardown path), and a bug fix that only reproduces with two real
+collaborators running.
 
-Required at the component tier:
+- **Faking a middle collaborator** is a unit test wearing a component test's name.
+- **A missing seam is not a reason to drop to unit.** Move construction out to the caller —
+  `vvkit:injecting-dependencies` — or say the seam is out of scope.
+- **The database is not an edge to fake with a different engine.** SQLite standing in for Postgres
+  accepts queries, constraints and locking the production engine rejects. Run the real engine, or
+  fake the repository interface above it and cover its queries against the real engine.
 
-- **A new component** — a type that owns a stage of a flow and drives others through their
-  interfaces. Its first test is a composed one, not a mock-per-collaborator unit test.
-- **A substantial change to a hand-off** — a new call between collaborators, changed ordering, a new
-  gate or teardown path, new state another component reads.
-- **A cross-type bug fix** — one that only reproduces with two or more real collaborators running. A
-  unit test of either side would have passed against the bug.
+## What a test asserts
 
-Stays unit: one type's internal logic, mapping, parsing, constants.
+- **Expected values are literals from the product rule**, with inputs on the rule's boundary. An
+  expectation computed by the code under test, by its helpers, or by branching on the test's own
+  parameters passes whatever that code does. A literal copied from running the code is a
+  characterization test — say so, and check it against the rule. A literal that depends on locale
+  or OS formatting tests the formatter; assert your input to it.
+- **No change detectors.** A constant's value, exact wording, private structure, every intermediate
+  emission, a grep over source, a copied export list — each fires on every redesign and sleeps
+  through every bug. Test the behavior that depends on the decision: not that the retry limit is 5,
+  but that the sixth attempt never happens.
+- **Your contract, not the framework's.** The route you register, the query you emit. That a router
+  calls a registered handler is its maintainers' test.
+- **Fixtures mirror real data completely**, and never supply what the code under test should
+  produce — a receipt, a callback order, a record at a path the store never writes.
 
-Two ways to get this wrong:
+## Doubles
 
-- **Faking a middle collaborator.** That is a unit test wearing a component test's name. Fake the
-  edge, or don't fake it.
-- **Dropping to unit because the seam is missing.** Add the seam by moving construction out to the
-  caller, so the test and production paths are the same path — `vvkit:injecting-dependencies`. If
-  the seam is genuinely out of scope, say so explicitly.
+- **Never assert on a double.** The mock returns X, the test asserts X came back: it passes with
+  the component deleted.
+- **Verify effects, not reads.** A write, delete, purchase, network mutation, analytics event or
+  navigation — and "never called" for an irreversible one after a failure. A call count on a read
+  fails on a harmless refetch and catches nothing, unless the test is about caching, single-flight
+  or debounce.
+- **A double controls scheduling, not semantics.** Parking a call or firing a callback synchronously
+  is fine. A fake with its own retry rule, or one that evicts or encodes like the real type, makes
+  the test check the fake — test the real type in an integration test.
+- **Fake at the right level.** Learn every side effect of the real method first; a fake that
+  swallows a write the code later reads passes while production breaks.
+- **Specific where it matters.** When arguments, counts or order are the contract, the double
+  checks them. An unstubbed real network or disk call fails the test loudly.
+- **Extend the shared double before writing another.** A parameter that just needs *something* gets
+  the shared fake or a relaxed mock; a test-local double names, in one line, the control the shared
+  one lacks.
 
-**The database is not an edge to fake with a different engine.** An in-memory stand-in for another
-engine — SQLite for Postgres — accepts queries, constraints and locking the production engine
-rejects, so the test passes on exactly the code that fails in production. Run the real engine in a
-container or a throwaway instance, or fake the repository interface above it and cover its queries
-in a test that does run the real engine.
+When the fake setup outgrows the test, switch to a component test with real collaborators.
 
 ## The acceptance filter
 
 Every test clears all ten before it counts.
 
 1. It compiles and passes.
-2. **It fails when the code is wrong.** Break the line the test claims to cover, confirm the test
-   fails, restore it, confirm the diff over source is empty. Restore by reversing your own edit —
-   never `git checkout` or `git restore` on the file, which also discards every uncommitted change in
-   it, including the implementation under test. Non-negotiable for anything involving
-   timing, callbacks, or polling. A test that passes against broken code is worse than no test — it
-   buys false confidence.
-3. **No access widening.** Never loosen visibility to reach something. Drive the type through its
-   real seam. If the behavior is unreachable that way, that is a design finding to report, not a
-   reason to widen.
-4. **No tautologies.** Asserting a constant, asserting non-nil when the content is the point, or
-   re-asserting what the previous line already proved.
-5. It lives in the test target, module or package that owns the code under test.
-6. It runs in parallel with the rest of the suite — or, where it shares a real resource such as a
-   database, it is marked serial and the reason is stated beside it.
+2. **It fails when the code is wrong.** Break the line it covers, confirm red, restore, confirm the
+   diff over source is empty. Restore by reversing your own edit — never `git checkout` or
+   `git restore` the file, which also discards the uncommitted implementation. Non-negotiable for
+   timing, callbacks and polling.
+3. **No access widening** to reach something. Unreachable through the real seam is a design
+   finding to report.
+4. **No tautology:** a constant, non-nil when the content is the point, your own fixture's contents,
+   waiting for X then asserting X (unless the assertion is wider), or what the previous line
+   proved. A negative test fails at the guard it names, not an earlier one.
+5. It lives in the test target, module or package that owns the code.
+6. It runs in parallel, or is marked serial with the shared resource named beside it.
 7. It stays green across three consecutive runs.
-8. **No sleep, and no bumped timeout, to paper over a race.** Wait for the condition the test cares
-   about, not for a duration. Where there is no condition to wait on, propose the injected clock or
-   scheduler seam, and say plainly if that is the only real fix. A test of timing itself — a
-   debounce, a throttle — states why its interval is what it is.
-9. **No weakened assertion** — equality downgraded to non-nil — because it was failing.
-10. **No production-only hook** that exists solely for the test.
+8. **No sleep and no bumped timeout to paper over a race.** Wait for the condition, or propose the
+   injected clock or scheduler seam. A test of timing itself states why its interval is what it is.
+9. **No weakened assertion, deleted test, or known-issue mark to get green** — unless you explain
+   why the failure is not a bug. The failing test was doing its job.
+10. **No production hook** that exists only for the test.
 
-## What a test asserts
+Before finishing, mutate the code in your head — a wrong constant, the other branch, a missing side
+effect, an empty return, no check for empty, zero, nil, unauthorized or malformed input. A realistic
+mutation that fails no test marks behavior nobody protects.
 
-Before writing the body, name the production change that should make the test fail, and check that
-it is a bug rather than a decision.
+## Report
 
-- **Derive the expected value by hand.** A literal or a hand-checked fixture. An expectation computed
-  by the code under test, or by its helpers, passes whatever that code does.
-- **No change detectors.** A test that only an intentional change can fail — a constant's value,
-  exact message wording, private structure — fires on every redesign and sleeps through every bug.
-  Test the behavior that depends on the decision: not that the retry limit is 5, but that the sixth
-  attempt never happens.
-- **Test your contract, not the framework's.** The route you register, the query you emit, the
-  payload you produce. That a router calls a registered handler is its maintainers' test.
-- **Never assert on a double.** An assertion that passes when the fake is present and fails when it
-  is absent says nothing about the component.
-- **Fake at the right level.** Learn every side effect of the real method before replacing it; fake
-  the slow or external layer below the effects the test depends on. A fake that swallows a write
-  the code under test later reads makes the test pass while production breaks.
-- **Mirror real data completely.** A fixture with only the fields the test reads fails silently the
-  day downstream code reads one more.
-- **Make doubles specific** when arguments, counts or order are part of the contract. A fake that
-  accepts anything verifies nothing.
+For each test added: its name and the bug it catches. Beyond three, the reason. For each behavior
+left untested: the existing test or check that covers it. For a bug fix: kept, folded or discarded.
 
-When the setup for fakes outgrows the test itself, switch to a component test with real
-collaborators.
+## Elsewhere
 
-**The mutation check.** Before finishing, mentally mutate the code: a wrong constant or argument, the
-wrong branch, a missing side effect, an empty return, no validation for empty, zero, nil, unauthorized
-or malformed input. Each realistic mutation should fail at least one test. One that fails nothing
-marks behavior nobody protects.
+- Framework APIs and assertion shapes: the stack skill — for Swift, `vvkit-swift:swift-testing`.
+- Deleting, merging or rewriting existing tests on purpose: `vvkit:pruning-tests`.
 
-## Stack-specific conventions
-
-Framework APIs, assertion shapes and concurrency-test mechanics live in the matching stack skill —
-for Swift, `vvkit-swift:swift-testing`.
-
-## Never do these to make a test pass
-
-- Add a sleep or raise a timeout to hide a race.
-- Weaken an assertion because it is failing.
-- Delete a failing test, or mark it as a known issue, without explaining why the failure is not a bug.
-- Widen access, or add a production hook that exists only for tests.
-
-Each of these converts a real signal into a false green. The failing test was doing its job.
+The budget, owner-layer and effect-only rules are adapted from sergdort's "Pragmatic Testing" agent
+skill (gist, 2026), which takes its "enough over perfect" stance from Orta Therox's *A Pragmatic
+Approach to iOS Testing* (github.com/orta/pragmatic-testing). The negative-test and fixture rules
+are from OpenClaw's `test-audit` skill.

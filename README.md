@@ -82,6 +82,7 @@ Skills load on their own when the situation matches. You never have to name one.
 | `designing-changes` | A change is asked for and the approach is not agreed yet, or the request is open-ended |
 | `planning-changes` | An agreed design needs a plan, or a written plan is being carried out or resumed |
 | `writing-tests` | Behavior changes, a bug is fixed, or a test needs judging on whether it earns its place |
+| `pruning-tests` | A test suite is audited for low-value tests, or tests are deleted, merged or rewritten |
 | `verifying-changes` | Deciding what to build or run, and before claiming anything is done or passing |
 | `reflecting-on-changes` | Code was just written or changed — a self-review loop over the unstaged diff, capped at three passes |
 | `debugging-systematically` | A test fails or behavior does not match expectation — before any fix is proposed |
@@ -172,7 +173,7 @@ refuses to repeat.
 
 | Neutral — the discipline | Swift — the instantiation |
 |-|-|
-| `writing-tests` | `swift-testing`, `swift-testing-async` |
+| `writing-tests`, `pruning-tests` | `swift-testing`, `swift-testing-async` |
 | `writing-logs` | `swift-logging` |
 | `writing-comments` | `swift-style` |
 | `verifying-changes` | `xcode-builds` |

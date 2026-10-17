@@ -42,6 +42,7 @@ struct MapperTests {
 - **Prefer `== true` / `== false` over a bare boolean.** `#expect(x == false)` prints
   `(x → true) == false`; `#expect(!x)` prints nothing useful when it fails.
 - **`try #require(x)`** rather than asserting non-nil and then force-unwrapping.
+- **Make state and result types `Equatable`** so one `#expect(state == expected)` checks every field.
 - **`@Test(arguments:)` only for genuinely table-driven cases** — same body, different data. Do not
   parameterise cases whose assertions differ.
 - **Pass input/expected pairs as one collection of case structs.** `arguments: inputs, expected`
@@ -115,6 +116,11 @@ a zero count reports success for an empty filter on every run.
 
 Where a suite is nested in a type, the path follows the types, not the display names. When in doubt,
 take the identifier from the source rather than the log.
+
+## Coverage
+
+`xcodebuild test -enableCodeCoverage YES …`, then `xcrun xccov view --report --json <bundle>.xcresult`
+for per-function numbers. Without the flag the report comes back empty and nothing warns.
 
 ## Watchdogs
 

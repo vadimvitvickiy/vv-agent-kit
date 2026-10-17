@@ -12,6 +12,7 @@ think you remember it: skills change between versions.
 | An agreed design needs a plan, or a plan is being carried out or resumed | `vvkit:planning-changes` |
 | A test fails, something errors, or behavior does not match expectation | `vvkit:debugging-systematically` |
 | Adding or changing behavior, fixing a bug, or judging a test | `vvkit:writing-tests` |
+| Auditing a test suite, or deleting, merging or rewriting tests | `vvkit:pruning-tests` |
 | Deciding what to build or run, or about to say work is done, fixed or passing | `vvkit:verifying-changes` |
 | Code was just written or changed, before reporting it done | `vvkit:reflecting-on-changes` |
 | Reviewing a diff, asking for a review, or receiving one | `vvkit:reviewing-code` |
