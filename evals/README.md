@@ -25,3 +25,5 @@ Opus, five runs per arm. A grader's count is runs passed out of runs completed.
 |-|-|-|-|-|
 | designing-named | no-gate | 5/5 | 5/5 | A fully specified change is not gated; the skill never fired (0/5) |
 | designing-named | implemented | 4/5 | 4/5 | Was a `round(` regex; now judged by behavior |
+| designing-open | asks-first | 5/5 | 4/5 | Judge scored 4/5 vs 3/5, failing two runs that did ask; criterion rewritten |
+| designing-open | no-edit, no-write | 5/5 | 4/5 | One baseline built an accounts module with tests before asking |
