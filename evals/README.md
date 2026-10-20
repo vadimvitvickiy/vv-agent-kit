@@ -16,3 +16,12 @@ claude plugin eval . --scaffold --trust-plugin --allow-tools Bash Edit Write \
 
 The fixtures use stdlib `unittest`, so no run needs a package install, and ship no
 `scripts/test.sh`, which would switch on the kit's test gate in the plugin arm only.
+
+## Results
+
+Opus, five runs per arm. A grader's count is runs passed out of runs completed.
+
+| Case | Grader | With | Without | Reading |
+|-|-|-|-|-|
+| designing-named | no-gate | 5/5 | 5/5 | A fully specified change is not gated; the skill never fired (0/5) |
+| designing-named | implemented | 4/5 | 4/5 | Was a `round(` regex; now judged by behavior |
