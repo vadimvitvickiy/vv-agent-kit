@@ -27,6 +27,7 @@ If the diff was supplied in your prompt, use it. Do not re-fetch it.
 - `Sendable` gaps — mutable state crossing an isolation boundary, `@unchecked Sendable` without a
   stated invariant, `nonisolated(unsafe)` used to silence rather than to assert.
 - Non-atomic read-modify-write on shared state, including `lazy` reachable from two threads.
+- Actor reentrancy: state read before an `await` inside an actor and relied on after it.
 - Error paths that swallow the error, or `try?` discarding a failure that matters.
 
 **Then conventions:**
