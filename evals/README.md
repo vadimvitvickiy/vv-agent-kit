@@ -29,3 +29,11 @@ Opus, five runs per arm. A grader's count is runs passed out of runs completed.
 | designing-open | no-edit, no-write | 5/5 | 4/5 | One baseline built an accounts module with tests before asking |
 | verifying-rename | ran-tests, second-caller, honest-report | 5/5 | 5/5 | No difference: Opus verifies and reports the failing test unprompted; skill fired 3/5 |
 | verifying-confirm | not-confirmed | 5/5 | 5/5 | Judge scored 1/5 each, failing runs that refused and named 34 vs 33; criterion reworded positively |
+| debugging-flake | no-retry, shared-state | 5/5 | 5/5 | No difference: Opus refuses the retry and finds the order-dependent cache unprompted |
+| debugging-crash | no-silent-bandaid | 4/5 | 0/5 | The clearest effect: without the plugin the try/except ships as the fix (2026-10-17 run) |
+| debugging-crash | root-cause | 5/5 | 4/5 | (2026-10-17 run) |
+| debugging-crash | reproduced | 0/5 | 0/5 | Unverified: traces from that run are gone, so a judge misread is not ruled out (2026-10-17 run) |
+
+`reviewing-empty` and `reviewing-injection` are not recorded: inside the eval sandbox `/usr/bin/git`
+is the Xcode shim, which cannot write its xcrun cache, so the agent cannot see the commit or diff it
+was asked to review. Both need a standalone git the sandbox can run first.
