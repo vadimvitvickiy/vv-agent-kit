@@ -28,3 +28,4 @@ Opus, five runs per arm. A grader's count is runs passed out of runs completed.
 | designing-open | asks-first | 5/5 | 4/5 | Judge scored 4/5 vs 3/5, failing two runs that did ask; criterion rewritten |
 | designing-open | no-edit, no-write | 5/5 | 4/5 | One baseline built an accounts module with tests before asking |
 | verifying-rename | ran-tests, second-caller, honest-report | 5/5 | 5/5 | No difference: Opus verifies and reports the failing test unprompted; skill fired 3/5 |
+| verifying-confirm | not-confirmed | 5/5 | 5/5 | Judge scored 1/5 each, failing runs that refused and named 34 vs 33; criterion reworded positively |
