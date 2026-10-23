@@ -51,6 +51,10 @@ how right it is.
 State the concrete failure: **what input or state produces what wrong result**. "This could be
 cleaner" is not a finding — it is a feeling about code, and the author cannot act on it. If you
 cannot name the input that breaks it, you have found a preference, and it belongs under Optional.
+"Add tests" or "add docs" is the same: a finding only when it names the behavior left uncovered.
+
+A finding is two sentences: what breaks and when, then the smallest fix, in words rather than a
+patch. Go longer only when the evidence needs it, and never drop a real finding to stay short.
 
 ## What to hunt first
 
@@ -106,6 +110,9 @@ The cost of a padded review is not paid on that review — it is paid on the nex
 learns that most of what you report is noise, they skim, and the Critical you eventually find is
 skimmed along with everything else. Credibility is the only tool a reviewer actually has.
 
+The same credibility is spent by implying a check that never ran. A PR description or an earlier
+comment is context, not proof; a limit on what you could verify gets one sentence, not silence.
+
 ## Output shape
 
 ```
@@ -125,6 +132,13 @@ skimmed along with everything else. Credibility is the only tool a reviewer actu
 Then state which findings you consider blocking and which you would leave, and a verdict: ready to
 merge, not ready, or ready with named fixes. A review that reports without recommending leaves the
 decision to the person with the least context.
+
+That is the whole review. It opens on the first finding — no introduction, praise, recap of the
+change, checklist or closing summary — and an empty bucket is left out. Optional holds at most two
+items. A clean diff gets one line saying it has no findings, then the verdict.
+
+On a re-review, update the earlier findings rather than restating them. One that was fixed or
+rebutted stays closed unless there is new evidence.
 
 ## Asking for a review
 
