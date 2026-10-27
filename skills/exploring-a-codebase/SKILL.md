@@ -5,89 +5,75 @@ description: Use when starting work in an unfamiliar repository, when locating c
 
 # Exploring a codebase
 
-**Live search is the primary tool.** Grep and glob read the code as it is right now; every map is a
-snapshot that started decaying when it was written.
-
-The published evidence for repo maps is thin and contested, and the well-attested failure is a stale
-map confidently pointing an agent at code that moved. Treat any map as a hint, never as a source of
-truth.
+**Live search is the primary tool.** Grep and glob read the code as it is now; every map is a
+snapshot decaying since it was written. The evidence for repo maps is thin; the well-attested failure
+is a stale map pointing confidently at code that moved. A map is a hint, never the truth.
 
 ## Two artifacts, one hard line
 
-A project may have either, both or neither. The paths are the ones `/vvkit:onboard` scaffolds;
-elsewhere, look for an `ARCHITECTURE.md`, a `docs/` directory, or a map a tool generates.
+Paths are what `/vvkit:onboard` scaffolds; elsewhere look for an `ARCHITECTURE.md`, `docs/`, or a
+generated map.
 
 | Artifact | Written by | Trust it for |
 |-|-|-|
 | A code map — `.agents/state/map.xml` after onboarding | a generator, never a human | Which types matter and roughly where they are |
-| Architecture notes — `.claude/context/architecture.md` after onboarding | a human | Constraints and gotchas that no amount of reading reveals |
+| Architecture notes — `.claude/context/architecture.md` after onboarding | a human | Constraints and gotchas no amount of reading reveals |
 
-If a repo has a hand-written file describing its directory tree, that file is a liability. The
-information is derivable, so it is duplicated; being duplicated, it drifts.
+A hand-written description of the directory tree is a liability: derivable, so duplicated, so it
+drifts.
 
-## Order of operations
+## Order
 
-1. **Read the generated map** if there is one. It is cheap and ranks the codebase by what is actually
-   referenced.
-2. **Read the architecture constraints** if there are any. Layering rules, frozen names, generated
-   files. These are the things that get you in trouble precisely because they are invisible in the
-   file you are editing.
-3. **Then search.** The map tells you which types matter; grep tells you where they are used today.
+1. **The generated map**, if any — cheap, ranked by what is referenced.
+2. **The architecture constraints**, if any — layering rules, frozen names, generated files. They are
+   invisible in the file you edit.
+3. **Then search** — the map says what matters; grep says where it is used today.
 
-## Matching the tool to the question
+## Match the tool to the question
 
 | Situation | Approach |
 |-|-|
 | One to three lookups, target known | Search directly. A subagent's startup exceeds the task |
 | Open-ended sweep across many files or naming conventions | A read-only subagent — see `vvkit:delegating-work` |
-| "Where is X?" and you are unsure what X is called | A subagent. A missed file costs far more than the tokens saved |
+| "Where is X?" and unsure what X is called | A subagent. A missed file costs more than the tokens saved |
 | You already know the file | Read it. Do not search first |
-| How the codebase already solves this kind of problem, before adding to it | `vvkit:architecture-surveyor` |
+| How the codebase already solves this kind of problem | `vvkit:architecture-surveyor` |
 
-Know what you are looking for before opening a file. On anything large, locate the section first
-rather than reading it whole.
+On anything large, locate the section before reading it whole.
 
 ## History answers "why is this here"
-
-Grep tells you what the code is. History tells you why, and it is the only source that does — the
-alternative is guessing at intent and calling it context.
 
 | Question | Command |
 |-|-|
 | When did this string, flag or symbol appear or disappear? | `git log -S'<text>' --oneline` |
-| How did this specific function change over time? | `git log -L :<function>:<file>` |
-| Who last touched this line, and in what change? | `git blame -w -C <file>` |
+| How did this function change over time? | `git log -L :<function>:<file>` |
+| Who last touched this line, in what change? | `git blame -w -C <file>` |
 | Which change first broke this? | `git bisect run <predicate>` |
 
-Two traps worth knowing before you trust the answer:
-
-- **Blame points at the last toucher, not the author of the logic.** A reformat, a rename, or a
-  license header sweep resets it for the whole file. `-w` ignores whitespace and `-C` follows code
-  moved between files; without them you will attribute a decision to whoever ran the formatter.
-- **Bisect names the commit that exposed a defect, not always the one that introduced it** — see
-  `vvkit:debugging-systematically`, which also covers automating the predicate.
-
-A commit message that explains a constraint is worth more than the architecture note that paraphrased
-it, because it is dated and attached to the change that made it true.
+- **Blame names the last toucher, not the author of the logic.** A reformat resets it; `-w` ignores
+  whitespace, `-C` follows code moved between files.
+- **Bisect names the commit that exposed a defect, not always the one that introduced it** —
+  `vvkit:debugging-systematically`.
+- A commit message explaining a constraint beats the note that paraphrased it: it is dated and
+  attached to the change that made it true.
 
 ## When a map or doc contradicts the code
 
-**The code wins, every time.** Then fix the artifact in the same change:
+**The code wins.** Fix the artifact in the same change:
 
-- A wrong *generated* map means the generator is stale — regenerate it, do not edit it.
-- A wrong *architecture note* means a human claim expired — correct it, and say so in your summary.
+- A wrong generated map: regenerate it, never edit it.
+- A wrong architecture note: correct it, and say so in the summary.
 
-Silently working around a wrong document leaves it wrong for the next reader, who will trust it
-exactly as much as you did.
+Working around a wrong doc silently leaves it wrong for the next reader.
 
 ## Verify before you assert
 
-Before writing any convention into a document others will trust:
+Before writing a convention into a document others will trust:
 
 | Claim | Check |
 |-|-|
 | A library is banned or required | Grep for its import |
-| A component has shape X | Compare against the project's own scaffold, or the newest examples |
+| A component has shape X | Compare against the project's scaffold, or the newest examples |
 | A marker or prefix convention holds | Grep for it; count occurrences |
 | A command builds or tests the project | Run it |
 | A target contains a directory | Ask the build system. **Never infer target membership from folder layout** |

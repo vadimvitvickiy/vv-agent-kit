@@ -5,22 +5,17 @@ description: Use when creating or editing a Swift type — member ordering, file
 
 # Swift style
 
-**REQUIRED BACKGROUND:** `vvkit:writing-comments` — comment limits and doc-comment rules live there and
-are not repeated here.
+**REQUIRED BACKGROUND:** `vvkit:writing-comments` — comment limits and doc-comment rules.
 
-**Where the project has an established convention, follow the project.** A file consistent with the
-one beside it is worth more than a file consistent with this document, and a diff that reorders
-existing members to match a house style it never used is noise wrapped around whatever it was
-supposed to change. What follows is the default for new code and for projects that have not decided.
+**Where the project has a convention, follow the project.** A diff that reorders existing members to
+a house style the file never used is noise. What follows is the default for new code.
 
-## Canonical member order
-
-One layout, top to bottom, for every type:
+## Member order
 
 1. File header comment, then imports
 2. File-private free-standing helpers — error enums, option sets, small structs (optional)
 3. The type declaration, with a type-level `///` overview
-4. Nested types — private enums and structs for internal state, near the top of the body
+4. Nested types — private enums and structs for internal state
 5. **Injected dependencies** — `private let`, assigned in `init` — **before** `init`
 6. `init`, then `deinit`
 7. **Private stored state** — caches, flags, counters — **after** `init`
@@ -28,14 +23,11 @@ One layout, top to bottom, for every type:
 9. Private methods
 10. Extensions at the bottom, one per protocol conformance
 
-The relative order is the hard rule. Use `// MARK: -` dividers on any non-trivial type.
+- The relative order is the hard rule. `// MARK: -` dividers on any non-trivial type.
+- **Dependencies precede `init`, working state follows it:** the top shows what the type was handed,
+  below `init` what it built for itself.
 
-**The one non-obvious part: dependencies precede `init`, working state follows it.** A reader
-scanning the top of a type sees everything it was handed; everything below `init` is what it built
-for itself. That split is why this order is worth following rather than sorting members by
-visibility alone.
-
-## Annotated example
+## Example
 
 ```swift
 //
@@ -100,38 +92,29 @@ extension ExampleService: ExampleFeedListener {
 }
 ```
 
-## Section labels
+## Sections and extensions
 
-`Types` · `Dependencies` (or `Properties`) · `Init` · `State` · `Public Methods` (or `Public API`) ·
-`Private Methods` · `Configuration` · `Debug`
-
-Suffix a private section by topic when a file grows: `// MARK: - Private Methods - Queue Management`.
-
-## Extensions and conformance
-
-- One `extension` per protocol conformance, at the bottom, labelled `// MARK: - <ProtocolName>`.
-- The type's primary defining protocol may sit inline on the type signature. Secondary delegate
-  conformances go in extensions.
+- Labels: `Types` · `Dependencies` (or `Properties`) · `Init` · `State` · `Public Methods` (or
+  `Public API`) · `Private Methods` · `Configuration` · `Debug`.
+- Suffix by topic as a file grows: `// MARK: - Private Methods - Queue Management`.
+- One `extension` per conformance, at the bottom, labelled `// MARK: - <ProtocolName>`. The primary
+  defining protocol may sit on the type signature; secondary delegate conformances go in extensions.
 
 ## `guard` or `if`
 
-- **Prefer `if` / `else` for top-of-function branching when both branches carry real logic.** Both
-  paths then read at the same indentation, instead of one being buried in a `guard` body.
-- **Keep `guard let x else { … }` for optional unwraps.** That is the idiom, and `if let` pyramids
-  are worse.
-- The same applies inside small closures with two return arms.
-- **Sequential `if condition { return value }` cascades are fine.** They act as a pseudo-switch — do
-  not force them into an `else-if` tree.
+- **`if` / `else` at the top of a function when both branches carry real logic** — both read at the
+  same indentation. Same inside small closures with two return arms.
+- **`guard let x else { … }` for optional unwraps.** `if let` pyramids are worse.
+- **Sequential `if condition { return value }` cascades are fine** — a pseudo-switch; do not force an
+  `else-if` tree.
 
 ## Formatting
 
-- Prefer readable multi-line bodies over one-liners. Keep `if` / `guard` / `else` bodies on their own
-  lines; do not collapse `{ return x }` onto one line because you can. A short expanded block is
-  easier to audit than a dense one.
-- Indentation width and line length are project settings — follow the project, not this file.
+- Multi-line bodies over one-liners. `if` / `guard` / `else` bodies on their own lines; do not collapse
+  `{ return x }`.
+- Indentation and line length are project settings.
 
 ## Carve-outs
 
-- **Singletons:** `static let shared` and `private init() {}` sit at the very top of the type body.
-- **Static-namespace types** with no dependencies and no `init`: the dependency/init ordering does not
-  apply. Group static members logically with MARKs.
+- **Singletons:** `static let shared` and `private init() {}` at the very top of the body.
+- **Static-namespace types** with no dependencies or `init`: group static members logically with MARKs.

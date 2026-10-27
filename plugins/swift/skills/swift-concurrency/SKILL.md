@@ -5,82 +5,64 @@ description: Use when writing or reviewing Swift code that shares state across t
 
 # Swift concurrency pitfalls
 
-Mistakes that have actually shipped. Each one is invisible from the file in front of you, and each
-one has a measured cost rather than a theoretical one.
-
 **REQUIRED BACKGROUND:** `vvkit:writing-tests` for when a test is required. Test shapes for these
-hazards are in `vvkit-swift:swift-testing` → `references/concurrency.md`.
+hazards: `vvkit-swift:swift-testing` → `references/concurrency.md`.
+
+Mistakes that shipped. Each is invisible from the file in front of you, and each has a measured cost.
 
 ## `lazy var` is not atomic
 
-Swift's `lazy` has **no synchronisation**. Threads racing the first access each run the initialiser,
-and each can be handed a *different* instance.
+- Swift's `lazy` has **no synchronisation**. Threads racing first access each run the initialiser and
+  can get *different* instances.
+- Measured: 200 owners under contention produced **209 initialisations and 201 distinct objects** —
+  shipped as a second timer and a reference count that never converged.
+- Plain `lazy` only where every first-access path is provably single-threaded; elsewhere an atomic
+  one-shot initialiser.
+- **The window closes after first access**, which makes the obvious test useless — the first-access
+  trap in `vvkit-swift:swift-testing`.
 
-Measured on a real codebase: 200 owners under contention produced **209 initialisations and 201
-distinct objects**. It shipped in a type whose lazily-created shared stream meant a second timer and
-a reference count that could never converge.
+## A mutable `static var` is shared by every thread
 
-Plain `lazy` is safe only where every first-access path is provably single-threaded. Anywhere else,
-use an atomic one-shot initialiser.
+- A bare `next += 1` reached from several initialisers handed out **duplicate ids**. Lock it, or make
+  it immutable.
+- Check-then-act is the same race:
 
-**The window closes after the first access**, which is what makes the obvious test useless — see the
-first-access trap in `vvkit-swift:swift-testing`.
-
-## An unsynchronised mutable `static var` is shared by every thread
-
-A mutable static is process-global by definition. A bare `next += 1` reached from several
-initialisers handed out **duplicate ids**. Guard it with a lock, or make it immutable.
-
-The same applies to the check-then-act shape that looks harmless:
-
-```swift
-if let existing = Self.cached { return existing }
-Self.cached = make()          // two threads both get here, and both construct
-return Self.cached!
-```
+  ```swift
+  if let existing = Self.cached { return existing }
+  Self.cached = make()          // two threads both get here, and both construct
+  return Self.cached!
+  ```
 
 ## Per-field locking does not compose
 
-When two or more fields describe **one thing**, put them in a struct behind one lock or one store —
-never behind a lock each.
-
-Making every field individually atomic leaves the *pair* racy. That is exactly how a rotation served
-one item to two consumers, and how a cache paired a nil user id with the previous user's session id.
-One mutation per invariant makes the split state unrepresentable.
-
-Two limits worth knowing before reaching for a store:
-
-- **A store makes each transition atomic, not a caller's sequence of them.** Two separate getters are
-  still two reads, and a write can land between them. If callers must see several fields coherently,
-  expose **one** accessor that reads the state once and returns what they need. Adding a store does
-  not buy that by itself.
-- **A transition must never call out.** Reading a database, invoking a delegate, subscribing, or
-  releasing the last reference to something whose teardown re-enters the store will self-deadlock on
-  a non-recursive lock. Resolve outside the transition and write the result in. Two threads both
-  resolving is usually the cheaper, correct trade — say so in a comment, so nobody "tightens" it
-  later by pulling the call back inside.
+- Fields describing **one thing** go in one struct behind one lock or store — never a lock each.
+  Per-field atomics served one rotation item to two consumers, and paired a nil user id with the
+  previous user's session id.
+- **A store makes each transition atomic, not a caller's sequence.** Two getters are two reads.
+  Callers needing several fields coherently get **one** accessor that reads state once.
+- **A transition never calls out** — a database read, a delegate, a subscription, or releasing the last
+  reference to something whose teardown re-enters the store self-deadlocks a non-recursive lock.
+  Resolve outside, write the result in. Two threads both resolving is usually the cheaper correct
+  trade — comment it, so nobody pulls the call back inside.
 
 ## Read-modify-write is not one operation
 
-`value = value + 1` on a shared subject, relay, or property is a read and a write with a gap. Use a
-lock-protected box or an atomic for counters.
+`value = value + 1` on a shared subject, relay or property has a gap. Use a lock-protected box or an
+atomic for counters.
 
 ## What counts as concurrency
 
-Not just `async`/`await`. Treat all of these as first-class:
-
-- A lock or a serial/barrier queue guarding state
+- A lock, or a serial/barrier queue guarding state
 - `Thread`, `DispatchGroup`, `DispatchSemaphore`
 - `actor`, `nonisolated(unsafe)`, `@unchecked Sendable`, `Task.detached`
 - A reactive chain observing or subscribing on a non-main scheduler
 - State mutated from a timer, KVO, a notification, or a network or delegate callback not pinned to
-  the main thread
+  main
 
-**Not** a trigger by itself: a chain created, observed and disposed on the main thread. The trigger
-is cross-domain reachability, not the presence of async machinery.
+**Not** by itself: a chain created, observed and disposed on main. The trigger is cross-domain
+reachability.
 
-## `@unchecked Sendable` is a claim you must justify
+## `@unchecked Sendable` is a claim to justify
 
-It silences the compiler; it does not make anything safe. Every use needs a comment naming the
-invariant that makes it true — which lock, which queue, which single-writer discipline. If you cannot
-name it, the conformance is wrong.
+It silences the compiler; it makes nothing safe. Every use carries a comment naming the invariant —
+which lock, which queue, which single-writer discipline. Cannot name it: the conformance is wrong.

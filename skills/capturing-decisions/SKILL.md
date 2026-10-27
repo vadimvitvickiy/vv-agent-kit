@@ -5,72 +5,44 @@ description: Use when a decision, correction, or design rationale emerges that w
 
 # Capturing decisions
 
-Session state is disposable. **Anything that must outlive the session has to be promoted** into
-the repository, wherever this project keeps its decisions.
+**Session state is disposable. Anything that must outlive the session is promoted into the repo**,
+wherever this project keeps its decisions — at the moment it is decided, not at the end. There is no
+end: in the repo this kit came from, plans piled up for months while the decisions file beside them
+stayed an empty header.
 
 | What | Goes to |
 |-|-|
-| A decision and the reasoning behind it | The project's decision record — `docs/adr/`, `docs/decisions/`, a `decisions.md`. After `/vvkit:onboard`, `.claude/context/decisions.md` |
+| A decision and its reasoning | The project's decision record — `docs/adr/`, `docs/decisions/`, a `decisions.md`. After `/vvkit:onboard`, `.claude/context/decisions.md` |
 | A validated design | Where the project keeps designs. After onboarding, `.claude/context/specs/` |
 | A correction about how to work | Durable memory, when the harness has one |
 | A plan in flight, scratch, tool state | The session's scratch area — `.agents/` after onboarding — and stays there |
 
-If the project keeps decisions nowhere, ask where before creating a place for them. A new directory
-is a convention imposed on everyone who clones the repo.
-
-## Promote it into the repo it is about
-
-The decision record holds facts about **this** repository. A design for a different project does not
-belong here just because it was drafted in this session — it belongs in that project's repo, and
-committing it here puts another codebase's history into this one permanently.
-
-Before promoting, ask: *would someone cloning this repo need this?* If the answer is no, it goes to
-the other repo, or stays in scratch.
-
-## Why promotion is a step and not a habit
-
-Left implicit, it never happens. In the repo this kit was extracted from, in-flight plans
-accumulated for months in one directory while the durable decisions file next to it stayed an empty
-header. Nothing was ever *forced* to graduate, so nothing did — and the reasoning behind a year of
-architectural choices existed only in closed sessions.
-
-Promote at the moment the decision is made, not at the end. There is no end.
+- No decision home in the project: ask before creating one. A new directory is a convention imposed
+  on everyone who clones the repo.
+- **Promote into the repo it is about.** A design for another project goes to that project's repo.
+  Test: would someone cloning this repo need it?
 
 ## What earns a record
 
 Record it when the reasoning is not recoverable from the code:
 
-- A choice between two viable options, and why this one.
-- A constraint that is not visible from any single file.
-- A rejected approach, and what ruled it out — this is the one people most often need and least often
-  write down.
-- A correction from your human partner about how to work.
+- A choice between viable options, and why this one.
+- A constraint not visible from any single file.
+- A rejected approach and what ruled it out — the one most needed and least written.
+- A correction from the human about how to work.
 
-Do **not** record what the repository already tells you: code structure, git history, or anything
-stated in the project's own documentation. If asked to remember something already recorded there, ask
-what was non-obvious about it and record that instead.
+Do not record what the repo already says: code structure, git history, the project's docs. Asked to
+remember something already there, record what was non-obvious about it instead.
 
-## Deferred work carries a date
+## Shape
 
-Work set aside on purpose looks identical, a month later, to work that was forgotten. Record each
-deferral with its absolute date, the reason, and what would bring it back — "when a second channel
-exists", "after the migration lands".
-
-Read against its date, an old deferral whose trigger never came is a reason that has expired. Delete
-it or schedule it; one left sitting teaches every reader that the list is not maintained.
-
-## The shape of a record
-
-One fact per entry. State what was decided, then **why**, then what it rules out. Convert relative
-dates to absolute ones — "last week" is meaningless when read in six months.
-
-Link related records to each other. A pointer to a record that does not exist yet is fine; it marks
-something worth writing.
+- One fact per entry: what was decided, **why**, and what it rules out.
+- Absolute dates — "last week" is meaningless in six months.
+- Link related records. A link to one not written yet marks something worth writing.
+- **Deferred work carries a date, a reason, and what brings it back** — "when a second channel
+  exists". An old deferral whose trigger never came has expired: delete it or schedule it.
 
 ## Recalled records are stale by default
 
-A record reflects what was true when it was written. Before acting on one that names a file,
-function, or flag, **verify that thing still exists.** A confidently wrong recollection is more
-expensive than no recollection, because it is acted on without checking.
-
-Delete records that turn out to be wrong. An outdated record is not harmless history.
+- Before acting on a record that names a file, function or flag, **verify it still exists.**
+- Delete records that turn out wrong. An outdated record is not harmless history.

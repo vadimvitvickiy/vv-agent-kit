@@ -5,41 +5,36 @@ description: Use when testing Swift async/await code — a task group, async let
 
 # Testing async/await code
 
-**REQUIRED BACKGROUND:** `vvkit-swift:swift-testing` for the framework, and `vvkit:writing-tests`
-for whether a test is owed. Code that shares state across locks, queues or callbacks rather than
-`await` is covered by `swift-testing`'s `references/concurrency.md`, not here.
+**REQUIRED BACKGROUND:** `vvkit-swift:swift-testing` for the framework, `vvkit:writing-tests` for
+whether a test is owed. State shared across locks, queues or callbacks rather than `await` is
+`swift-testing`'s `references/concurrency.md`.
 
-## Never synchronise on a guessed interval
+**Never synchronise on a guessed interval.**
 
-`Task.sleep`, a polling loop, or a run of `Task.yield()` placed to "let the other task get there"
-is a guess about the scheduler. Under a parallel test run the guess is wrong often enough to flake,
-and it cannot pick *which* of two racing operations wins, so the ordering that matters goes
-untested. It is also slow: 100 ms waits across a thousand tests is 100 seconds per run.
-
-Models reach for these by default when given no example. If the code under test calls
-`Task.sleep` or reads a clock itself, that is the missing seam — inject it (`vvkit:injecting-dependencies`),
-do not wait it out.
+- `Task.sleep`, a polling loop or a run of `Task.yield()` "to let the other task get there" guesses
+  the scheduler. It flakes under parallel runs, cannot choose which racing operation wins, and is
+  slow — 100 ms across a thousand tests is 100 s per run.
+- Models reach for these by default. Code under test that calls `Task.sleep` or reads a clock is the
+  missing seam: inject it — `vvkit:injecting-dependencies`.
 
 ## The technique: spies that report and wait
 
-Replace every dependency whose timing decides the outcome — the value source, the sleep, the clock
-— with a protocol, and give the test a spy for it. Each spy does three things:
+Every dependency whose timing decides the outcome — value source, sleep, clock — becomes a protocol
+with a test spy that:
 
-1. **Reports each call** on a stream the test reads with `nextCall()`, carrying the arguments.
-2. **Suspends until the test releases it** — `respond(with: Result)` for a value source,
-   `resume()` for a sleep.
-3. **Exits on cancellation.** A spy that ignores cancellation hangs the run; see Time limits.
+1. **Reports each call** on a stream the test reads with `nextCall()`, with the arguments.
+2. **Suspends until released** — `respond(with: Result)` for a value source, `resume()` for a sleep.
+3. **Exits on cancellation.** One that ignores it hangs the run.
 
-A received call event is proof the operation reached that point. The test then chooses which
-dependency proceeds, so each ordering is a separate, deterministic test with no real time elapsing.
-A spy asserts on the requested duration (`sleepCall == .seconds(3)`) without waiting three seconds.
+A received call proves the operation got there; the test then picks which dependency proceeds, so each
+ordering is its own deterministic test with no real time elapsing. A spy asserts the requested
+duration (`sleepCall == .seconds(3)`) without waiting.
 
-Reference implementations — a value-provider spy and a sleep spy on `AsyncStream`:
-`references/spies.md`. Copy the shape and adapt it to the dependency's signature.
+Reference spies on `AsyncStream`: `references/spies.md`. Copy the shape, adapt the signature.
 
 ## Shape of a test
 
-One ordering per test, readable top to bottom:
+One ordering per test:
 
 ```swift
 @Suite(.timeLimit(.minutes(1)))
@@ -74,18 +69,15 @@ struct TimedLoaderTests {
 | Caller cancels | cancel the task — see below |
 | Only the result matters | `respond` **before** starting, skip `nextCall()`, plain `await` |
 
-To assert an error from an `async let`, await it in `do`/`catch`. `#expect(throws:) { try await
-loaded }` does not compile: a closure cannot capture an `async let`.
-
-The losing child's cancellation needs no assertion of its own: a task group awaits every child
-before returning, so a loader that forgot to cancel the loser leaves it waiting on its spy, and the
-time limit fails the test.
+- Assert an `async let` error in `do`/`catch`; `#expect(throws:) { try await loaded }` does not
+  compile — a closure cannot capture an `async let`.
+- The loser's cancellation needs no assertion: a task group awaits every child, so a loader that forgot
+  to cancel leaves it on its spy, and the time limit fails the test.
 
 ## Caller cancellation
 
-`async let` cancels and awaits unfinished work when its scope ends. `Task { }` does neither: it does
-not inherit the test's cancellation, and if a `#require` throws before the test reaches `cancel()`
-the task is left waiting on a spy forever. Both gaps need closing:
+`async let` cancels and awaits on scope exit. `Task { }` does neither: it does not inherit the test's
+cancellation, and a `#require` throwing before `cancel()` leaves it waiting forever. Close both:
 
 ```swift
 let loading = Task { try await sut.load(within: .seconds(3)) }
@@ -111,32 +103,26 @@ do {
 
 ## Time limits
 
-Put `.timeLimit(.minutes(1))` on the suite, so a call that never arrives fails the test instead of
-wedging the bundle. It is minutes-only.
-
-A time limit **records a failure and requests cancellation; it cannot stop anything.** Swift Testing
-still waits for the test function to return. If a spy or the code under test ignores cancellation,
-awaiting it keeps the whole run stuck after the limit fires. That is why every spy wait must end on
-cancellation, and why an unstructured `Task` needs the `onCancel` forwarding above. For a
-cooperative-pool deadlock, not even this helps — see Watchdogs in `vvkit-swift:swift-testing`.
+- `.timeLimit(.minutes(1))` on the suite, so a call that never arrives fails instead of wedging the
+  bundle. Minutes-only.
+- **A time limit records a failure and requests cancellation; it stops nothing.** Swift Testing still
+  waits for the function to return — hence spies that end on cancellation and the `onCancel`
+  forwarding. A cooperative-pool deadlock defeats even this — Watchdogs in
+  `vvkit-swift:swift-testing`.
 
 ## Spy rules that bite
 
-- **Fresh spies per operation.** Cancelling a task ends the `AsyncStream` iteration it was waiting
-  in. A sleep spy reused after the loader cancelled it can then return *without* `resume()` — the
-  test passes an ordering it never drove. A retry that reuses a dependency after cancellation needs
+- **Fresh spies per operation.** Cancellation ends the `AsyncStream` iteration; a reused sleep spy can
+  then return *without* `resume()`, passing an ordering never driven. A retry after cancellation needs
   a spy that opens a new stream per call.
-- **One waiter per stream.** `AsyncStream` traps at runtime when a second task awaits `next()`
-  while one is already pending. The reference spies turn an overlapping `nextCall()` into a named
-  `preconditionFailure`; for sleeps, give each concurrent sleep its own spy.
-- **A `.failure` response is consumed by one request.** The stream stays open, so the same provider
-  spy can succeed on the next call — which is what a retry test wants.
+- **One waiter per stream.** `AsyncStream` traps when a second task awaits `next()`. The reference
+  spies turn that into a named `preconditionFailure`; give each concurrent sleep its own spy.
+- **A `.failure` response is consumed by one request.** The stream stays open, so the next call can
+  succeed — what a retry test wants.
 
-## Where the ladder in `swift-testing` fits
+## Where this fits the ladder
 
-`swift-testing` orders async assertions virtual time → `confirmation` → polling. A spy is the
-virtual-time rung for async/await: it is the seam. Use `confirmation` when the question is *how many
-times* something fires, not *in what order*. Polling stays the last resort for work genuinely bound
-to the wall clock, which a spy-driven dependency is not.
+A spy is the virtual-time rung of `swift-testing`'s ladder for async/await. `confirmation` is for *how
+many times*, not *in what order*. Polling stays last, for genuinely wall-clock work.
 
 Technique source: raska.io, "Stop Sleeping: Deterministic Tests for Concurrent Swift Code" (2026).

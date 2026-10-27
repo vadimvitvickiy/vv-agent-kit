@@ -5,12 +5,12 @@ description: Use when adding or reviewing logging in Swift code with os.Logger o
 
 # Swift logging
 
-**REQUIRED BACKGROUND:** `vvkit:writing-logs` — where a log belongs, which level to choose, and what
-not to log are decided there. This file covers only what is Swift-specific.
+**REQUIRED BACKGROUND:** `vvkit:writing-logs` — placement, levels and what not to log. This covers
+only the Swift specifics.
 
 ## Declaring a logger
 
-One `Logger` per type, with a subsystem and a category:
+One `Logger` per type, with subsystem and category:
 
 ```swift
 import OSLog
@@ -18,14 +18,12 @@ import OSLog
 private let log = Logger(subsystem: "com.example.app", category: "ExampleService")
 ```
 
-The subsystem is the bundle identifier and is constant across the module. The **category** is the
-filter someone reaches for at 3am — reuse the one the file already declares, as
-`vvkit:writing-logs` says for labels.
+- Subsystem: the bundle identifier, constant across the module.
+- Category: the 3am filter — reuse the one the file already declares.
 
 ## Privacy annotations
 
-`os.Logger` redacts dynamic strings by default and shows numerics in the clear. Both defaults will
-surprise you, so be explicit whenever it matters:
+`os.Logger` redacts dynamic strings by default and shows numerics in the clear. Be explicit:
 
 ```swift
 log.debug("loaded account \(id, privacy: .public)")
@@ -33,27 +31,23 @@ log.error("auth failed: \(error.localizedDescription, privacy: .private)")
 log.info("user \(email, privacy: .sensitive)")
 ```
 
-- `.public` — safe to appear in a sysdiagnose. Use for identifiers, counts, state names.
-- `.private` — redacted in release. The default for interpolated strings.
-- `.sensitive` — credentials and personal data. Prefer not logging it at all.
-
-**A numeric interpolation is public by default.** An account id, an amount, or a timestamp logged
-without thought is already in the clear.
+- `.public` — safe in a sysdiagnose: identifiers, counts, state names.
+- `.private` — redacted in release; the default for interpolated strings.
+- `.sensitive` — credentials and personal data. Prefer not logging it.
+- **A numeric interpolation is public by default** — an account id, amount or timestamp is already in
+  the clear.
 
 ## Levels
 
-`Logger` exposes `trace`, `debug`, `info`, `notice`, `warning`, `error`, `fault`. Map the decision
-table in `vvkit:writing-logs` onto these directly; `notice` is the persisted default and `fault` is for
-programmer error, not for a failed network call.
-
-Note that `debug` and `trace` are **not persisted** — they are dropped unless a live stream is
-attached. Anything you need in a bug report must be `info` or above.
+- `Logger` has `trace`, `debug`, `info`, `notice`, `warning`, `error`, `fault`. `notice` is the
+  persisted default; `fault` is programmer error, not a failed network call.
+- **`debug` and `trace` are not persisted** without a live stream. Anything needed in a bug report is
+  `info` or above.
 
 ## Availability
 
-`Logger` requires iOS 14 / macOS 11. Below that, `os_log` is the fallback. Rather than scattering
-`if #available` at every call site, put the check inside one small logging facade and let call sites
-stay clean.
+`Logger` needs iOS 14 / macOS 11; below that, `os_log`. Put the `#available` check in one small
+facade, not at every call site.
 
 ## Checklist
 

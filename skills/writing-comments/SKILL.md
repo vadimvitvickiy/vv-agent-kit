@@ -5,66 +5,58 @@ description: Use when writing or reviewing comments and doc comments, or when a 
 
 # Writing comments
 
-The default is **no comment**. Clear names and structure carry the meaning; a comment is what you add
-when they provably cannot.
-
-**Where the project has an established convention, follow the project.** The limits below are the
-default for code that has none.
+**The default is no comment.** Names and structure carry the meaning; a comment is for what they
+provably cannot. Where the project has a convention, follow the project.
 
 ## The one test
 
-A comment must answer **why**, and the why must be non-obvious from the code beside it.
+- A comment answers **why**, and the why is not obvious from the code beside it.
+- Describes *what* the code does: delete it. Recoverable from the next three lines: delete it.
+- Code that needs a comment to be followed needs a better name or a smaller function instead.
 
-If it describes *what* the code does, delete it. If a reader could recover it from the next three
-lines, delete it. If the code needs a comment to be followed at all, the fix is usually a better name
-or a smaller function — not a comment.
-
-## Hard limits
+## Limits
 
 | Kind | Limit |
 |-|-|
-| Line comment | **1 line.** |
-| Member doc comment (function, property, case) | **1 line.** A second only for a genuinely subtle exception. |
-| Type-level doc comment (class, struct, enum, protocol, module) | Several lines, to orient a reader about the whole type. |
+| Line comment | **1 line** |
+| Member doc comment (function, property, case) | **1 line.** A second only for a genuinely subtle exception |
+| Type-level doc comment (class, struct, enum, protocol, module) | Several lines, to orient a reader about the whole type |
 
-Over the limit means **cut, not reflow**. Pick the single most important point and drop the rest —
-the second sentence is almost always the one restating the first.
+Over the limit means **cut, not reflow** — the second sentence usually restates the first.
 
 ## Never
 
-- **Narrate.** "loop over the items", "set the title", "returns nil when empty".
-- **Restate the signature.** A parameter doc that repeats the parameter name and type.
-- **Decorative dividers.** A structured section marker your language supports is fine; a hand-drawn
-  bar of dashes is not.
-- **Migration history.** No "moved from X", "was previously inline", "new in the refactor". Git
-  already knows.
-- **Ticket ids.** Worst in public API docs, where they leak an internal tracker to consumers.
-- **Commentary on the change.** A comment describes the code as it stands, never how it got there.
+- **Narrate** — "loop over the items", "set the title", "returns nil when empty".
+- **Restate the signature** — a parameter doc repeating the name and type.
+- **Decorative dividers.** A structured section marker the language supports is fine.
+- **Migration history** — "moved from X", "new in the refactor". Git knows.
+- **Ticket ids.** In public API docs they leak an internal tracker.
+- **Commentary on the change.** Describe the code as it stands, not how it got there.
 
 ## When a doc comment is warranted
 
 | Declaration | Doc comment |
 |-|-|
-| Public or exported | **Yes** — always. It is the contract, and exempt from the member limit where the contract genuinely needs the words |
+| Public or exported | **Yes** — it is the contract, and exempt from the member limit where the contract needs the words |
 | Internal helper with a non-obvious exception | Yes — one line naming the exception |
-| Internal helper that is self-evident from its name | No |
+| Internal helper self-evident from its name | No |
 | Override or conformance with no added behavior | No |
 | A constant whose value encodes a decision | Yes — why *this* value |
 
 ## Existing comments
 
-**Never delete an existing comment or TODO** unless explicitly asked — these rules constrain what
-you *write*, never what you remove. **Never overwrite an existing doc comment**: add where one is
-missing, and reconcile only when the contract it describes has actually changed.
+- **Never delete an existing comment or TODO** unless asked. These rules govern what you write, not
+  what you remove.
+- **Never overwrite an existing doc comment.** Add where missing; reconcile only when the contract
+  changed.
 
-## Self-check before finishing
+## Self-check
 
-Every added comment line that follows another added comment line — every multi-line block you just
-wrote:
+Every multi-line comment block you just added:
 
 ```bash
 git diff -U0 | awk '/^\+ *(\/\/|#|--)/{n++; if (n>1) print; next} {n=0}'
 ```
 
-Empty output, or only type-level overviews, is a pass. Anything else is over the limit until you can
-name why that specific block earns a second line.
+Empty output, or only type-level overviews, passes. Anything else is over the limit until you can
+name why that block earns a second line.

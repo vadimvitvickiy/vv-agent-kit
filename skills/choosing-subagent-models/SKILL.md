@@ -5,12 +5,12 @@ description: Use when about to launch any subagent — a research or exploration
 
 # Choosing subagent models
 
-**Every spawn names its model.** An omitted `model` inherits the main session's: a lookup launched
-from an Opus session runs at full price, and a final review launched from a cheap session silently
-runs cheap. Neither announces itself.
+**Every spawn names its model.** An omitted `model` inherits the session's: a lookup from an Opus
+session runs at full price, a final review from a cheap session runs cheap, and neither says so.
 
-The kit's spawn hook refuses a launch that omits `model`. It never picks one for you — the choice
-is made here, by the work the subagent will do, not by the model the session happens to run.
+- The kit's spawn hook refuses a launch with no `model`. It never picks one — pick here, by the job,
+  not by the model the session happens to run.
+- Use the aliases `haiku`, `sonnet`, `opus`, not version IDs. They survive a model release.
 
 ## The table
 
@@ -20,44 +20,33 @@ is made here, by the work the subagent will do, not by the model the session hap
 | Gathering — web research, codebase exploration, "where is X", reading code to answer a question, implementing a plan task whose code is written out, reviewing one task's diff | `sonnet` |
 | Judgment — design and architecture, debugging after a fix has already failed, security review, the final review of a branch, implementing from prose where decisions are still open | `opus` |
 
-Use the aliases, not version IDs. `haiku`, `sonnet` and `opus` resolve to the current model of each
-tier, so the table survives a model release.
-
 ## Where the lines fall
 
-- **Haiku gets no search.** If it is unclear where to look or what the thing is called, the task is
-  research, and research is `sonnet`. A file the cheap model fails to find costs more than every
-  token it saved, because the answer that comes back is confidently incomplete.
-- **Haiku stops at its first failure.** A command that fails, an edit that does not apply, output
-  that does not match — re-spawn on `sonnet` rather than retrying. The cheapest models take two to
-  three times the turns on multi-step work and end up costing more overall. A red run reported by
-  `vvkit:test-runner` is its result, not its failure.
-- **Sonnet is the floor for anything that decides correctness** — every reviewer, and every
-  implementer that has to make a test pass.
-- **Research fleets stay on sonnet, even for an architectural question.** The readers gather; the
-  judgment happens in the main conversation when their results come back. Paying Opus prices for
-  fetching pages buys nothing the synthesis does not already get.
-- **Between two tiers, take the higher — or ask.** For one short spawn, go up a tier and say so. When
-  the higher tier is a real cost — a fleet, a long run — ask the user once, naming both tiers and
-  what the higher one buys.
-- **Escalate instead of repeating.** A blocked implementer or a fix loop that is not converging goes
-  up a tier. The same spawn on the same model produces the same result.
-- **Two failed rounds end re-dispatching.** After two rounds that fail or contradict each other, do
-  not send the same brief again. Take over the core of the task in the main conversation, or
-  re-dispatch a narrower piece of it one tier up. A wide brief that failed twice fails on scope, and
-  a stronger model given the same scope inherits the same ambiguity.
+- **Haiku gets no search.** Unclear where to look, or what the thing is called, makes it research —
+  `sonnet`. A file haiku fails to find comes back as a confidently incomplete answer.
+- **Haiku stops at its first failure** — a failed command, an edit that does not apply, unexpected
+  output. Re-spawn on `sonnet`; do not retry. Cheap models take 2–3× the turns on multi-step work
+  and cost more overall. A red run from `vvkit:test-runner` is its result, not its failure.
+- **Sonnet is the floor for anything that decides correctness**: every reviewer, every implementer
+  that must make a test pass.
+- **Research fleets stay on `sonnet`**, even for an architectural question. Readers gather; the
+  judgment happens in the main conversation.
+- **Between two tiers, take the higher** and say so. When the higher one is a real cost — a fleet,
+  a long run — ask once, naming both tiers and what the higher one buys.
+- **Escalate, do not repeat.** A blocked implementer or a fix loop that is not converging goes up a
+  tier. The same spawn on the same model gives the same result.
+- **Two failed rounds end re-dispatching.** Take the core back into the main conversation, or send a
+  narrower piece one tier up. A wide brief that failed twice fails on scope, and a stronger model
+  inherits the same ambiguity.
 
 ## Special cases
 
-- **A fork** always runs on the parent's model and ignores `model`. Choosing to fork is choosing the
-  session's price — fork only when the inherited context is worth it.
-- **A named agent whose definition sets `model`** — a plugin reviewer, a project agent — carries its
-  author's default for an ordinary job, and a definition cannot see the job it is handed. Size the
-  job against the table anyway: pass nothing when they agree, and pass `model` a tier up when the
-  table puts this job higher — a reviewer given a whole branch, or security-sensitive code. Never
-  pass a lower one.
-- **The user named a model.** Theirs wins over this table.
-- **`CLAUDE_CODE_SUBAGENT_MODEL`** forces one model onto every subagent and flattens the table. It is
-  a debugging tool, not a policy.
-
-`KIT_SUBAGENT_MODEL_GATE=0` turns the spawn hook off. The table still applies.
+- **A fork** runs on the parent's model and ignores `model`. Fork only when the inherited context is
+  worth the session's price.
+- **A named agent whose definition sets `model`** carries its author's default for an ordinary job.
+  Pass nothing when the table agrees; pass a tier up when the job is bigger — a whole branch,
+  security-sensitive code. Never a lower one.
+- **The user named a model.** Theirs wins.
+- **`CLAUDE_CODE_SUBAGENT_MODEL`** forces one model onto every subagent. A debugging tool, not a
+  policy.
+- `KIT_SUBAGENT_MODEL_GATE=0` turns the spawn hook off. The table still applies.

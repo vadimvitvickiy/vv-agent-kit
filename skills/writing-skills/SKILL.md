@@ -5,11 +5,10 @@ description: Use when authoring or editing a skill, agent, command or hook for t
 
 # Writing skills
 
-A defect here is inherited silently by every project that installs the plugin. Nothing in a skill is
-checked against a compiler, so the only thing standing between a wrong sentence and a hundred repos
-acting on it is the care taken writing it.
+**A defect here is inherited silently by every project that installs the plugin.** Nothing checks a
+skill against a compiler; the care taken writing it is the only guard.
 
-## First: does this belong in a skill at all?
+## Does it belong in a skill?
 
 | The guidance is | It belongs in |
 |-|-|
@@ -19,48 +18,43 @@ acting on it is the care taken writing it.
 | A rule that must hold whether or not the model cooperates | a hook |
 | A task with its own context window and a narrow tool set | an agent |
 
-**The portability test is the one that matters: does this text stay true in another repo?** The tells
-that it does not are concrete — a target or scheme name, a script path, a module layout, a ticket
-prefix, a branch naming rule, a CI job name. If you are reaching for one of those, stop; you are
-writing a template.
+**Does this text stay true in another repo?** A target or scheme name, a script path, a module
+layout, a ticket prefix, a branch rule, a CI job name — each means you are writing a template.
 
-## The cost model decides everything else
+## The cost model
 
-Only `name` and `description` are preloaded. They sit in the skill listing in **every session, in
-every repo, forever**. The body costs nothing until the skill is actually invoked.
+- Only `name` and `description` are preloaded — in every session, in every repo. The body is free
+  until invoked.
+- The listing has a budget (~1% of context). **On overflow, descriptions are dropped from the least
+  invoked skills first**, and a skill with no description stops triggering. A marginal skill taxes the
+  ones that earn their place. Ship fewer, better.
+- The body enters once and **stays for the session, unread again.** Write standing instructions, not
+  a one-shot procedure.
+- After compaction only the first ~5,000 tokens of each recent skill are re-attached. **Load-bearing
+  rule near the top.**
+- **Every rule competes with every other.** In IFScale (Jaroslawicz et al., 2025, 20 models) the best
+  reached 68% at 500 instructions, biased toward the first. Merge rules that say the same thing; when
+  one goes in, look for one to take out.
 
-That asymmetry has a sharp consequence most authors miss. The listing has a character budget — about
-1% of the context window — and **when it overflows, descriptions are dropped starting with the skills
-invoked least**. A skill with no description left cannot be matched against a request, so it silently
-stops triggering. Every marginal skill you ship makes every other skill's description more likely to
-be cut, including the ones you rely on.
+## Body style
 
-So: a skill that mostly restates what the model already knows is not free and not harmless. It is a
-permanent tax paid by the skills that earn their place. Ship fewer, better.
-
-Two more consequences worth designing around:
-
-- The body enters the conversation once and **stays for the session; it is not re-read**. Write
-  standing instructions that hold for the whole task, not a numbered procedure to be executed once
-  and forgotten.
-- After compaction only the first ~5,000 tokens of each recently-invoked skill are re-attached, under
-  a shared budget. Put the load-bearing rule near the top, not in a closing summary.
-- **Every rule competes with every other.** Compliance falls as instructions are added, and earlier
-  ones win: in IFScale (Jaroslawicz et al., 2025, 20 models) the best reached 68% at 500
-  instructions, with a bias toward the first. Merge rules that say the same thing twice, and when a
-  rule goes in, look for one to take out.
+- **H1, then the load-bearing rule in bold**, one or two sentences.
+- **Sections of short bullets.** Each bullet is the rule; the reason follows in a clause only where it
+  is not obvious. No narrative paragraphs, no recap at the end.
+- Keep every measured number and named failure — that is what changes behavior. Cut the prose around
+  it.
+- Tables for decisions (situation → action); checklists for multi-step gates; code blocks only for
+  commands and shapes the agent copies.
 
 ## The description contract
 
-Third person. Starts with `Use when`. States **triggering conditions only**.
+Third person. Starts with `Use when`. **Triggering conditions only.**
 
-The reason narration is banned is mechanical, not stylistic. The description is the part that is
-always loaded, and the body is the part that is not. A description that summarizes the procedure gets
-substituted for the body: the agent reads the summary, believes it now has the rule, and never opens
-the file. The superpowers plugin reports the case: a description saying "code review between tasks"
-got one review where the body required two, and rewritten as a trigger, the agent followed the body.
-Anthropic's own examples pair what a skill does with when to use it; this kit keeps triggers only,
-and its skills still fired first in every run measured.
+- A description that summarizes the procedure gets substituted for the body: the agent believes it
+  has the rule and never opens the file. The superpowers plugin reports a description saying "code
+  review between tasks" producing one review where the body required two.
+- Anthropic's examples pair what with when; this kit keeps triggers only, and its skills still fired
+  first in every run measured.
 
 ```yaml
 # No — narrates the workflow, so it becomes the workflow
@@ -70,99 +64,59 @@ description: Reviews the diff, dispatches a reviewer per language, then reports 
 description: Use when reading a diff or pull request for defects, or when acting as the reviewer on a change you did not write.
 ```
 
-Write the triggers in the words someone would actually use, including the ones that describe the
-*situation* rather than the task — "a test fails", "behavior does not match expectation". Undertriggering
-is the common failure, not overtriggering.
-
-Put the primary case first: each listing entry is capped, and what is cut is the tail.
+- Use the words someone would actually use, including the *situation* — "a test fails", "behavior
+  does not match expectation". Undertriggering is the common failure.
+- Primary case first: entries are capped, and the tail is cut.
 
 ## Naming
 
-Neutral skills are verb-first gerunds — `writing-tests`, `reviewing-code`. Stack skills carry the
-stack as a prefix — `swift-testing`, `swift-logging`. Read together they say *discipline* and
-*instantiation*, which is the whole architecture in two words.
-
-A stack skill lives in its stack's plugin, `plugins/<stack>/skills/`, and is invoked under that
-plugin's namespace — `vvkit-swift:swift-testing`. The split is what lets a project take only its stacks:
-plugins install per project, but a single plugin skill cannot be hidden.
-
-`name` must equal the containing directory. The invocation name falls back to the directory when the
-field is absent, so a mismatch leaves the path saying one thing and the invocation another — a
-cross-reference that looks right and resolves to nothing.
-
-A stack skill opens with `**REQUIRED BACKGROUND:** vvkit:<neutral-skill>` and does not restate it.
-Restating is how one rule ends up in three files that then drift apart, and the drift is invisible
-until two of them contradict each other in front of a user.
+- Neutral skills: verb-first gerunds — `writing-tests`. Stack skills: stack prefix — `swift-testing`,
+  in `plugins/<stack>/skills/`, invoked as `vvkit-swift:swift-testing`. Plugins install per project; a
+  single plugin skill cannot be hidden.
+- **`name` equals the directory.** A mismatch makes a cross-reference that looks right and resolves to
+  nothing.
+- A stack skill opens with `**REQUIRED BACKGROUND:** vvkit:<neutral-skill>` and does not restate it.
+  Restated rules drift until two contradict in front of a user.
 
 ## Earning a claim
 
-Every assertion needs a measured number or a named failure mode behind it. "Prefer small functions"
-is something the model already believes and does not need told. "200 owners produced 209
-initialisations and 201 distinct objects" is a fact that changes what it does next.
-
-If you cannot say how you know a claim is true, you are writing filler, and filler is what makes an
-agent skim the whole file. Say where a number comes from, and whether it was measured or only
-reported.
-
-Give the reason where a rule is not obvious and skip it where it is. Keep emphasis plain: Anthropic
-advises dialing back "CRITICAL" and "MUST" for current models, which overreact to it.
+- Every assertion has a measured number or a named failure behind it. "Prefer small functions" is
+  already believed; "200 owners produced 209 initialisations and 201 distinct objects" changes the next
+  action.
+- Can't say how you know it: it is filler, and filler makes agents skim. Say where a number comes from,
+  and whether measured or reported.
+- Plain emphasis. Anthropic advises dialing back "CRITICAL" and "MUST"; current models overreact.
 
 ## Splitting into `references/`
 
-Move material out when it exceeds roughly 100 lines, or when only a minority of invocations need it —
-a field table, a full API surface, a long worked example.
-
-Link it by **plain relative path**. Never with `@`: that pulls the file in whenever the skill loads,
-which spends exactly the context the split was made to save. The point of a reference file is that it
-is there when needed and absent when not.
-
-A reference over 100 lines opens with a table of contents, and references stay one level deep —
-Anthropic reports agents previewing such files with `head` rather than reading them whole, so what
-is below the fold, or a link away, may never be seen. The validator checks the contents rule.
-
-See `references/frontmatter.md` for the frontmatter fields and the validator's full rule list.
-
-When a skill's prose tells the agent to run a bundled script, name the interpreter —
-`bash scripts/tool.sh`, not `scripts/tool.sh`. Some packagers strip executable bits, and a bare path
-then fails with `Permission denied`.
+- Move out material over ~100 lines, or needed by a minority of invocations — a field table, an API
+  surface, a long example.
+- **Link by plain relative path, never `@`**, which loads it whenever the skill loads.
+- A reference over 100 lines opens with a table of contents; references stay one level deep. Agents
+  preview with `head`. The validator checks the contents rule.
+- Name the interpreter for bundled scripts — `bash scripts/tool.sh`. Packagers can strip the
+  executable bit.
+- Frontmatter fields and the validator's rules: `references/frontmatter.md`.
 
 ## Test the behavior, not only the structure
 
-The validator proves a skill is well-formed. It cannot prove the skill changes what an agent does,
-and a skill that changes nothing is pure listing cost.
+The validator proves well-formed, not effective. A skill that changes nothing is pure listing cost.
 
-An unpushed working tree can be tested before it ships: `claude -p "<task>" --plugin-dir <repo>
---output-format stream-json --verbose` loads it in place of the installed copy and logs every
-`Skill` call. `claude plugin eval` runs a checked-in suite of cases with a no-plugin baseline arm.
-
-Before writing, give a fresh subagent the task that tempts the failure, **without** the skill, and
-record what it does and the reasons it gives, verbatim. If it already behaves, there is nothing to
-write — stop. Otherwise write guidance aimed at those specific reasons, re-run the same task with the
-skill loaded, and repeat until it complies. A new rationalization in a re-run gets its own counter.
-
-One sample misleads. Run each variant at least five times, and read wide disagreement between runs
-as wording that does not yet bind.
-
-Test a discipline skill under pressure, because that is where rules get broken. Combine three or
-more: time (a deploy window closing), sunk cost (hours of work to throw away), authority (a senior
-says skip it), exhaustion (the end of a long day), and the appeal of being pragmatic rather than
-dogmatic. Make the scenario concrete — real paths, a forced choice between named options, "what do
-you do?" rather than "what should you do?" — and give it no exit through "I would ask". Test other
-kinds by use rather than by pressure: a technique on a new case, a reference by whether the right
-entry gets found and applied.
-
-For each rationalization the runs surface, close it where it appears: an explicit negation in the
-rule itself, a row in a table pairing the excuse with the reality, and the thought as a red flag
-the agent can recognize in itself. Then re-run; a counter that closes one loophole often opens the
-next.
-
-Match the form to the failure. A rule the agent breaks under pressure needs a prohibition and the
-rationalizations it answers. Output of the wrong shape needs a recipe — what the output *is*, its
-parts in order — because a prohibition on shape gets negotiated: in the superpowers plugin's own
-wording tests (reported, not published), a prohibition produced more of the unwanted content than a
-recipe did. In this kit, adding a three-line report recipe to `writing-tests` took runs that named
-the bug each new test catches from 0 of 3 to 3 of 3. A multi-step workflow gets a checklist the
-agent copies into its work and checks off, so no step is skipped silently.
+- `claude -p "<task>" --plugin-dir <repo> --output-format stream-json --verbose` loads an unpushed tree
+  and logs every `Skill` call. `claude plugin eval` runs a checked-in suite with a no-plugin baseline.
+- **Before writing:** give a fresh subagent the tempting task **without** the skill; record what it
+  does and its reasons, verbatim. Already behaves: stop. Otherwise target those reasons, re-run with
+  the skill, repeat until it complies.
+- **Five runs per variant**, minimum. Wide disagreement means the wording does not bind yet.
+- **Pressure-test discipline skills** with three or more of: time, sunk cost, authority, exhaustion,
+  "be pragmatic". Concrete paths, a forced choice, "what do you do?", no "I would ask" exit. Test
+  techniques on a new case, references by whether the right entry is found.
+- **Close each rationalization where it appears:** a negation in the rule, an excuse/reality table
+  row, a red-flag thought. Re-run; one closed loophole often opens the next.
+- **Match form to failure.** Broken under pressure: a prohibition plus the rationalizations it answers.
+  Wrong output shape: a recipe — parts in order; prohibitions on shape get negotiated (superpowers
+  wording tests, reported). A three-line report recipe in `writing-tests` took naming the caught bug
+  from 0 of 3 runs to 3 of 3. Multi-step workflow: a checklist the agent copies and checks off.
 
 ## Before shipping
 
@@ -170,11 +124,9 @@ agent copies into its work and checks off, so no step is skipped silently.
 - [ ] `./scripts/validate.sh tests/fixtures` still exits 1 — a validator that passes everything is
       worse than none
 - [ ] `claude plugin validate .` exits 0
-- [ ] **The version in `plugin.json` is bumped.** An installed plugin is cached per version, so
-      content pushed without a bump never reaches an install — `marketplace update` reports success
-      and changes nothing. This is silent, and it looks exactly like a skill that failed to load
+- [ ] **The version in `plugin.json` is bumped.** Installs are cached per version; an unbumped push
+      reports success and changes nothing, exactly like a skill that failed to load
 - [ ] `claude plugin marketplace update vv-agent-kit && claude plugin details vvkit` shows the new
-      component. This is the only check that reports what Claude Code actually discovered rather than
-      what the layout suggests
+      component
 - [ ] Every claim in the body is one you could source if asked
-- [ ] A fresh subagent showed the failure without the skill, and did not show it with the skill
+- [ ] A fresh subagent showed the failure without the skill, and not with it

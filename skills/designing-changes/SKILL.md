@@ -5,13 +5,12 @@ description: Use when asked to build, add or change behavior and the approach ha
 
 # Designing changes
 
-**Agree on what to build before building it.** The expensive failure is not a wrong line. It is a
-correct implementation of the wrong thing, discovered when the human reads a finished diff — every
-hour between the misunderstanding and that moment is spent on work that gets thrown away.
+**Agree on what to build before building it.** The expensive failure is a correct implementation of
+the wrong thing, found when the human reads a finished diff.
 
 ## Classify the request out loud
 
-Before the first question, say which kind of request this is, so the human can correct it:
+Say which kind it is before the first question, so the human can correct it:
 
 | Kind | What it is | What it produces |
 |-|-|-|
@@ -19,121 +18,91 @@ Before the first question, say which kind of request this is, so the human can c
 | Bounded | A scoped change to a flow that already exists in this repo | A short design in chat |
 | Architectural | A new project or subsystem, or a change to how components fit or to an interface others depend on | A written design, then a plan |
 
-**Bounded is a property of the repo, not of your familiarity.** Knowing what kind of app this is does
-not make a change bounded; the flow being changed has to exist here, readable. A new project has no
-existing flow, so it is never bounded.
-
-When unsure between two kinds, take the heavier. The ratchet only turns one way: complexity found
-mid-task upgrades the kind — stop and say so — and nothing downgrades.
+- **Bounded is a property of the repo, not your familiarity.** The flow must exist here, readable. A
+  new project is never bounded.
+- Unsure between two kinds: take the heavier. Complexity found mid-task upgrades the kind — stop and
+  say so. Nothing downgrades.
 
 ## The artifact scales, the approval does not
 
-A bounded design may be three sentences. It still ends with the human saying yes, and nothing is
-implemented until they do. Presenting a design and starting on it in the same message is skipping the
-gate, because the human's first chance to object arrives after the work exists.
-
-"Too simple to need approval" is the exact case where an unexamined assumption costs the most: nobody
-looks twice at the simple change, so the wrong assumption ships.
-
-One exception is real. When the request already states what to change and where — a named function,
-a named behavior, a named file — the request *is* the approved design. Asking the human to approve
-what they just said is ceremony, not a gate.
+- A bounded design may be three sentences. It still ends with the human saying yes, and nothing is
+  implemented until then. Presenting a design and starting on it in one message skips the gate.
+- "Too simple to need approval" is where an unexamined assumption costs most — nobody looks twice.
+- **Exception:** a request that already names what to change and where — a function, a behavior, a
+  file — *is* the approved design. Asking to approve it is ceremony.
 
 ## Understand before asking
 
-- **Read before you ask.** Files, docs, recent commits. A question the code answers spends the
-  human's attention on something you could have looked up.
-- **Launch a survey as you start reading.** Start `vvkit:architecture-surveyor` on the change in the
-  background, with a file path for its report, and do your own reading while it runs. Yours follows the path the change needs; its
-  looks sideways — how sibling features cross each boundary, who owns each type, how an abstraction
-  was last extended. Read its report before proposing an approach. Skip it only for a change
-  describable in one sentence.
-- **Check the scope first.** A request that spans several independent subsystems needs decomposing
-  before any detail is refined. Name the pieces and their order, then design the first one.
-- **One question per message**, multiple choice where the options are knowable. A list of five
-  questions gets answers to the easy ones and silence on the one that mattered.
-- **Ask about purpose, constraints and what done looks like** — not about implementation details the
-  design will settle anyway. Knowing what kind of app it is does not say why the human wants it.
-
-Then **write your understanding back** in a short note: the outcome wanted, the constraints, what
-success looks like — with what the human said kept apart from what you assumed. Invite correction
-before treating it as the brief. When the request already states all of this, reflect it back rather
-than asking the same questions again. Every later choice gets checked against this note, so its
-accuracy matters more than its length.
+- **Read before you ask** — files, docs, recent commits. Do not spend the human's attention on what
+  the code answers.
+- **Launch a survey as you start reading:** `vvkit:architecture-surveyor` in the background, with a
+  file path for its report. It looks sideways — sibling features, type owners, how an abstraction was
+  last extended. Read it before proposing. Skip only for a one-sentence change.
+- **Check the scope.** Several independent subsystems: name the pieces and their order, design the
+  first.
+- **One question per message**, multiple choice where possible. Five questions get the easy ones
+  answered.
+- **Ask about purpose, constraints and what done looks like** — not details the design settles.
+- **Write your understanding back**: outcome, constraints, success — what the human said kept apart
+  from what you assumed. Invite correction. If the request already states it all, reflect it back.
 
 ## Say the premises out loud
 
-A premise is whatever was already true when the session started and nobody said. Nothing points at
-it, so nothing checks it: careful rounds of design on a wrong premise deliver the wrong thing, once
-per round, each time more convincingly.
+- A premise is what was already true and nobody said. Nothing checks it, so rounds of careful design
+  on a wrong one deliver the wrong thing more convincingly each time.
+- Ask **what would have to be true for this to be the right approach?** — who needs it, what the
+  problem costs today, what it is assumed to be free of. Write the answers in the note.
+- Measure a premise that is cheap to measure. Compensation code for an unmeasured problem is the
+  typical casualty.
+- **Premises stay live after approval.** Re-read them when fixes keep landing on new variants of one
+  problem, or when work goes unusually smoothly.
 
-Put them in the note. Ask **what would have to be true for this to be the right approach?** and
-write the answers down — who needs it, what the problem costs today, what it is assumed to be free
-of. It is usually the first time anyone has written them. A premise that is cheap to measure gets
-measured before the design rests on it; compensation code for a problem nobody measured is the
-typical casualty.
+## Shape the design
 
-Premises stay live after approval. Two signals mean re-read them before the next step: fixes that
-each land on a new variant of the same problem, and work going unusually smoothly — the moment
-nobody is looking is the moment an assumption goes unexamined.
+- **Data shape first.** Get the types and their states right before the logic; make illegal states
+  unrepresentable rather than checked for.
+- **Parse at the boundary, trust inside.** Validate outside data once, where it enters; keep business
+  logic in pure functions behind that boundary.
+- **Redesign, do not bolt on.** Ask what you would have built had the requirement been there from the
+  start; deliver that in pieces. A requirement bolted onto the old shape leaves both shapes behind.
+- **Subtract before you add.** Look for complexity the change lets you remove first.
+- **Operations that can be retried or interrupted are idempotent** — run twice, or after a crash
+  halfway, they end in the same state.
+- **Shared mutable state gets one writer**, enforced by the structure. If two parts do not need the
+  same mutable thing, give each its own.
+- **Extend, never disguise data.** A function that takes another type is asking for a sibling that
+  takes yours. Hand-building another layer's type from data that never came from there invents fields
+  everything downstream trusts.
+- In an existing codebase, follow its patterns. Improve what the change touches when it gets in the
+  way; propose nothing that does not serve the goal.
 
-## Offer approaches, not a verdict
+## Offer approaches, then present in sections
 
-Propose two or three approaches with their trade-offs, leading with the one you recommend and why. A
-single design turns the review into approve-or-reject; alternatives expose the trade-off the human
-would otherwise discover after it was made for them.
-
-Strip every feature nobody asked for, from every approach. A design is easier to extend than to cut
-back once code depends on it.
-
-## Present the design in sections
-
-Scale each section to its difficulty — a sentence where it is obvious, a few paragraphs where it is
-not — and confirm each before moving on. A single wall of design gets approved in one skim.
-
-Mark each choice as a **decision** — weighed against a named alternative — or a **default**, picked
-because something had to be. An unmarked default stops looking like a choice within a few messages
-and starts looking like a property of the problem, and nobody revisits a property.
-
-Cover the boundaries, the data flow, what happens on failure, and how it will be tested. For each
-unit, you should be able to say what it does, how it is used, and what it depends on. If a unit
-cannot be understood without reading its internals, its boundary is in the wrong place.
-
-In an existing codebase, follow its patterns. Improve what the change actually touches, when the
-problem gets in the way of the work; propose nothing that does not serve the goal.
-
-**When what exists does not take your data, extend it — never disguise the data.** A function that
-takes another type is asking for a sibling that takes yours. Building an instance of a type another
-part of the system owns, out of data that never came from there, invents the fields it has no value
-for — and everything downstream trusts them as real. A smaller diff and leaving untested code
-untouched are the reasons it gets done anyway; a sibling entry point changes no existing behavior
-either.
+- Two or three approaches with trade-offs, recommended one first, with why. One design turns review
+  into approve-or-reject.
+- Strip every feature nobody asked for. A design is easier to extend than to cut back.
+- Present in sections sized to difficulty, confirming each. A wall of design gets approved in one skim.
+- Mark each choice a **decision** (weighed against a named alternative) or a **default** (something had
+  to be picked). An unmarked default soon looks like a property of the problem.
+- Cover boundaries, data flow, failure behavior and testing. Each unit: what it does, how it is used,
+  what it depends on. A unit you cannot understand without its internals has its boundary misplaced.
 
 ## Write it down when it is architectural
 
-Save the agreed design where the project keeps them. When it names nowhere, use `.agents/plans/` —
-but only if `git check-ignore -q .agents/plans` succeeds; otherwise ask where designs go, rather than
-committing one by accident. Then reread it for:
-
-- placeholders, "TBD", or a section left vague;
-- two sections that contradict each other;
-- a requirement readable two ways — pick one, and say which;
-- scope too large for one plan, which means it needs splitting.
-
-Ask the human to review the file before anything is implemented. The plan that follows is
-`vvkit:planning-changes`.
-
-**Each approval covers the stage that was shown, and nothing after it.** Agreeing to the design in
-conversation permits writing it down. Approving the written design permits writing the plan.
-Approving the plan, and choosing how it runs, permits implementation. An approval of an idea does
-not approve artifacts that do not exist yet; resume at the earliest stage still unapproved. Reading
-the code is allowed at any stage.
+- Save it where the project keeps designs. None named: `.agents/plans/`, only if
+  `git check-ignore -q .agents/plans` succeeds; otherwise ask.
+- Reread for placeholders or "TBD", contradicting sections, a requirement readable two ways (pick one,
+  say which), and scope too large for one plan.
+- Ask the human to review the file. The plan follows — `vvkit:planning-changes`.
+- **Each approval covers the stage shown, nothing after it.** Agreement in chat permits writing the
+  design; an approved design permits the plan; an approved plan, with how it runs, permits code.
+  Resume at the earliest unapproved stage. Reading code is allowed at any stage.
 
 ## Before implementing
 
-- [ ] The kind was stated, and the human had the chance to correct it
-- [ ] Your understanding was written back, with assumptions marked, and corrected where wrong
+- [ ] The kind was stated, and the human could correct it
+- [ ] Your understanding was written back, assumptions marked, corrected where wrong
 - [ ] The human said yes to the design, after seeing it
 - [ ] Every open question that changes the design has an answer
-- [ ] Nothing in the design goes beyond what was asked for
-- [ ] For architectural work, the design is written down, reviewed, and a plan approved
+- [ ] Nothing in the design goes beyond what was asked
+- [ ] For architectural work, the design is written, reviewed, and a plan approved

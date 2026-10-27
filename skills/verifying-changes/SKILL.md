@@ -5,66 +5,49 @@ description: Use when deciding what to build, run, or test after a change, and b
 
 # Verifying changes
 
-**Evidence before assertions.** Never say complete, fixed, or passing without having run the command
+**Evidence before assertions.** Never say complete, fixed or passing without having run the command
 and read its output.
 
-## The cadence: scope while iterating, sweep at the end
+## Scope while iterating, sweep at the end
 
-Work out which suites the change can actually reach, and run those. Both ways of getting it wrong
-cost real time:
+- Run the suites the change can actually reach.
+- **Too wide** — a full sweep per small fix — slows the loop someone is watching.
+- **Too narrow** — a compile-check when a suite covers the change, or one platform when the edit was
+  in shared code — is how a regression ships.
+- A compile-check alone is enough only when no test covers the change.
+- **A delete or rename reaches every suite that references the symbol**, not just the diff.
+- Run the full suite **once at the end**, as the final gate. Not per edit.
 
-- **Too wide.** A full sweep after every small fix spends minutes on targets the change cannot touch,
-  and slows the edit-verify loop someone is watching.
-- **Too narrow.** A compile-check when a suite does cover the change. Or scoping to one platform when
-  the edit was in shared code that both platforms build. That is how a regression ships.
+## Report honestly
 
-A compile-check alone is sufficient only when genuinely no test covers the change.
+- Tests fail: say so, with the output — including failures you did not cause.
+- A step skipped: say which and why.
+- Done and verified: say it plainly, without hedging.
+- Not verified: say that, never imply it.
 
-**Deleting or renaming affects every suite that references the symbol** — the blast radius is larger
-than the diff suggests.
+A confident summary over an unrun command is the most expensive thing you can produce: it ends the
+review that would have caught the problem.
 
-Run the full suite **once at the end**, as the final gate before reporting. Not as a per-edit check.
+## Read the result, not the log
 
-## Reporting honestly
-
-- If tests fail, say so, and include the output — including failures you did not cause. A red test
-  that scrolled past unmentioned falsifies the report by omission.
-- If a step was skipped, say which and why.
-- If something is done and verified, state it plainly without hedging.
-- If you could not verify something, say that rather than implying you did.
-
-A confident summary over an unrun command is the single most expensive thing you can produce: it
-ends the review that would have caught the problem.
-
-## Read the structured result, not the raw log
-
-On failure, prefer the machine-readable result — a result bundle, a JUnit XML, a test summary — over
-grepping thousands of lines of console output. Raw logs bury the one failure among hundreds of lines
-of progress noise, and grepping for `error` reliably finds the wrong ones.
-
-## Know what your tooling silently misses
-
-A green result is only as good as what the tool actually checked:
-
+- On failure, read the structured result — a result bundle, JUnit XML, a test summary — not
+  thousands of console lines. Grepping for `error` reliably finds the wrong ones.
+- **Read the count, not just the status.** A typo'd test filter runs zero tests and exits green;
+  "0 failures" can mean 0 tests.
 - Incremental builds keyed on source fingerprints can skip a resource-only change entirely.
-- A focused test filter with a typo'd identifier runs **zero** tests and exits green.
-- A suite that reports "0 failures" may also have run 0 tests. Read the count, not just the status.
+- When relying on a cached or filtered run, name the gap.
 
-When you rely on a cached or filtered run, name the gap rather than treating the green as complete
-coverage.
+## Passing is not done
 
-## Passing is not the same as done
-
-A green suite proves the code does what its tests check. Whether it does what was asked is a
-separate question, answered by re-reading the brief, plan or ticket and checking each requirement
-against the diff. Tests written in the same change inherit the author's reading of the requirement,
-so they cannot catch a misreading of it.
+- A green suite proves the code does what its tests check, not what was asked.
+- Re-read the brief, plan or ticket and check each requirement against the diff. Tests written in the
+  same change share the author's reading, so they cannot catch a misreading.
 
 ## Before claiming done
 
-- [ ] The command was actually run, in this session, after the last edit
+- [ ] The command was run in this session, after the last edit
 - [ ] Its output was read, not assumed
 - [ ] The test count is non-zero and matches expectation
-- [ ] The full suite has been swept once, at the end
-- [ ] The brief, plan or ticket was re-read, and each requirement checked against the diff
+- [ ] The full suite was swept once, at the end
+- [ ] Each requirement in the brief, plan or ticket was checked against the diff
 - [ ] Anything unverified is stated as unverified

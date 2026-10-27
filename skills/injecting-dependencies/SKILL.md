@@ -6,10 +6,10 @@ description: Use when writing a constructor or initialiser, when a type needs a 
 # Injecting dependencies
 
 **A complex collaborator is a required parameter.** Services, engines, controllers, coordinators,
-repositories, clients — whoever configures the object supplies them. Not the object itself.
+repositories, clients — whoever configures the object supplies them, not the object itself.
 
-Defaults are for the simple ones: a scheduler, a clock, a timer source, a formatter. Things with no
-dependencies of their own, where the default is genuinely the answer rather than a guess.
+- Defaults are for simple leaves: a scheduler, a clock, a timer source, a formatter — no
+  dependencies of their own, and the default is the answer rather than a guess.
 
 ## The sentinel default is the anti-pattern
 
@@ -19,39 +19,26 @@ init(engine: Engine? = nil) {
 }
 ```
 
-That `nil` does not mean "no engine". It means *"construct the default yourself"*, which is the one
-thing the parameter existed to prevent. The type still secretly builds what it depends on; the
-signature now merely lies about it.
+`nil` here means "construct it yourself" — the one thing the parameter existed to prevent.
 
-What it costs:
-
-| | |
-|-|-|
-| The dependency is invisible | Nothing at the call site says this type needs an `Engine`, so nobody knows to look when the wrong one is used |
-| Two construction paths | Production takes one branch and tests take the other, so the path that ships is the one least exercised |
-| The default outlives its reason | It was correct once. Nothing forces anyone to revisit it, and nothing fails when it stops being correct |
-
-**The constraint is the signal.** If the default would need another parameter's value to build — and
-most languages cannot reference one parameter from another's default — that is not an obstacle to
-work around. It is the language telling you the object cannot construct this itself. Pass it in.
+- **The dependency is invisible.** Nothing at the call site says this type needs an `Engine`.
+- **Two construction paths.** Production takes one, tests the other, so the shipped path is the least
+  exercised.
+- **The default outlives its reason**, and nothing fails when it stops being right.
+- **The constraint is the signal.** A default that would need another parameter's value to build is
+  the language saying the object cannot construct this itself. Pass it in.
 
 ## Move construction, do not add an escape hatch
 
-When a type builds something internally and a test needs to see it, the fix is to move the
-construction to the call site, not to add a parameter that exists only for tests.
+- When a test needs to see something a type builds internally, move the construction to the call
+  site. Do not add a parameter only tests use — the test then verifies the path nobody ships.
+- Move the `new`/`init` to whoever already decides how the object is configured; test and production
+  become one path.
 
-An injection point added *for testing* is a second way to build the object, and the production path
-never uses it. What the test then verifies is the path nobody ships. Move the `new`/`init` out to
-whoever is already deciding how this object is configured, and the test and production paths become
-the same path.
+## Two parameters that must be one instance
 
-## When two parameters must be the same instance
-
-Passing collaborators in can create an invariant *across* parameters: two of them must receive the
-identical object, not merely equal ones. A cache shared by a reader and a writer, a session shared
-by two clients.
-
-Bind it to a local at the call site and pass that local to both:
+When two collaborators must share the identical object — a cache for a reader and a writer, a session
+for two clients — bind it to a local at the call site and pass it to both:
 
 ```
 let session = Session(...)
@@ -59,16 +46,12 @@ let reader = Reader(session: session)
 let writer = Writer(session: session)
 ```
 
-The sharing is now visible in the code that establishes it. The alternative — constructing it twice
-and hoping they match, or documenting the requirement in a comment — makes the invariant something a
-reader has to reconstruct, and something a refactor can silently break.
+The sharing is visible where it is established. Constructing twice, or documenting the requirement in
+a comment, leaves it for a refactor to break silently.
 
 ## What this buys
 
-Every dependency named in the signature is one a reader can see, a test can replace, and a change
-can trace. The cost is that wiring moves outward, to a composition point that has to know how the
-pieces fit — which is where that knowledge was supposed to live.
-
-If the parameter list has grown uncomfortable, that is information: the type has taken on more
-responsibilities than one type should. Hiding the parameters behind defaults does not reduce the
-responsibilities, only the evidence of them.
+- Every dependency in the signature is one a reader sees, a test replaces and a change traces.
+- Wiring moves out to a composition point — where that knowledge belongs.
+- **A parameter list that feels too long is information:** the type has too many responsibilities.
+  Defaults hide the evidence, not the responsibilities.

@@ -9,27 +9,18 @@ description: Use when a change is expected to span multiple files or modules, or
 
 ## Gate
 
-If the diff is describable in one sentence — a single-file fix, a rename, a log tweak — skip all of
-this and do the work. Test and review rules still apply. Running a pipeline over a one-line change
-is the most common way this skill gets misused.
+- A diff describable in one sentence — a single-file fix, a rename, a log tweak — skips all of this.
+  Test and review rules still apply.
+- **A subagent's main value is isolation, not parallelism.** Early in a session, under ~5 tool calls
+  is cheaper inline. In a large conversation, one subagent that contains verbose output — a test
+  run, a log sweep, a grep-heavy search — pays for itself.
+- **Repetitive mechanical work across many sites:** do one unit by hand, then build the script or
+  tool that matches it for the rest. Check the tool's output against the hand-done unit.
 
-The gate moves as the conversation grows, because **the primary value of a subagent is isolation,
-not parallelism**. Early in a session, a task under roughly five tool calls is cheaper inline. Once
-the conversation is large, the per-call tax on every subsequent turn is paid against the whole
-context, and a single subagent that contains verbose output — a test run, a log sweep, a
-grep-heavy exploration — earns its cost with no parallelism involved at all.
+## Single writer is not fresh writer
 
-## Two rules that get conflated
-
-"Single writer" and "a fresh writer per task" are different claims, and confusing them produces bad
-decisions in both directions.
-
-- **Single writer** is a *concurrency* constraint: never two agents editing at once. It is about
-  conflicting edits.
-- **A fresh subagent per task** is a *context* strategy: deliberately discard context between units
-  of work.
-
-Both satisfy single-writer. Choose between them on what dominates quality:
+- **Single writer** is concurrency: never two agents editing at once.
+- **Fresh writer per task** is context: deliberately discarding context between units.
 
 | A fresh writer per task wins | One writer holding full context wins |
 |-|-|
@@ -38,72 +29,50 @@ Both satisfy single-writer. Choose between them on what dominates quality:
 | The brief is cheaper to write than the output | Writing the brief ≈ writing the output |
 | Accumulated drift is the risk | Cold-start divergence is the risk |
 
-The third row decides more cases than the others. When a task's brief must specify what to keep,
-what to strip, and how it should read alongside its neighbours, you have already done the work —
-handing it off adds a translation loss and saves nothing. **Never delegate understanding.**
-
-The second column's failure mode is real too: work that must cohere, split across cold starts,
-produces N variants that each defensively restate shared context. That is how one rule ends up
-duplicated across three files that then drift apart.
+- The third row decides most cases. A brief that must say what to keep, strip, and how it reads beside
+  its neighbours is already the work. **Never delegate understanding.**
+- Coherent work split across cold starts produces N variants that each restate shared context, then
+  drift.
 
 ## Phases
 
-**1. Scope.** Pin the goal, what is affected, what is explicitly out of scope.
+1. **Scope.** The goal, what is affected, what is out of scope.
+2. **Research — fan out.** Every applicable reader in one message, read-only, with an explicit model —
+   `vvkit:choosing-subagent-models`. Usually: prior art — `vvkit:architecture-surveyor`; any contract,
+   schema or interface touched; the spec or ticket. Several independent failures get one read-only
+   investigator each, returning root cause and proposed change — unless one fix might fix the others,
+   then investigate together.
+3. **Plan — never delegated.** Design stays where the full conversation is —
+   `vvkit:designing-changes` — and the plan is written beside it.
+4. **Implement — one writer** at any moment; executing a plan is `vvkit:planning-changes`. Never
+   parallel implementers in one working tree. Tasks the human asks to run side by side get a worktree
+   and branch each — `/vvkit:worktree` — and merge one at a time.
+5. **Verify, then review.** Build and test first. Then one independent reviewer that never saw your
+   reasoning, reading the diff itself — the one stage always worth delegating.
 
-**2. Research — fan out.** Launch every applicable reader in one message, read-only, with an
-explicit model — `vvkit:choosing-subagent-models`. Readers are independent and never write. Three that usually apply: prior art in this
-repo — `vvkit:architecture-surveyor`; verification of any contract, schema or interface the change touches; the requirements source
-when a spec or ticket exists.
+## The spawn prompt
 
-**3. Plan — never delegated.** Design decisions stay where the full conversation is. Splitting them
-across agents produces conflicting implicit assumptions. Agree the design first —
-`vvkit:designing-changes` — and write the plan down beside the design.
+Every spawn carries four things; missing one is the usual cause of a useless result.
 
-Several independent failures — different subsystems, no shared state, each understandable alone —
-are the case where research fan-out pays most: one read-only investigator per failure, each
-returning the root cause and the change it proposes. The fixes still land through one writer. When
-fixing one failure might fix the others, investigate them together first.
+1. **Objective** — the question, not the procedure. Over-prescribed steps yield shallow work.
+2. **What is ruled out**, so it does not re-derive dead ends.
+3. **Known paths** — files, symbols, line numbers.
+4. **An output contract** — exact shape and a length cap. A `file:line` or verbatim output behind every
+   claim, verified facts apart from inferences.
 
-**4. Implement — one writer.** Exactly one writer at any moment. Executing a written plan, task by
-task, is `vvkit:planning-changes`. Choose fresh-per-task or
-full-context by the table above. Parallel implementers are never used in one working tree: file
-disjointness is rarely enforceable, and shared project files make it worse. Independent tasks the
-human asks to run side by side each get a worktree and a branch — `/vvkit:worktree` — and still
-merge one at a time.
-
-**5. Verify, then review.** The build and test gate first. Then one independent reviewer that never
-saw your reasoning — reading the diff itself, not your account of it. Fresh context is a genuine
-advantage here, which is why review is the one stage that should always be delegated.
-
-## The spawn-prompt contract
-
-Every spawn carries four things. Missing any one is the usual cause of a useless result.
-
-1. **Objective** — the question, not the procedure. Over-prescribing steps yields shallow work.
-2. **What is already ruled out** — so the agent doesn't re-derive dead ends.
-3. **Known paths** — files, symbols, line numbers you already have.
-4. **An output contract** — exact shape and a length cap. Without one, the result is unparseable
-   and floods the context you delegated to protect. Require a `file:line` or verbatim command output
-   behind every claim, and verified facts listed apart from inferences. A claim with no location
-   cannot be checked, and an inference mixed in with facts gets accepted as one.
-
-A subagent receives no conversation history. Anything it needs must be in the prompt.
+A subagent gets no conversation history. Anything it needs is in the prompt.
 
 ## Accepting a result
 
-A subagent's report is a claim about the work, not evidence of it. It describes what the agent
-intended, and it cites locations with the same fluency whether or not it read them.
+A report is a claim about the work, not evidence. It cites locations just as fluently whether or not
+it read them.
 
-- **Read the cited `file:line` yourself** for every claim a decision rests on. Skimming the report
-  is not checking it.
-- **Re-derive counts and outcomes from the machine.** "Changed N places" is checked with
-  `git diff --stat`; "tests pass" by re-running them, or by the exit code and log that
-  `vvkit:test-runner` returns. A build, test or lint gate is judged by its
-  output only.
-- **High-risk conclusions need a second opinion that never saw the first** — data deletion,
-  security, production configuration, or anything the user will act on. Launch two independent
-  agents on the same question, or one agent briefed to refute the first's answer, and accept only
-  what both agents agree on or what the refuter failed to break. One agent's confident answer and its own re-check share every blind spot.
+- **Read the cited `file:line` yourself** for every claim a decision rests on.
+- **Re-derive counts and outcomes from the machine** — `git diff --stat` for "changed N places", a
+  re-run or `vvkit:test-runner`'s exit code for "tests pass".
+- **High-risk conclusions need a second opinion that never saw the first** — deletion, security,
+  production config, anything the user will act on. Two independent agents, or one briefed to refute;
+  accept what both agree on or the refuter failed to break.
 
 ## Common mistakes
 
@@ -111,14 +80,12 @@ intended, and it cites locations with the same fluency whether or not it read th
 |-|-|
 | Fanning out implementers to go faster | Conflicting edits; writes stay serial |
 | Delegating the plan | The planner needs the full conversation |
-| Accepting a subagent's "done" | It reports what it intended; see "Accepting a result" |
+| Accepting a subagent's "done" | It reports what it intended |
 | Running the pipeline on a one-sentence change | That is what the gate is for |
 | Omitting the output contract | Unstructured results defeat the isolation |
 | Nesting subagents | Subagents cannot spawn subagents; chain from the main conversation |
-| Re-reading a result that timed out | Reading the same agent's output twice can double-count or truncate it. Raise the timeout instead |
-| Reporting a background agent's result before it lands | You do not know what it found until the completion notification arrives |
+| Re-reading a result that timed out | It can double-count or truncate. Raise the timeout instead |
+| Reporting a background agent's result before it lands | You do not know what it found until the notification arrives |
 
-## Reference
-
-Frontmatter fields, tool restrictions, memory options, isolation and anti-patterns:
+Frontmatter fields, tool restrictions, memory, isolation and anti-patterns:
 `references/subagent-reference.md`.

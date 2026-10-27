@@ -5,21 +5,14 @@ description: Use when building, compile-checking, running tests, driving a simul
 
 # Xcode builds
 
-**REQUIRED BACKGROUND:** `vvkit:verifying-changes` — what to run and when to sweep is decided there.
-This file covers how to run it.
+**REQUIRED BACKGROUND:** `vvkit:verifying-changes` — what to run and when. This covers how.
 
-## Always prefer the project's script
+**Always prefer the project's script.** `scripts/build.sh` / `scripts/test.sh` if present; none —
+generate them with `/vvkit:scripts`. A hand-written `xcodebuild` is usually slower by a large multiple
+for reasons invisible on the command line, and one that "works" often works by rebuilding everything.
+Never hand-write `xcrun` or `simctl` the project wraps.
 
-If the repo has `scripts/build.sh` or `scripts/test.sh`, use it. If it has none, generate them with
-`/vvkit:scripts` rather than hand-writing an invocation.
-
-This is not a style preference. A hand-written `xcodebuild` command is usually slower by a large
-multiple, and the reasons are invisible from the command line — see the table below. A hand-rolled
-command that "works" frequently works by rebuilding everything.
-
-Never hand-write `xcrun` or `simctl` when the project wraps them.
-
-## The four traps in a hand-written invocation
+## Four traps in a hand-written invocation
 
 Each measured on a large project:
 
@@ -30,9 +23,8 @@ Each measured on a large project:
 | `-derivedDataPath` on a routine build | Opts out of the cache the IDE is warming. Even pointed at Xcode's own folder, it moves the module and compilation caches inside it, and every switch with Xcode recompiles everything — 26 of 26 files on an iOS app. Use it only for a deliberately isolated or reproducible build |
 | `xcodebuild clean` | Discards the cache that makes everything else fast. The build system reads sources from disk every run; a clean buys no correctness |
 
-Also worth knowing: two build configurations sharing one DerivedData ping-pong the generated module
-maps, which are keyed by platform rather than configuration. Measured at 6m34s versus 1m14s. Point
-every local entry point at the same configuration.
+Two configurations sharing one DerivedData ping-pong the generated module maps (keyed by platform, not
+configuration) — 6m34s versus 1m14s. Point every local entry point at one configuration.
 
 ## Discovering what exists
 
@@ -41,52 +33,33 @@ xcodebuild -list -project <Project>.xcodeproj      # schemes, targets, configura
 xcrun simctl list devices available                # booted and bootable simulators
 ```
 
-**`-list` sorts schemes alphabetically.** Taking the first one frequently selects a framework target
-rather than the app, which compile-checks a dependency and reports success for the project. Pick the
-scheme named after the project, or name it explicitly.
+**`-list` sorts schemes alphabetically.** The first is often a framework, which compile-checks a
+dependency and reports success for the project. Pick the scheme named after the project, or name it.
 
-## Read the result bundle, not the log
+## Reading results
 
-On failure, read the `.xcresult` rather than grepping console output:
-
-```bash
-xcrun xcresulttool get --format json --path <path>.xcresult
-```
-
-**A full disk does not look like one.** It surfaces as a `lipo` or linker failure, or a module that
-"has been modified since the module file was built", with `database or disk is full` only at the end
-of the log. `bash scripts/derived-data.sh` in this skill's directory reports free space on the data
-volume (`df -h /` reads the sealed system volume) and which DerivedData folders are orphaned. Judge a
-cleanup by how much `df` changes, not `du`, which counts APFS clones twice.
-
-## What a green build does not tell you
-
-On top of the gaps listed in `vvkit:verifying-changes`:
-
-- **An asset catalog or strings file edit can produce a cached "success"** that never re-ran the
-  generator.
-- **A scheme can exclude the target you changed.** Building the app scheme does not necessarily
-  build every framework in the project.
+- On failure read the bundle, not the log: `xcrun xcresulttool get --format json --path <path>.xcresult`.
+- **A full disk does not look like one** — a `lipo` or linker failure, or a module "modified since the
+  module file was built", with `database or disk is full` only at the end. `bash
+  scripts/derived-data.sh` in this skill's directory reports data-volume free space (`df -h /` reads
+  the sealed system volume) and orphaned DerivedData. Judge a cleanup by `df`, not `du`, which counts
+  APFS clones twice.
+- Beyond `vvkit:verifying-changes`' gaps, a green build can hide: **an asset catalog or strings edit
+  with a cached "success"** that never re-ran the generator, and **a scheme that excludes the target
+  you changed.**
 
 ## Generated project files
 
-If the `.xcodeproj` is generated — from a project manifest, or by a generator tool — **never edit it
-directly**. Edit the manifest and regenerate. An edit to a generated file survives until the next
-generation and then vanishes, usually without anyone noticing which change was lost.
+- A generated `.xcodeproj` — from a manifest or generator — is **never edited directly**. Edit the
+  manifest and regenerate; a direct edit vanishes at the next generation.
+- A hand-managed one: still never edit `project.pbxproj` as text. It is a graph of cross-referenced
+  UUIDs; use a library that understands it.
 
-If the `.xcodeproj` is hand-managed, still never edit `project.pbxproj` as text. Use a library that
-understands the format; the file is a graph of cross-referenced UUIDs and a hand edit corrupts it in
-ways that surface much later.
+## Every tool that builds must share one cache
 
-## Every tool that builds must agree on one cache
-
-The trap table above is about flags you type. The same defect arrives silently through tools that
-pick a build location for you: `xcodebuildmcp` defaults to a private store under its own directory,
-and a Swift language server with no build config compiles against a target it guessed.
-
-Both are the same failure — a second cache, cold, that nothing else reads — and neither reports it.
-Bind them to Xcode's folder for the checkout before the first build. `scripts/setup-tooling.sh` does
-both if the project has it.
+Tools that pick a build location bring the same defect silently — a second, cold cache nothing else
+reads. Bind them to Xcode's folder for the checkout before the first build; `scripts/setup-tooling.sh`
+does both if the project has it.
 
 | Tool | Unbound behavior | Symptom |
 |-|-|-|
@@ -94,52 +67,37 @@ both if the project has it.
 | `xcodebuildmcp`, bound by `derivedDataPath` alone | Module and compilation caches move inside that folder | Every switch with Xcode or the scripts recompiles the whole project |
 | `sourcekit-lsp` | Falls back to a macOS target | `No such module 'UIKit'` on every file in an iOS framework |
 
-**Removing a worktree orphans its DerivedData folder** — 25–30 GB per built worktree on a large
-project, with nothing left that will read it. After `git worktree remove`, run `bash
-scripts/derived-data.sh --delete <removed-path>` from this skill's directory, and `xcodebuildmcp purge
---dry-run` for its XcodeBuildMCP workspace. `--delete-orphans` sweeps every removed checkout's folder,
-not only this work's: ask first.
-
-Bound correctly, switching between tools compiles nothing, but a switch between the Xcode IDE and a
-command-line build still relinks and re-signs. Swift Build folds each linker task's `PATH` into its
-signature, and the IDE's differs from a shell's. That costs seconds, not a rebuild. Leave it alone:
-copying Xcode's `PATH` into the agent's environment depends on Xcode internals that change without
-notice.
-
-For sourcekit-lsp specifically, `xcode-build-server config` binds the scheme and `xcode-build-server
-parse` supplies the flags — **both** are needed. A command-line `xcodebuild` never writes the
-`.xcactivitylog` the server watches (only the Xcode IDE does), so a bare `config` leaves it flagless
-and it fails over to macOS without saying so.
+- For sourcekit-lsp, `xcode-build-server config` binds the scheme and `xcode-build-server parse`
+  supplies flags — **both**. Command-line `xcodebuild` never writes the `.xcactivitylog` the server
+  watches, so a bare `config` fails over to macOS silently.
+- Bound correctly, switching tools compiles nothing, but IDE ↔ command line still relinks and re-signs
+  — the linker's `PATH` is in its signature. Seconds, not a rebuild; leave it.
+- **Removing a worktree orphans its DerivedData** — 25–30 GB per built worktree. After `git worktree
+  remove`: `bash scripts/derived-data.sh --delete <removed-path>` from this skill's directory, and
+  `xcodebuildmcp purge --dry-run`. `--delete-orphans` sweeps every removed checkout's folder — ask
+  first.
 
 ## A slimmed simulator breaks features silently
 
-`simslim` switches off a simulator's background daemons to save memory, and push, widgets, iCloud,
-universal links, HealthKit, Photos and more go with them. The app gets no error. A notification that
-never arrives, or a widget that never refreshes, on a slimmed device looks exactly like an app bug.
+`simslim` turns off simulator daemons to save memory; push, widgets, iCloud, universal links,
+HealthKit, Photos and more go with them, with no error. A lost notification looks like an app bug.
 
-**Before debugging a system feature that fails on a simulator, check the device.** With the
-simulator booted:
+- **Before debugging a system feature failing on a simulator, check the device** (booted):
 
-```bash
-simslim doctor <udid> --requires push      # exit 1 and BROKEN when the feature's daemons are off
-```
+  ```bash
+  simslim doctor <udid> --requires push      # exit 1 and BROKEN when the feature's daemons are off
+  ```
 
-`simslim doctor --list` gives the feature IDs. A shut-down simulator reports no slim state at all, and that does not mean it is stock. Read the
-state from the device every time, never from notes: it changes with `simslim off`, an erase, or a
-different Mac. A committed profile records what the project wants, not what the device has.
-
-If `simslim` is not installed, say so rather than assuming the device is stock. When the user is
-short of memory running several simulators, mention it once, with
-`brew install mobai-app/tap/simslim`.
-
-Never slim, restore or clean a simulator unless asked. `on` and `off` reboot the device and end
-whatever is running on it, and `disk-clean` deletes data permanently. Commands, categories, and
-deriving a project's profile from its entitlements: `references/simslim.md`.
+- `simslim doctor --list` gives feature IDs. A shut-down simulator reports no slim state — that does
+  not mean stock. Read state from the device every time, never from notes; a committed profile is what
+  the project wants, not what the device has.
+- Not installed: say so rather than assume stock. A user short of memory running several simulators:
+  mention `brew install mobai-app/tap/simslim` once.
+- **Never slim, restore or clean a simulator unasked.** `on` / `off` reboot it; `disk-clean` deletes
+  data permanently. Commands and deriving a profile from entitlements: `references/simslim.md`.
 
 ## The xcodebuildmcp CLI
 
-When the project uses it, or when driving simulators and UI automation:
-`references/xcodebuildmcp.md`.
-
-Do not work from a remembered tool list. The CLI ships its own agent skill (`xcodebuildmcp init`)
-which is versioned with the binary, and workflow names change between releases.
+When the project uses it, or for simulators and UI automation: `references/xcodebuildmcp.md`. Do not
+work from a remembered tool list — the CLI ships its own versioned agent skill (`xcodebuildmcp init`),
+and workflow names change between releases.
