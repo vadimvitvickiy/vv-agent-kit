@@ -17,6 +17,9 @@ jobs:
       - name: Structural gate
         run: ./scripts/validate.sh
 
+      - name: Codex packages match their sources
+        run: python3 scripts/build-codex.py --check
+
       - name: Validator still has teeth
         run: |
           if ./scripts/validate.sh tests/fixtures; then

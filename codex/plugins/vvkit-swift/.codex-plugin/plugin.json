@@ -1,0 +1,27 @@
+{
+  "name": "vvkit-swift",
+  "version": "0.14.0",
+  "description": "Swift and Xcode instantiations of the vvkit disciplines: testing, concurrency, style, logging, builds, and a Swift reviewer",
+  "author": {
+    "name": "vadimvitvickiy",
+    "url": "https://github.com/vadimvitvickiy"
+  },
+  "homepage": "https://github.com/vadimvitvickiy/vv-agent-kit",
+  "repository": "https://github.com/vadimvitvickiy/vv-agent-kit",
+  "license": "MIT",
+  "keywords": [
+    "swift",
+    "ios",
+    "xcode",
+    "swiftui",
+    "testing"
+  ],
+  "dependencies": [
+    "vvkit"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent Kit \u00b7 Swift",
+    "shortDescription": "Swift and Xcode workflows"
+  }
+}

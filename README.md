@@ -3,7 +3,7 @@
 [![validate](https://github.com/vadimvitvickiy/vv-agent-kit/actions/workflows/validate.yml/badge.svg)](https://github.com/vadimvitvickiy/vv-agent-kit/actions/workflows/validate.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-A Claude Code plugin holding agent practices that survive leaving the repo they were learned in.
+Claude Code and Codex plugins holding agent practices that survive leaving the repo they were learned in.
 
 Most agent setups rot the same way. A convention is discovered in one project, written into that
 project's `CLAUDE.md`, copied into the next project, edited locally, and within a year the three
@@ -11,7 +11,20 @@ copies contradict each other and nobody knows which is current. This plugin exis
 impossible: anything portable lives in the plugin and is updated once for every project at once,
 and anything repo-specific is scaffolded *into* the project, which then owns it outright.
 
-## Install
+## Install in Codex
+
+```bash
+codex plugin marketplace add vadimvitvickiy/vv-agent-kit
+codex plugin add vvkit@vv-agent-kit-codex
+codex plugin list --marketplace vv-agent-kit-codex --json
+```
+
+Start a new Codex session. These are native plugins, managed by Codex rather than
+copied into user skills. Invoke workflows such as `$vvkit-review` and
+`$vvkit-debugging-systematically`. The Swift pack is a separate plugin; see
+[codex/README.md](codex/README.md) for project scoping, updates and adaptation limits.
+
+## Install in Claude Code
 
 ```bash
 claude plugin marketplace add vadimvitvickiy/vv-agent-kit

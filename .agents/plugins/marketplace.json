@@ -1,0 +1,32 @@
+{
+  "name": "vv-agent-kit-codex",
+  "interface": {
+    "displayName": "Agent Kit for Codex"
+  },
+  "plugins": [
+    {
+      "name": "vvkit",
+      "source": {
+        "source": "local",
+        "path": "./codex/plugins/vvkit"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "vvkit-swift",
+      "source": {
+        "source": "local",
+        "path": "./codex/plugins/vvkit-swift"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "vvkit",
+  "version": "0.24.0",
+  "description": "Portable agent practices: design, planning, delegation, verification, debugging, review and testing discipline. Stack packs ship as separate plugins",
+  "author": {
+    "name": "vadimvitvickiy",
+    "url": "https://github.com/vadimvitvickiy"
+  },
+  "homepage": "https://github.com/vadimvitvickiy/vv-agent-kit",
+  "repository": "https://github.com/vadimvitvickiy/vv-agent-kit",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "workflow",
+    "testing",
+    "code-review",
+    "debugging"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent Kit",
+    "shortDescription": "Portable development workflows"
+  }
+}

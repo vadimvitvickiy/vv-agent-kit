@@ -1,5 +1,6 @@
 .DS_Store
-.agents/
+.agents/*
+!.agents/plugins/
 .claude/
 evals/results/
 __pycache__/
