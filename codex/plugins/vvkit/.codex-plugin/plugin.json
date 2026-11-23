@@ -1,6 +1,6 @@
 {
   "name": "vvkit",
-  "version": "0.24.0",
+  "version": "0.24.1",
   "description": "Portable agent practices: design, planning, delegation, verification, debugging, review and testing discipline. Stack packs ship as separate plugins",
   "author": {
     "name": "vadimvitvickiy",

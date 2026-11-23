@@ -53,8 +53,7 @@ Third person. Starts with `Use when`. **Triggering conditions only.**
 - A description that summarizes the procedure gets substituted for the body: the agent believes it
   has the rule and never opens the file. The superpowers plugin reports a description saying "code
   review between tasks" producing one review where the body required two.
-- Anthropic's examples pair what with when; this kit keeps triggers only, and its skills still fired
-  first in every run measured.
+- Anthropic's examples pair what with when; this kit keeps triggers only.
 
 ```yaml
 # No — narrates the workflow, so it becomes the workflow
@@ -103,7 +102,7 @@ description: Use when reading a diff or pull request for defects, or when acting
 The validator proves well-formed, not effective. A skill that changes nothing is pure listing cost.
 
 - `claude -p "<task>" --plugin-dir <repo> --output-format stream-json --verbose` loads an unpushed tree
-  and logs every `Skill` call. `claude plugin eval` runs a checked-in suite with a no-plugin baseline.
+  and logs every `Skill` call.
 - **Before writing:** give a fresh subagent the tempting task **without** the skill; record what it
   does and its reasons, verbatim. Already behaves: stop. Otherwise target those reasons, re-run with
   the skill, repeat until it complies.

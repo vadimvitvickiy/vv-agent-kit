@@ -112,9 +112,8 @@ Skills load on their own when the situation matches. You never have to name one.
 | `writing-project-instructions` | A `CLAUDE.md` is being edited, has grown long, or repeats an installed skill |
 | `writing-skills` | Authoring or editing a component of this plugin |
 
-**Go (`vvkit-go`) and Backend (`vvkit-backend`) — tooling, no skills.** Every skill candidate for them
-was dropped because Opus already did the job without it (see below). What they ship works whether or
-not the model is careful:
+**Go (`vvkit-go`) and Backend (`vvkit-backend`) — tooling, no skills.** They ship scripts,
+configuration and hooks:
 
 | Plugin | Ships |
 |-|-|
@@ -155,7 +154,7 @@ not the model is careful:
 | Hook | Event |
 |-|-|
 | `session-context` | Injects branch and working-tree state at session start |
-| `using-vvkit` | Injects which skill to load in which situation, at session start and after `/clear` or compaction. Without it, debugging, design and review requests loaded their skill in 1 of 9 test runs; with it, 9 of 9 |
+| `using-vvkit` | Injects which skill to load in which situation, at session start and after `/clear` or compaction |
 | `subagent-model-gate` | Refuses a subagent launch that names no `model`, which would inherit the session's. Never picks one itself. On by default; `KIT_SUBAGENT_MODEL_GATE=0` turns it off |
 | `test-gate` | Blocks the turn once per session when source changed after the last test run — **inert unless the project opts in** |
 | `swiftlint` (`vvkit-swift`) | Autocorrects an edited Swift file; surfaces only what it could not fix |
@@ -201,13 +200,8 @@ Adding a stack means adding a `plugins/<stack>/` plugin — its own manifest dec
 dependency, the skills that pair with the neutral tier, and its `pack.json` — plus a marketplace
 entry. Nothing about the neutral tier changes.
 
-A stack skill is only worth adding where a model gets the stack wrong without it. Go and backend
-work were evaluated for exactly this — three Opus runs per task with no skill: Go testing,
-concurrency, error handling and logging; a schema rename behind a mobile API, a dependency upgrade;
-fixing an applied migration, indexing a 120M-row table, a slow query from an EXPLAIN, and cleaning
-duplicate rows with a production URL in `.env`. Every run already did what a skill would have said,
-so `vvkit-go` and `vvkit-backend` ship tooling instead: scripts, config, and hooks for the failures
-that published incidents show happen anyway.
+A stack skill is only worth adding where a model gets the stack wrong without it.
+`vvkit-go` and `vvkit-backend` ship tooling instead: scripts, configuration and hooks.
 
 ## Layout
 
