@@ -30,6 +30,9 @@ jobs:
       - name: Shellcheck
         run: shellcheck --severity=warning hooks/*.sh plugins/*/hooks/*.sh scripts/*.sh plugins/*/templates/scripts/*.sh plugins/*/templates/scripts/lib/*.sh
 
+      - name: Swift script summary output
+        run: bash tests/swift-script-summary.sh
+
       - name: Hooks fail open on garbage input
         run: |
           status=0

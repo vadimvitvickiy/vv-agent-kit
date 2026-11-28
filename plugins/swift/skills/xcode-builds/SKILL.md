@@ -7,10 +7,15 @@ description: Use when building, compile-checking, running tests, driving a simul
 
 **REQUIRED BACKGROUND:** `vvkit:verifying-changes` — what to run and when. This covers how.
 
-**Always prefer the project's script.** `scripts/build.sh` / `scripts/test.sh` if present; none —
-generate them with `/vvkit:scripts`. A hand-written `xcodebuild` is usually slower by a large multiple
-for reasons invisible on the command line, and one that "works" often works by rebuilding everything.
-Never hand-write `xcrun` or `simctl` the project wraps.
+**Default to the project's scripts.** Use `scripts/build.sh` and `scripts/test.sh` for CI and
+verification that needs predictable logs or result bundles. Pass `--summary` if the scripts
+support it to see the result, failure diagnostics, and full log path. If the project lacks
+scripts, scaffold them with `/vvkit:scripts`.
+
+**Apple's Xcode MCP is an opt-in for repeated local builds and focused tests.** Use it when the
+project allows it and the session has access to the intended workspace. See
+[Apple's Xcode MCP](references/apple-xcode-mcp.md) for runner selection and verification.
+Use project wrappers for raw `xcodebuild`, `xcrun`, and `simctl` operations they already cover.
 
 ## Four traps in a hand-written invocation
 
@@ -38,7 +43,7 @@ dependency and reports success for the project. Pick the scheme named after the 
 
 ## Reading results
 
-- On failure read the bundle, not the log: `xcrun xcresulttool get --format json --path <path>.xcresult`.
+- Read test failures from the bundle with `xcrun xcresulttool get test-results summary --path <path>.xcresult`.
 - **A full disk does not look like one** — a `lipo` or linker failure, or a module "modified since the
   module file was built", with `database or disk is full` only at the end. `bash
   scripts/derived-data.sh` in this skill's directory reports data-volume free space (`df -h /` reads
@@ -55,7 +60,7 @@ dependency and reports success for the project. Pick the scheme named after the 
 - A hand-managed one: still never edit `project.pbxproj` as text. It is a graph of cross-referenced
   UUIDs; use a library that understands it.
 
-## Every tool that builds must share one cache
+## Keep build settings aligned when sharing DerivedData
 
 Tools that pick a build location bring the same defect silently — a second, cold cache nothing else
 reads. Bind them to Xcode's folder for the checkout before the first build; `scripts/setup-tooling.sh`
@@ -63,15 +68,16 @@ does both if the project has it.
 
 | Tool | Unbound behavior | Symptom |
 |-|-|-|
-| `xcodebuildmcp` | Builds into `~/Library/Developer/XcodeBuildMCP/workspaces/` | Every build cold; a second multi-GB cache — 3.53 GB measured on one checkout |
+| `xcodebuildmcp` | Builds into `~/Library/Developer/XcodeBuildMCP/workspaces/` | A separate cold cache on the first build — 3.53 GB of duplicate data measured on one checkout |
 | `xcodebuildmcp`, bound by `derivedDataPath` alone | Module and compilation caches move inside that folder | Every switch with Xcode or the scripts recompiles the whole project |
 | `sourcekit-lsp` | Falls back to a macOS target | `No such module 'UIKit'` on every file in an iOS framework |
 
 - For sourcekit-lsp, `xcode-build-server config` binds the scheme and `xcode-build-server parse`
   supplies flags — **both**. Command-line `xcodebuild` never writes the `.xcactivitylog` the server
   watches, so a bare `config` fails over to macOS silently.
-- Bound correctly, switching tools compiles nothing, but IDE ↔ command line still relinks and re-signs
-  — the linker's `PATH` is in its signature. Seconds, not a rebuild; leave it.
+- With the five cache settings in [XcodeBuildMCP](references/xcodebuildmcp.md), measured switches
+  recompiled no files. IDE and command-line switches can still relink and re-sign because the
+  linker's `PATH` is in its signature. Measure switches involving Apple's Xcode MCP separately.
 - **Removing a worktree orphans its DerivedData** — 25–30 GB per built worktree. After `git worktree
   remove`: `bash scripts/derived-data.sh --delete <removed-path>` from this skill's directory, and
   `xcodebuildmcp purge --dry-run`. `--delete-orphans` sweeps every removed checkout's folder — ask

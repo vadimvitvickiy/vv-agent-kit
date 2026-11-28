@@ -288,7 +288,15 @@ kit_timeout() {
 kit_run_logged() {
   local log="$1"; shift
   mkdir -p "$(dirname "$log")"
+  if [ "${KIT_XCODE_SUMMARY:-0}" -eq 1 ]; then
+    "$@" >"$log" 2>&1
+    return $?
+  fi
   set -o pipefail
   "$@" 2>&1 | tee "$log" | "$(kit_formatter)"
   return "${PIPESTATUS[0]}"
+}
+
+kit_log_errors() {
+  grep -E 'error:|recorded an issue' "$1" | sort -u | head -20 >&2
 }

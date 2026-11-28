@@ -6,13 +6,15 @@
 # Never cleans. Correctness comes from the build system reading sources on disk
 # every run; a clean only throws away the cache that makes this fast.
 #
-# Usage: scripts/build.sh [--scheme NAME] [--device] [--isolated]
+# Usage: scripts/build.sh [--scheme NAME] [--device] [--isolated] [--summary]
+# --summary prints the result, failure diagnostics, and the full log path.
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 . "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh"
 
 SCHEME=""
 USE_DEVICE=0
+SUMMARY=0
 TIMEOUT="${KIT_BUILD_TIMEOUT:-1800}"
 
 while [ $# -gt 0 ]; do
@@ -20,7 +22,8 @@ while [ $# -gt 0 ]; do
     --scheme)   SCHEME="$2"; shift 2 ;;
     --device)   USE_DEVICE=1; shift ;;
     --isolated) KIT_DERIVED_DATA="${KIT_DERIVED_DATA:-.build/derived-data}"; export KIT_DERIVED_DATA; shift ;;
-    -h|--help)  sed -n '2,9p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    --summary)  SUMMARY=1; shift ;;
+    -h|--help)  sed -n '2,10p' "${BASH_SOURCE[0]}"; exit 0 ;;
     *)          kit_die "unknown argument: $1" ;;
   esac
 done
@@ -63,7 +66,7 @@ kit_resolve_packages_if_stale "${PROJECT_ARGS[@]}"
 LOG="$KIT_LOG_ROOT/build-logs/${SCHEME// /_}.log"
 printf 'Building %s for %s\n' "$SCHEME" "$DESTINATION"
 
-kit_run_logged "$LOG" \
+KIT_XCODE_SUMMARY="$SUMMARY" kit_run_logged "$LOG" \
   kit_timeout "$TIMEOUT" xcodebuild \
     "${PROJECT_ARGS[@]}" \
     -scheme "$SCHEME" \
@@ -76,7 +79,7 @@ ELAPSED="$(kit_elapsed "$(( $(kit_now) - START ))")"
 
 if [ "$STATUS" -ne 0 ]; then
   printf '\nBUILD FAILED (%s) — see %s\n' "$ELAPSED" "$LOG" >&2
-  grep -E '(error|fatal error):' "$LOG" | sort -u | head -20 >&2
+  kit_log_errors "$LOG"
   exit "$STATUS"
 fi
 

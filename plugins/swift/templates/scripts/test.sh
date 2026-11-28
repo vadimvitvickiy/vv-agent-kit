@@ -8,7 +8,8 @@
 # tell whether the code you changed has actually been tested. Remove the logging
 # and the gate silently starts lying.
 #
-# Usage: scripts/test.sh [--scheme NAME] [--only-testing ID]... [--isolated]
+# Usage: scripts/test.sh [--scheme NAME] [--only-testing ID]... [--isolated] [--summary]
+# --summary prints the result, failure diagnostics, and the full log path.
 #
 # KIT_TEST_SCHEME overrides the scheme for tests only, leaving build.sh alone.
 set -uo pipefail
@@ -17,6 +18,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 SCHEME=""
 ONLY=()
+SUMMARY=0
 TIMEOUT="${KIT_TEST_TIMEOUT:-900}"
 
 while [ $# -gt 0 ]; do
@@ -24,7 +26,8 @@ while [ $# -gt 0 ]; do
     --scheme)       SCHEME="$2"; shift 2 ;;
     --only-testing) ONLY+=("-only-testing" "$2"); shift 2 ;;
     --isolated)     KIT_DERIVED_DATA="${KIT_DERIVED_DATA:-.build/derived-data}"; export KIT_DERIVED_DATA; shift ;;
-    -h|--help)      sed -n '2,12p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    --summary)      SUMMARY=1; shift ;;
+    -h|--help)      sed -n '2,13p' "${BASH_SOURCE[0]}"; exit 0 ;;
     *)              kit_die "unknown argument: $1" ;;
   esac
 done
@@ -72,7 +75,7 @@ kit_resolve_packages_if_stale "${PROJECT_ARGS[@]}"
 # versus 14s per invocation on a large project. Falls back to a single-phase run
 # when the .xctestrun cannot be located.
 printf 'Building tests for %s\n' "$SCHEME"
-kit_run_logged "$LOG_DIR/$SAFE.build.log" \
+KIT_XCODE_SUMMARY="$SUMMARY" kit_run_logged "$LOG_DIR/$SAFE.build.log" \
   kit_timeout "$TIMEOUT" xcodebuild \
     "${PROJECT_ARGS[@]}" -scheme "$SCHEME" -destination "$DESTINATION" \
     "${FLAGS[@]}" build-for-testing
@@ -80,7 +83,7 @@ BUILD_STATUS=$?
 
 if [ "$BUILD_STATUS" -ne 0 ]; then
   printf '\nTEST BUILD FAILED — see %s\n' "$LOG_DIR/$SAFE.build.log" >&2
-  grep -E '(error|fatal error):' "$LOG_DIR/$SAFE.build.log" | sort -u | head -20 >&2
+  kit_log_errors "$LOG_DIR/$SAFE.build.log"
   exit "$BUILD_STATUS"
 fi
 
@@ -112,7 +115,7 @@ if [ -n "$XCTESTRUN" ]; then
   # This does not contradict the "omit -derivedDataPath" rule in lib/common.sh:
   # that rule protects the *build* cache from being split, and nothing compiles
   # in this phase.
-  kit_run_logged "$LOG" \
+  KIT_XCODE_SUMMARY="$SUMMARY" kit_run_logged "$LOG" \
     kit_timeout "$TIMEOUT" xcodebuild \
       -xctestrun "$XCTESTRUN" -destination "$DESTINATION" \
       -derivedDataPath "${XCTESTRUN%%/Build/Products/*}" \
@@ -121,7 +124,7 @@ if [ -n "$XCTESTRUN" ]; then
       test-without-building
 else
   kit_warn "no .xctestrun located — falling back to a single-phase run (slower)"
-  kit_run_logged "$LOG" \
+  KIT_XCODE_SUMMARY="$SUMMARY" kit_run_logged "$LOG" \
     kit_timeout "$TIMEOUT" xcodebuild \
       "${PROJECT_ARGS[@]}" -scheme "$SCHEME" -destination "$DESTINATION" \
       "${FLAGS[@]}" -resultBundlePath "$RESULT" \
@@ -135,11 +138,11 @@ STATUS=$?
 # the number of bundles in the run — a scheme with two test targets prints one
 # summary line per target, and there is no reliable way to tell those apart from
 # a per-suite line by grepping.
-TOTAL=""
-if command -v xcrun >/dev/null 2>&1 && [ -d "$RESULT" ]; then
-  TOTAL="$(xcrun xcresulttool get test-results summary --path "$RESULT" --format json 2>/dev/null \
-    | awk -F'[:,]' '/"totalTestCount"/{gsub(/[^0-9]/,"",$2); print $2; exit}')"
+TEST_SUMMARY=""
+if [ -d "$RESULT" ]; then
+  TEST_SUMMARY="$(xcrun xcresulttool get test-results summary --path "$RESULT" 2>/dev/null)" || TEST_SUMMARY=""
 fi
+TOTAL="$(awk -F'[:,]' '/^[[:space:]]*"totalTestCount"[[:space:]]*:/{gsub(/[^0-9]/,"",$2); print $2; exit}' <<< "$TEST_SUMMARY")"
 
 # Fallback for a run that produced no bundle. Counts come from the RAW log, never
 # the formatter: xcpretty silently drops all Swift Testing output. Summed, not
@@ -165,9 +168,11 @@ if [ "$STATUS" -ne 0 ]; then
   cp "$LOG" "$KEEP/" 2>/dev/null
   cp -R "$RESULT" "$KEEP/" 2>/dev/null
   printf '\nTESTS FAILED (%s, %s tests) — preserved in %s\n' "$ELAPSED" "$TOTAL" "$KEEP" >&2
-  if command -v xcrun >/dev/null 2>&1 && [ -d "$RESULT" ]; then
-    xcrun xcresulttool get test-results summary --path "$RESULT" --format json 2>/dev/null \
-      | grep -oE '"(title|failureText)"[^,]*' | head -20 >&2
+  DIAGNOSTICS="$(grep -E '^[[:space:]]*"failureText"[[:space:]]*:' <<< "$TEST_SUMMARY" | head -20)"
+  if [ -n "$DIAGNOSTICS" ]; then
+    printf '%s\n' "$DIAGNOSTICS" >&2
+  elif [ "$SUMMARY" -eq 1 ]; then
+    kit_log_errors "$LOG"
   fi
   exit "$STATUS"
 fi
