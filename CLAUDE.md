@@ -47,18 +47,18 @@ template instead.
 
 ## Development loop
 
-Installing copies the repo into `~/.claude/plugins/cache/vv-agent-kit/vvkit/<version>/`. **Edits to this
-working tree are not live.** After changing anything:
+Complete this loop after every change in this repository:
 
-```bash
-./scripts/validate.sh
-claude plugin marketplace update vv-agent-kit
-claude plugin details vvkit          # confirm the component inventory changed
-```
-
-`claude plugin details vvkit` is the real smoke test — it reports what Claude Code actually discovered,
-not what you think you wrote. It caught a silently inert `hooks/` directory during initial
-development.
+1. Bump the version for each plugin whose shipped content changed. Regenerate the Codex packages
+   with `python3 scripts/build-codex.py` when their sources change.
+2. Run the pre-commit validation above and the relevant tests, then commit and push.
+3. Refresh the local Claude marketplace with `claude plugin marketplace update vv-agent-kit` and
+   update the installed kit plugins with `claude plugin update <name>@vv-agent-kit`.
+4. Refresh the local Codex marketplace and each installed kit plugin using the
+   [Codex update commands](codex/README.md#development-and-updates). Preserve each plugin's
+   scope and enabled state when updating either client.
+5. Verify the installed versions with `claude plugin list` and
+   `codex plugin list --marketplace vv-agent-kit-codex --json`.
 
 ## Hooks
 
