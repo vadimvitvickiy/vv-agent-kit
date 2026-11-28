@@ -88,7 +88,7 @@ if [ "$BUILD_STATUS" -ne 0 ]; then
 fi
 
 BUILD_DIR="$(xcodebuild "${PROJECT_ARGS[@]}" -scheme "$SCHEME" -destination "$DESTINATION" \
-  -showBuildSettings 2>/dev/null | awk -F' = ' '/ BUILD_DIR = /{print $2; exit}')"
+  "${FLAGS[@]}" -showBuildSettings 2>/dev/null | awk -F' = ' '/ BUILD_DIR = /{print $2; exit}')"
 # The products directory is SHARED across schemes, so it accumulates one .xctestrun per scheme
 # ever built. Matching anything other than this scheme's own file silently runs a different
 # target's tests and reports them as this scheme's — a green run that tested the wrong code.

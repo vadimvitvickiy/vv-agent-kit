@@ -12,20 +12,40 @@ export PATH="$fixture/bin:$PATH"
 export TMPDIR="$fixture/tmp"
 export KIT_SIM=00000000-0000-0000-0000-000000000001
 export KIT_LOG_ROOT="$fixture/logs"
+unset KIT_DERIVED_DATA
 touch "$TMPDIR/.kit-xcode-defaults"
 
 cat > bin/xcodebuild <<'SH'
 #!/usr/bin/env bash
 result_bundle=""
+derived_data="$PWD/default-build"
+xctestrun=""
 previous=""
 for arg; do
-  [ "$previous" != -resultBundlePath ] || result_bundle="$arg"
+  case "$previous" in
+    -resultBundlePath) result_bundle="$arg" ;;
+    -derivedDataPath) derived_data="$arg" ;;
+    -xctestrun) xctestrun="$arg" ;;
+  esac
   case "$arg" in
-    -resolvePackageDependencies|-showBuildSettings) exit 0 ;;
-    build|build-for-testing|test) action="$arg" ;;
+    -resolvePackageDependencies) exit 0 ;;
+    build|build-for-testing|test|test-without-building|-showBuildSettings) action="$arg" ;;
   esac
   previous="$arg"
 done
+case "$derived_data" in
+  /*) ;;
+  *) derived_data="$PWD/$derived_data" ;;
+esac
+products="$derived_data/Build/Products"
+if [ "$action" = -showBuildSettings ]; then
+  printf '    BUILD_DIR = %s\n' "$products"
+  exit 0
+fi
+if [ "$action" = build-for-testing ] && [ "${FIXTURE_TEST_PRODUCTS:-}" = 1 ]; then
+  mkdir -p "$products"
+  touch "$products/Fixture_current.xctestrun"
+fi
 printf 'verbose %s output\n' "$action"
 if [ "$action" = "${FIXTURE_FAIL_ACTION:-}" ]; then
   if [ "$action" = test ]; then
@@ -38,10 +58,24 @@ if [ "$action" = "${FIXTURE_FAIL_ACTION:-}" ]; then
   fi
   exit 65
 fi
-if [ "$action" = test ]; then
+if [ "$action" = test-without-building ]; then
+  printf 'Replayed %s\n' "$xctestrun"
+fi
+if [ "$action" = test ] || [ "$action" = test-without-building ]; then
   printf 'Test run with 1 test passed\n'
 fi
 SH
+# The template uses BSD stat to order test products. Translate that call on GNU hosts.
+if stat -c '%Y' . >/dev/null 2>&1; then
+  cat > bin/stat <<'SH'
+#!/usr/bin/env bash
+if [ "$1" = -f ] && [ "$2" = '%m %N' ]; then
+  shift 2
+  exec /usr/bin/stat -c '%Y %n' -- "$@"
+fi
+exec /usr/bin/stat "$@"
+SH
+fi
 cat > bin/xcrun <<'SH'
 #!/usr/bin/env bash
 [ "$1" = xcresulttool ] || exit 0
@@ -112,4 +146,10 @@ omits_verbose_output
 contains 'Expected A, got B' console.log
 contains '1 tests)' console.log
 
-printf 'Swift script summary checks passed\n'
+mkdir -p default-build/Build/Products
+touch default-build/Build/Products/Fixture_stale.xctestrun
+FIXTURE_TEST_PRODUCTS=1 run 0 scripts/test.sh --isolated --summary
+contains "Replayed $PWD/.build/derived-data/Build/Products/Fixture_current.xctestrun" \
+  "$KIT_LOG_ROOT/test-runs/Fixture.log"
+
+printf 'Swift script summary and isolated test checks passed\n'
